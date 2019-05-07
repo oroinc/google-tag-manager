@@ -1,0 +1,36 @@
+services:
+    oro_google_tag_manager.data_layer.manager:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager'
+        public: false
+        arguments:
+            - '@session'
+            - ~ # collectors
+
+    oro_google_tag_manager.provider.google_tag_manager_settings:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider'
+        public: false
+        arguments:
+            - '@doctrine'
+            - '@oro_config.manager'
+
+    oro_google_tag_manager.provider.page_type:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider'
+        public: false
+        arguments:
+            - ~ # page type guessers
+
+    oro_google_tag_manager.page_type_guesser.by_request_route:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserByRequestRoute'
+        public: false
+        arguments:
+            - '@request_stack'
+            -
+                oro_frontend_root': 'home'
+                oro_product_frontend_product_index: 'category'
+                oro_product_frontend_product_view: 'product'
+                oro_shopping_list_frontend_view: 'basket'
+                oro_sale_quote_frontend_view: 'basket'
+                oro_checkout_frontend_checkout: 'checkout'
+                oro_product_frontend_product_search: 'search'
+        tags:
+            - { name: oro_google_tag_manager.page_type_guesser, priority: 100 }

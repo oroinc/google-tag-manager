@@ -1,0 +1,51 @@
+system_configuration:
+    groups:
+        google_tag_manager_settings:
+            title: 'oro.google_tag_manager.system_configuration.groups.settings.label'
+
+    fields:
+        oro_google_tag_manager.integration:
+            data_type: integer
+            type: 'Oro\Bundle\IntegrationBundle\Form\Type\ConfigIntegrationSelectType'
+            options:
+                label: 'oro.google_tag_manager.system_configuration.fields.integration.label'
+                required: false
+                allowed_types:
+                    - oro_google_tag_manager
+
+    tree:
+        system_configuration:
+            platform:
+                children:
+                    integrations:
+                        children:
+                            google_settings:
+                                children:
+                                    google_tag_manager_settings:
+                                        priority: 0
+                                        children:
+                                            - oro_google_tag_manager.integration
+
+        organization_configuration:
+            platform:
+                children:
+                    integrations:
+                        children:
+                            google_settings:
+                                children:
+                                    google_tag_manager_settings:
+                                        priority: 0
+                                        children:
+                                            - oro_google_tag_manager.integration
+
+        website_configuration:
+            platform:
+                children:
+                    integrations:
+                        children:
+                            google_settings:
+                                children:
+                                    google_tag_manager_settings:
+                                        priority: 0
+                                        children:
+                                            - oro_google_tag_manager.integration

@@ -1,0 +1,18 @@
+parameters:
+    oro_google_tag_manager.data_layer.variable_name: 'dataLayer'
+
+services:
+    oro_google_tag_manager.layout.data_provider.google_tag_manager_settings:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\IntegrationSettingsProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        tags:
+            - { name: layout.data_provider, alias: 'oro_google_tag_manager_settings' }
+
+    oro_google_tag_manager.layout.data_provider.data_layer_settings:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\DataLayerProvider'
+        arguments:
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '%oro_google_tag_manager.data_layer.variable_name%'
+        tags:
+            - { name: layout.data_provider, alias: 'oro_google_tag_manager_data_layer' }

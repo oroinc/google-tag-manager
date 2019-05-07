@@ -1,0 +1,7 @@
+services:
+    oro_google_tag_manager.form.type.settings:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Form\Type\GoogleTagManagerSettingsType'
+        arguments:
+            - '@oro_google_tag_manager.integration.transport'
+        tags:
+            - { name: form.type }

@@ -1,0 +1,4 @@
+config:
+    paths:
+        'orogoogletagmanager/js/app/components/data-layer-manager-component': 'bundles/orogoogletagmanager/js/app/components/data-layer-manager-component.js'
+        'orogoogletagmanager/js/app/handlers/checkout-handler': 'bundles/orogoogletagmanager/js/app/handlers/checkout-handler.js'

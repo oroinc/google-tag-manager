@@ -1,0 +1,15 @@
+oro.google_tag_manager:
+    settings:
+        container_id:
+            label: 'Container Id'
+            description: 'Google Tag Manager container ID, formatted as "GTM-XXXXXX". <a href="https://developers.google.com/tag-manager/quickstart" target="_blank">Find more</a>'
+    integration:
+        channel.label: 'Google Tag Manager'
+        transport.label: 'Google Tag Manager Transport'
+    system_configuration:
+        groups:
+            settings:
+                label: 'Google Tag Manager Settings'
+        fields:
+            integration:
+                label: 'Google Tag Manager Integration'
