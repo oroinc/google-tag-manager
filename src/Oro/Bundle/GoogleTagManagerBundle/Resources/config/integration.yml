@@ -1,0 +1,10 @@
+services:
+    oro_google_tag_manager.integration.channel:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Integration\GoogleTagManagerChannel'
+        tags:
+            - { name: oro_integration.channel, type: oro_google_tag_manager }
+
+    oro_google_tag_manager.integration.transport:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Integration\GoogleTagManagerTransport'
+        tags:
+            - { name: oro_integration.transport, channel_type: oro_google_tag_manager, type: ui }

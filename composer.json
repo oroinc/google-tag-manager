@@ -1,0 +1,38 @@
+{
+    "name": "oro/google-tag-manager-bundle",
+    "description": "Oro Google Tag Manager integration",
+    "type": "symfony-bundle",
+    "keywords": ["Oro", "Google", "Tag", "Manager", "Integration"],
+    "homepage": "https://github.com/oroinc/google-tag-manager-bundle",
+    "license": "OSL-3.0",
+    "authors": [
+        {
+            "name": "Oro, Inc",
+            "homepage": "http://www.oroinc.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Oro\\Bundle\\GoogleTagManagerBundle\\": "src/Oro/Bundle/GoogleTagManagerBundle"},
+        "exclude-from-classmap": ["/Tests/"]
+    },
+    "require": {
+        "oro/commerce": "3.1.*"
+    },
+    "repositories": {
+        "oro": {
+            "type": "composer",
+            "url": "https://packagist.orocrm.com"
+        },
+        "asset-packagist": {
+            "type": "composer",
+            "url": "https://asset-packagist.orocrm.com"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.1-dev"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+services:
+    oro_google_tag_manager.data_layer.collector.page_variables:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\PageVariablesCollector'
+        public: false
+        arguments:
+            - '@oro_google_tag_manager.provider.page_type'
+        tags:
+            - { name: oro_google_tag_manager.data_layer.collector }
+
+    oro_google_tag_manager.data_layer.collector.user_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\UserDetailCollector'
+        public: false
+        arguments:
+            - '@oro_security.token_accessor'
+        tags:
+            - { name: oro_google_tag_manager.data_layer.collector }

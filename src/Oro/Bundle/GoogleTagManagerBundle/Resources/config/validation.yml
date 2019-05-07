@@ -1,0 +1,6 @@
+Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings:
+    properties:
+        containerId:
+            - NotBlank: ~
+            - Length:
+                max: 30

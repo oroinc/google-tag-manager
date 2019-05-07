@@ -1,0 +1,28 @@
+{% block _google_tag_manager_head_widget %}
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','{{ data_layer_name }}','{{ container_id }}');</script>
+    <!-- End Google Tag Manager -->
+{% endblock %}
+
+{% block _google_tag_manager_data_layer_widget %}
+    <script>
+        var {{ data_layer_name }} = {{ data_layer_data|json_encode|raw }}
+    </script>
+{% endblock %}
+
+{% block _google_tag_manager_body_widget %}
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ container_id|trim }}"
+                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div
+        data-page-component-module="orogoogletagmanager/js/app/components/data-layer-manager-component"
+        data-page-component-options="{{ {'dataLayerName': data_layer_name}|json_encode }}"
+    >
+    </div>
+{% endblock %}
