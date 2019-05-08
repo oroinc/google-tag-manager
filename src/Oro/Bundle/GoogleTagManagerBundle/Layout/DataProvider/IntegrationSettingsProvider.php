@@ -6,7 +6,7 @@ use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 
 /**
- * Layout data provider for integration settings..
+ * Layout data provider for integration settings.
  */
 class IntegrationSettingsProvider
 {

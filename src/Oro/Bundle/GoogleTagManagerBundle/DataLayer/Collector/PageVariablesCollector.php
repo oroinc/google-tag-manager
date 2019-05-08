@@ -2,7 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider;
 
 /**
@@ -26,7 +26,7 @@ class PageVariablesCollector implements CollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ArrayCollection $data): void
+    public function handle(Collection $data): void
     {
         $data->add(
             [

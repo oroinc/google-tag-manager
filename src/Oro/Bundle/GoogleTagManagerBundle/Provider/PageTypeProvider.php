@@ -4,19 +4,22 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider;
 
 use Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserInterface;
 
+/**
+ * Provides page type.
+ */
 class PageTypeProvider
 {
     /**
-     * @var array PageTypeGuesserInterface[]
+     * @var array|PageTypeGuesserInterface[]
      */
-    private $guessers = [];
+    private $guessers;
 
     /**
-     * @param PageTypeGuesserInterface $guesser
+     * @param array|PageTypeGuesserInterface[] $guessers
      */
-    public function addGuesser(PageTypeGuesserInterface $guesser): void
+    public function __construct(array $guessers = [])
     {
-        $this->guessers[] = $guesser;
+        $this->guessers = $guessers;
     }
 
     /**

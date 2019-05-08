@@ -21,22 +21,16 @@ class DataLayerManager
     /**
      * @var array|CollectorInterface[]
      */
-    protected $collectors = [];
+    protected $collectors;
 
     /**
      * @param SessionInterface $session
+     * @param array|CollectorInterface[] $collectors
      */
-    public function __construct(SessionInterface $session)
+    public function __construct(SessionInterface $session, array $collectors = [])
     {
         $this->session = $session;
-    }
-
-    /**
-     * @param CollectorInterface $collector
-     */
-    public function addCollector(CollectorInterface $collector): void
-    {
-        $this->collectors[] = $collector;
+        $this->collectors = $collectors;
     }
 
     /**

@@ -8,6 +8,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * GoogleTagManager integration settings form type.
+ */
 class GoogleTagManagerSettingsType extends AbstractType
 {
     /**

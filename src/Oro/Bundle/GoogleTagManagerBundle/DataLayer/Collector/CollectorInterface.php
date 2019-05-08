@@ -2,7 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Interface for the data layer collector.
@@ -10,8 +10,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 interface CollectorInterface
 {
     /**
-     * @param ArrayCollection $data
+     * @param Collection $data
      * @return void
      */
-    public function handle(ArrayCollection $data): void;
+    public function handle(Collection $data): void;
 }

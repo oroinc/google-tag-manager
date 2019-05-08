@@ -4,6 +4,9 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider\PageType;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * Returns page type based on the current request.
+ */
 class PageTypeGuesserByRequestRoute implements PageTypeGuesserInterface
 {
     /**
@@ -39,6 +42,8 @@ class PageTypeGuesserByRequestRoute implements PageTypeGuesserInterface
      */
     private function getRouteName(): ?string
     {
-        return $this->requestStack->getCurrentRequest()->attributes->get('_route');
+        $request = $this->requestStack->getCurrentRequest();
+
+        return $request ? $request->attributes->get('_route') : null;
     }
 }

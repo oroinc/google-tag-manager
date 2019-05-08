@@ -7,12 +7,12 @@ use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Registers all collector of data layer data.
+ * Registers all page type guessers.
  */
-class CollectorCompilerPass implements CompilerPassInterface
+class PageTypeGuesserCompilerPass implements CompilerPassInterface
 {
-    private const SERVICE_ID = 'oro_google_tag_manager.data_layer.manager';
-    private const TAG_NAME = 'oro_google_tag_manager.data_layer.collector';
+    private const SERVICE_ID = 'oro_google_tag_manager.provider.page_type';
+    private const TAG_NAME = 'oro_google_tag_manager.page_type_guesser';
 
     use PriorityTaggedServiceTrait;
 
@@ -26,6 +26,6 @@ class CollectorCompilerPass implements CompilerPassInterface
         }
 
         $container->getDefinition(self::SERVICE_ID)
-            ->replaceArgument(1, $this->findAndSortTaggedServices(self::TAG_NAME, $container));
+            ->replaceArgument(0, $this->findAndSortTaggedServices(self::TAG_NAME, $container));
     }
 }

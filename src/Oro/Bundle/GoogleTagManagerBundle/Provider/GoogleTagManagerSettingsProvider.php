@@ -10,6 +10,9 @@ use Oro\Bundle\IntegrationBundle\Entity\Repository\ChannelRepository;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
 
+/**
+ * Provides integration settings based on the configuration for current scope.
+ */
 class GoogleTagManagerSettingsProvider implements GoogleTagManagerSettingsProviderInterface
 {
     /**

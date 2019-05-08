@@ -5,6 +5,9 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Integration;
 use Oro\Bundle\IntegrationBundle\Provider\ChannelInterface;
 use Oro\Bundle\IntegrationBundle\Provider\IconAwareIntegrationInterface;
 
+/**
+ * GoogleTagManager integration channel.
+ */
 class GoogleTagManagerChannel implements ChannelInterface, IconAwareIntegrationInterface
 {
     /**

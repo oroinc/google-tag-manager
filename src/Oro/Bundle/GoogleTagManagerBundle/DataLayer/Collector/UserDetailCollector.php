@@ -2,7 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\SecurityBundle\Authentication\TokenAccessorInterface;
@@ -30,11 +30,11 @@ class UserDetailCollector implements CollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(ArrayCollection $data): void
+    public function handle(Collection $data): void
     {
         $user = $this->tokenAccessor->getUser();
 
-        $data->add($user instanceof CustomerUser ? $this->getDataForCustomer($user) : $this->getDataForNotCustomer());
+        $data->add($user instanceof CustomerUser ? $this->getDataForCustomer($user) : $this->getDataForVisitor());
     }
 
     /**
@@ -62,7 +62,7 @@ class UserDetailCollector implements CollectorInterface
      *
      * @return array
      */
-    protected function getDataForNotCustomer(): array
+    protected function getDataForVisitor(): array
     {
         return [
             DataLayerAttributeBag::KEY_USER_TYPE => DataLayerAttributeBag::VALUE_USER_TYPE_VISITOR

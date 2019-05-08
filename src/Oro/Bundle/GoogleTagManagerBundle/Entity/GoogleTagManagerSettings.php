@@ -50,7 +50,7 @@ class GoogleTagManagerSettings extends Transport
      */
     public function getSettingsBag(): ParameterBag
     {
-        if ($this->settings) {
+        if (!$this->settings) {
             $this->settings = new ParameterBag(
                 [
                     'container_id' => $this->getContainerId(),

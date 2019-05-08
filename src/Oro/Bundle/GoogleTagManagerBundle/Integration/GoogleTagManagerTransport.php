@@ -7,6 +7,9 @@ use Oro\Bundle\GoogleTagManagerBundle\Form\Type\GoogleTagManagerSettingsType;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\IntegrationBundle\Provider\TransportInterface;
 
+/**
+ * GoogleTagManager integration transport.
+ */
 class GoogleTagManagerTransport implements TransportInterface
 {
     /**
