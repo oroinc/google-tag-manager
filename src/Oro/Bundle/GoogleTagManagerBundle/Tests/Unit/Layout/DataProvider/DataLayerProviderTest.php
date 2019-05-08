@@ -93,7 +93,8 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
                     [
                         'key1' => 'value1',
                         'key2' => '',
-                        'key3' => null
+                        'key3' => null,
+                        'key4' => [],
                     ]
                 ],
                 'expected' => [
@@ -102,7 +103,6 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
                     ],
                     [
                         'key1' => 'value1',
-                        'key2' => '',
                     ]
                 ]
             ],

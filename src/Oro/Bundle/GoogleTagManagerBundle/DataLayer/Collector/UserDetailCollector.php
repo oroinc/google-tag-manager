@@ -3,11 +3,9 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector;
 
 use Doctrine\Common\Collections\Collection;
-use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
-use Oro\Bundle\SecurityBundle\Authentication\TokenAccessorInterface;
-use Oro\Bundle\UserBundle\Entity\User;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\ConstantBag\DataLayerAttributeBag;
+use Oro\Bundle\SecurityBundle\Authentication\TokenAccessorInterface;
 
 /**
  * Adds customer user data for data layer.
@@ -38,65 +36,35 @@ class UserDetailCollector implements CollectorInterface
     }
 
     /**
-     * Gets data for customer.
-     *
      * @param CustomerUser $customerUser
      * @return array
      */
-    protected function getDataForCustomer(CustomerUser $customerUser): array
+    private function getDataForCustomer(CustomerUser $customerUser): array
     {
-        $customer = $customerUser->getCustomer();
-        $firstSalesRepresentativeName = $this->getFirstSalesRepresentativeName($customerUser);
-
-        return [
+        $data = [
             DataLayerAttributeBag::KEY_USER_TYPE => DataLayerAttributeBag::VALUE_USER_TYPE_CUSTOMER_USER,
-            DataLayerAttributeBag::KEY_USER_GROUP => $this->getCustomerGroupName($customer),
-//            DataLayerAttributeBag::KEY_CUSTOMER_ID => (string) $customer->getId(),
             DataLayerAttributeBag::KEY_CUSTOMER_USER_ID => (string) $customerUser->getId(),
-//            LocalizationID
         ];
-    }
 
-    /**
-     * Gets data for not customer user.
-     *
-     * @return array
-     */
-    protected function getDataForVisitor(): array
-    {
-        return [
-            DataLayerAttributeBag::KEY_USER_TYPE => DataLayerAttributeBag::VALUE_USER_TYPE_VISITOR
-        ];
-    }
+        $customer = $customerUser->getCustomer();
+        if ($customer) {
+            $data[DataLayerAttributeBag::KEY_CUSTOMER_ID] = (string) $customer->getId();
 
-    /**
-     * @param Customer|null $customer
-     * @return null|string
-     */
-    private function getCustomerGroupName(?Customer $customer): ?string
-    {
-        $group = $customer ? $customer->getGroup() : null;
-
-        return $group ? $group->getName() : null;
-    }
-
-    /**
-     * Gets first from Customer Assigned Sales Representatives.
-     *
-     * @param CustomerUser $customerUser
-     * @return null|string
-     */
-    private function getFirstSalesRepresentativeName(CustomerUser $customerUser): ?string
-    {
-        $salesRepresentatives = $customerUser->getSalesRepresentatives();
-
-        if ($salesRepresentatives->isEmpty()) {
-            return null;
+            if ($customer->getGroup()) {
+                $data[DataLayerAttributeBag::KEY_CUSTOMER_GROUP] = $customer->getGroup()->getName();
+            }
         }
 
-        /** @var User $firstSalesRepresentative */
-        $firstSalesRepresentative = $salesRepresentatives->first();
+        return $data;
+    }
 
-        return $firstSalesRepresentative->getFullName();
+    /**
+     * @return array
+     */
+    private function getDataForVisitor(): array
+    {
+        return [
+            DataLayerAttributeBag::KEY_USER_TYPE => DataLayerAttributeBag::VALUE_USER_TYPE_VISITOR,
+        ];
     }
 }

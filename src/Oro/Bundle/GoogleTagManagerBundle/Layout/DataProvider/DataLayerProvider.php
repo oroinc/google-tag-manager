@@ -63,12 +63,7 @@ class DataLayerProvider
     private function filterEmptyData(array $config): array
     {
         foreach ($config as $configItems) {
-            $resultConfigItems = array_filter(
-                $configItems,
-                static function ($configItem) {
-                    return $configItem !== null;
-                }
-            );
+            $resultConfigItems = array_filter($configItems);
 
             if ($resultConfigItems) {
                 $resultConfig[] = $resultConfigItems;
