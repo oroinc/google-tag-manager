@@ -4,6 +4,7 @@ services:
         public: false
         arguments:
             - '@oro_google_tag_manager.provider.page_type'
+            - '@oro_locale.helper.localization'
         tags:
             - { name: oro_google_tag_manager.data_layer.collector }
 
