@@ -1,0 +1,44 @@
+{% block _featured_products_list_gtm_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class': ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/products-embedded-list-gtm-component',
+        'data-page-component-options': {
+            'relatedSiblingComponents': {
+                'embeddedListComponent': 'featured-products-list'
+            },
+            'blockName': 'featured-products'
+        }
+
+    }) %}
+    <div {{ block('block_attributes') }}></div>
+{% endblock %}
+
+{% block _new_arrivals_list_gtm_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class': ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/products-embedded-list-gtm-component',
+        'data-page-component-options': {
+            'relatedSiblingComponents': {
+                'embeddedListComponent': 'new-arrivals-list'
+            },
+            'blockName': 'new-arrivals'
+        }
+
+    }) %}
+    <div {{ block('block_attributes') }}></div>
+{% endblock %}
+
+{% block _top_selling_list_gtm_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class': ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/products-embedded-list-gtm-component',
+        'data-page-component-options': {
+            'relatedSiblingComponents': {
+                'embeddedListComponent': 'top-selling-list'
+            },
+            'blockName': 'top-selling'
+        }
+
+    }) %}
+    <div {{ block('block_attributes') }}></div>
+{% endblock %}
