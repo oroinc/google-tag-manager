@@ -1,0 +1,4 @@
+Oro\Bundle\ProductBundle\Entity\Product:
+    fields:
+        -   name: product_detail_LOCALIZATION_ID
+            type: text
