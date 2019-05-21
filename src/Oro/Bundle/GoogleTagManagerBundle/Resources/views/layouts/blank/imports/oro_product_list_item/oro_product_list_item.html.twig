@@ -20,7 +20,7 @@
 
         {% if productDetail is not empty %}
             {% set attr = layout_attr_defaults(attr, {
-                '~class': ' product-model-exposed hidden',
+                '~class': ' gtm-product-model-exposed hidden',
                 'data-page-component-module': 'orogoogletagmanager/js/app/components/product-model-expose-component',
                 'data-page-component-options': {'data': productDetail}
             }) %}
