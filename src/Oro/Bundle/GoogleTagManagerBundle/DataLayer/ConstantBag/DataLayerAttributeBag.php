@@ -3,7 +3,7 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\DataLayer\ConstantBag;
 
 /**
- * Contains data layer attribute names and values.
+ * Contains custom data layer attribute names and values.
  */
 final class DataLayerAttributeBag
 {
@@ -17,17 +17,7 @@ final class DataLayerAttributeBag
     /**
      * Category name. Needed on category page.
      */
-    public const KEY_CATEGORY_NAME = 'categoryName';
-
-    /**
-     * Product category path. Needed on product page.
-     */
-    public const KEY_PRODUCT_CATEGORY_PATH = 'categoryPath';
-
-    /**
-     * Product brand name. Needed on product page.
-     */
-    public const KEY_PRODUCT_BRAND = 'brand';
+    public const KEY_CATALOG_PATH = 'catalogPath';
 
     /**
      * Customer id. Needed if user is logged in as customer user.

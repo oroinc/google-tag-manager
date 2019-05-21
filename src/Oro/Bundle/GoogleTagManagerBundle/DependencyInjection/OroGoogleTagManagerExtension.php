@@ -23,5 +23,6 @@ class OroGoogleTagManagerExtension extends Extension
         $loader->load('integration.yml');
         $loader->load('layout.yml');
         $loader->load('services.yml');
+        $loader->load('twig.yml');
     }
 }

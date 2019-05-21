@@ -15,3 +15,11 @@ services:
             - '@oro_security.token_accessor'
         tags:
             - { name: oro_google_tag_manager.data_layer.collector }
+
+    oro_google_tag_manager.data_layer.collector.catalog_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CatalogDetailCollector'
+        public: false
+        arguments:
+            - '@oro_web_catalog.layout.data_provider.breadcrumb_data'
+        tags:
+            - { name: oro_google_tag_manager.data_layer.collector }

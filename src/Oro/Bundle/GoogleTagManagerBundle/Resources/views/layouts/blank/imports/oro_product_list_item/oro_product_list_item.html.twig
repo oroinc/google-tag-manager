@@ -1,0 +1,30 @@
+{% block __oro_product_list_item__google_tag_manager_product_model_expose_widget %}
+    {% import 'OroGoogleTagManagerBundle::macros.html.twig' as macros %}
+
+    {% if product is defined or datagrid_row is defined %}
+        {% if product is iterable %}
+            {% if product.product_detail is defined %}
+                {% set productDetail = product.product_detail %}
+
+                {% if productDetail is not empty and product.prices is defined %}
+                    {% set productDetail = productDetail|merge({price: macros.getPrice(product.prices)}) %}
+                {% endif %}
+            {% endif %}
+        {% else %}
+            {% set productDetail = oro_google_tag_manager_product_detail(product) %}
+
+            {% if productDetail is not empty and productPrices is defined %}
+                {% set productDetail = productDetail|merge({price: macros.getPrice(productPrices)}) %}
+            {% endif %}
+        {% endif %}
+
+        {% if productDetail is not empty %}
+            {% set attr = layout_attr_defaults(attr, {
+                '~class': ' product-model-exposed hidden',
+                'data-page-component-module': 'orogoogletagmanager/js/app/components/product-model-expose-component',
+                'data-page-component-options': {'data': productDetail}
+            }) %}
+            <div {{ block('block_attributes') }}></div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

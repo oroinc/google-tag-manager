@@ -1,0 +1,8 @@
+services:
+    oro_google_tag_manager.twig.product_detail_extension:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Twig\ProductDetailExtension'
+        public: false
+        arguments:
+            - '@oro_google_tag_manager.provider.product_detail_provider'
+        tags:
+            - { name: twig.extension }
