@@ -30,6 +30,7 @@ define(function(require) {
             mediator.trigger(
                 'gtm:event:push',
                 {
+                    'event': 'productImpression',
                     'ecommerce': {
                         'currencyCode': localeSettings.getCurrency(),
                         'impressions': impressionsData

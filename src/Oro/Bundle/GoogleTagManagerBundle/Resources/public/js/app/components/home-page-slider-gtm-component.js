@@ -29,6 +29,7 @@ define(function(require) {
             mediator.trigger(
                 'gtm:event:push',
                 {
+                    'event': 'promotionImpression',
                     'ecommerce': {
                         'promoView': {
                             'promotions': impressionsData
@@ -63,13 +64,10 @@ define(function(require) {
          */
         _invokeEventClick: function(clicksData, destinationUrl) {
             mediator.trigger('gtm:event:push', {
-                'event': 'productClick',
+                'event': 'promotionClick',
                 'ecommerce': {
-                    'click': {
-                        'actionField': {
-                            'list': this._getBlockName()
-                        },
-                        'products': clicksData
+                    'promoClick': {
+                        'promotions': clicksData
                     }
                 },
                 'eventCallback': function() {
