@@ -56,7 +56,7 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
         $this->manager->add($data);
     }
 
-    public function testAll(): void
+    public function testCollectAll(): void
     {
         $original = [['option1' => 'value1']];
         $data1 = ['option2' => 'value2'];
@@ -91,7 +91,29 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
                 }
             );
 
-        $this->assertEquals(array_merge($original, [$data1], [$data2]), $this->manager->all());
+        $this->assertEquals(array_merge($original, [$data1], [$data2]), $this->manager->collectAll());
+    }
+
+    public function testGetForEvents(): void
+    {
+        $data = [
+            ['event' => 'test_event1', 'option1' => 'value1'],
+            ['option2' => 'value2'],
+            ['event' => 'test_event2', 'option3' => 'value3'],
+        ];
+
+        $this->session->expects($this->once())
+            ->method('get')
+            ->with(self::KEY, [])
+            ->willReturn($data);
+
+        $this->collector1->expects($this->never())
+            ->method('handle');
+
+        $this->collector2->expects($this->never())
+            ->method('handle');
+
+        $this->assertEquals([$data[2]], $this->manager->getForEvents(['test_event2']));
     }
 
     public function testReset(): void

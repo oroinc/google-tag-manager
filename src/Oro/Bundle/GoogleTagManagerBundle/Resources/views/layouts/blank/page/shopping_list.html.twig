@@ -1,0 +1,8 @@
+{% block _google_tag_manager_shopping_list_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class' : ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/shopping-list-gtm-component',
+        'data-page-component-options': {data: data_layer_data},
+    }) %}
+    <span {{ block('block_attributes') }}></span>
+{% endblock %}
