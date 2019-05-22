@@ -1,0 +1,247 @@
+<?php
+
+namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider\Checkout;
+
+use Oro\Bundle\CheckoutBundle\Entity\Checkout;
+use Oro\Bundle\CheckoutBundle\Entity\CheckoutLineItem;
+use Oro\Bundle\CurrencyBundle\Entity\Price;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutStepProvider;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
+use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
+use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
+use Oro\Bundle\ProductBundle\Entity\Product;
+use Oro\Bundle\ProductBundle\Entity\ProductUnit;
+use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
+use Oro\Bundle\WorkflowBundle\Entity\WorkflowDefinition;
+use Oro\Bundle\WorkflowBundle\Entity\WorkflowStep;
+use Oro\Component\Testing\Unit\EntityTrait;
+
+class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
+{
+    use EntityTrait;
+
+    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $productDetailProvider;
+
+    /** @var CheckoutStepProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $checkoutStepProvider;
+
+    /** @var ProductPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $productPriceProvider;
+
+    /** @var ProductPriceScopeCriteriaFactoryInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $priceScopeCriteriaFactory;
+
+    /** @var ShippingMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject */
+    private $shippingMethodLabelFormatter;
+
+    /** @var PaymentMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject */
+    private $paymentMethodLabelFormatter;
+
+    /** @var CheckoutDetailProvider */
+    private $provider;
+
+    protected function setUp(): void
+    {
+        $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
+        $this->checkoutStepProvider = $this->createMock(CheckoutStepProvider::class);
+        $this->productPriceProvider = $this->createMock(ProductPriceProviderInterface::class);
+        $this->priceScopeCriteriaFactory = $this->createMock(ProductPriceScopeCriteriaFactoryInterface::class);
+
+        $this->shippingMethodLabelFormatter = $this->createMock(ShippingMethodLabelFormatter::class);
+        $this->shippingMethodLabelFormatter->expects($this->any())
+            ->method('formatShippingMethodWithTypeLabel')
+            ->willReturnCallback(
+                function (string $shippingMethod, string $shippingType) {
+                    return $shippingMethod . ShippingMethodLabelFormatter::DELIMITER . $shippingType . '_formatted';
+                }
+            );
+
+        $this->paymentMethodLabelFormatter = $this->createMock(PaymentMethodLabelFormatter::class);
+        $this->paymentMethodLabelFormatter->expects($this->any())
+            ->method('formatPaymentMethodLabel')
+            ->willReturnCallback(
+                function (string $paymentMethod) {
+                    return $paymentMethod . '_formatted';
+                }
+            );
+
+        $this->provider = new CheckoutDetailProvider(
+            $this->productDetailProvider,
+            $this->checkoutStepProvider,
+            $this->productPriceProvider,
+            $this->priceScopeCriteriaFactory,
+            $this->shippingMethodLabelFormatter,
+            $this->paymentMethodLabelFormatter
+        );
+    }
+
+    public function testGetCheckoutData(): void
+    {
+        [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
+        [$step, $stepPosition] = $this->prepareWorkflowStep();
+
+        $this->checkoutStepProvider->expects($this->once())
+            ->method('getData')
+            ->with($checkout)
+            ->willReturn([$step, $stepPosition]);
+
+        $scopeCriteria = new ProductPriceScopeCriteria();
+
+        $this->priceScopeCriteriaFactory->expects($this->once())
+            ->method('createByContext')
+            ->with($checkout)
+            ->willReturn($scopeCriteria);
+
+        $this->productDetailProvider->expects($this->exactly(3))
+            ->method('getData')
+            ->withConsecutive(
+                [$this->identicalTo($lineItem1->getProduct())],
+                [$this->identicalTo($lineItem2->getProduct())],
+                [$this->identicalTo($lineItem3->getProduct())]
+            )
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [
+                    'id' => 'sku2',
+                    'name' => 'Product 2',
+                    'brand' => 'Brand 2',
+                    'category' => 'Category 2',
+                ],
+                [
+                    'id' => 'sku3',
+                    'name' => 'Product 3',
+                    'brand' => 'Brand 3',
+                    'category' => 'Category 3',
+                ]
+            );
+
+        $priceCriteria = new ProductPriceCriteria(
+            $lineItem2->getProduct(),
+            $lineItem2->getProductUnit(),
+            $lineItem2->getQuantity(),
+            $lineItem2->getCurrency()
+        );
+
+        $this->productPriceProvider->expects($this->once())
+            ->method('getMatchedPrices')
+            ->with([$priceCriteria], $scopeCriteria)
+            ->willReturn(
+                [
+                    $priceCriteria->getIdentifier() => Price::create(10.10, 'USD'),
+                    'test' => Price::create(11.11, 'USD')
+                ]
+            );
+
+        $this->assertEquals(
+            [
+                'event' => 'checkout',
+                'ecommerce' => [
+                    'checkout' => [
+                        'actionField' => [
+                            'step' => 3,
+                            'option' => 'enter_shipping_method',
+                            'affiliation' => 'test_workflow',
+                        ],
+                        'products' => [
+                            [
+                                'id' => 'sku2',
+                                'name' => 'Product 2',
+                                'price' => 10.10,
+                                'brand' => 'Brand 2',
+                                'category' => 'Category 2',
+                                'quantity' => 5.5,
+                                'position' => 2,
+                                'variant' => 'item',
+                            ],
+                            [
+                                'id' => 'sku3',
+                                'name' => 'Product 3',
+                                'price' => 100.10,
+                                'brand' => 'Brand 3',
+                                'category' => 'Category 3',
+                                'quantity' => 15.15,
+                                'position' => 3,
+                                'variant' => 'set',
+                            ]
+                        ],
+                    ],
+                    'currencyCode' => 'USD',
+                    'shippingMethod' => 'shipping_method, shipping_type_formatted',
+                    'paymentMethod' => 'payment_method_formatted',
+                ],
+            ],
+            $this->provider->getData($checkout)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    private function prepareCheckout(): array
+    {
+        /** @var Product $product1 */
+        $product1 = $this->getEntity(Product::class, ['id' => 1001]);
+        /** @var Product $product2 */
+        $product2 = $this->getEntity(Product::class, ['id' => 2002]);
+        /** @var Product $product3 */
+        $product3 = $this->getEntity(Product::class, ['id' => 3003]);
+
+        $lineItem1 = new CheckoutLineItem();
+        $lineItem1->setProduct($product1)
+            ->preSave();
+
+        $productUnit2 = new ProductUnit();
+        $productUnit2->setCode('item');
+
+        $lineItem2 = new CheckoutLineItem();
+        $lineItem2->setProduct($product2)
+            ->setProductUnit($productUnit2)
+            ->setQuantity(5.5)
+            ->setPrice(Price::create(1.1, 'USD'))
+            ->preSave();
+
+        $productUnit3 = new ProductUnit();
+        $productUnit3->setCode('set');
+
+        $lineItem3 = new CheckoutLineItem();
+        $lineItem3->setProduct($product3)
+            ->setProductUnit($productUnit3)
+            ->setQuantity(15.15)
+            ->setPriceFixed(true)
+            ->setPrice(Price::create(100.1, 'USD'))
+            ->preSave();
+
+        $checkout = new Checkout();
+        $checkout->setCurrency('USD')
+            ->addLineItem($lineItem1)
+            ->addLineItem($lineItem2)
+            ->addLineItem($lineItem3)
+            ->setShippingMethod('shipping_method')
+            ->setShippingMethodType('shipping_type')
+            ->setPaymentMethod('payment_method');
+
+        return [$checkout, $lineItem1, $lineItem2, $lineItem3];
+    }
+
+    /**
+     * @return array
+     */
+    private function prepareWorkflowStep(): array
+    {
+        $definition = new WorkflowDefinition();
+        $definition->setName('test_workflow');
+
+        $step = new WorkflowStep();
+        $step->setName('enter_shipping_method')
+            ->setDefinition($definition);
+
+        $stepPosition = 3;
+
+        return [$step, $stepPosition];
+    }
+}

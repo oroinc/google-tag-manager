@@ -9,8 +9,6 @@ use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
  */
 class DataLayerProvider
 {
-    public const DEFAULT_BATCH_SIZE = 30;
-
     /**
      * @var DataLayerManager
      */

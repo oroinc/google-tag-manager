@@ -16,3 +16,18 @@ services:
             - '%oro_google_tag_manager.data_layer.variable_name%'
         tags:
             - { name: layout.data_provider, alias: 'oro_google_tag_manager_data_layer' }
+
+    oro_google_tag_manager.layout.data_provider.checkout_data:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\CheckoutDataProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.checkout_detail'
+        tags:
+            - { name: layout.data_provider, alias: 'oro_google_tag_manager_checkout_data' }
+
+    oro_google_tag_manager.layout.block.type.google_tag_manager_checkout:
+        parent: oro_layout.block_type.abstract_configurable_container
+        calls:
+            - [setOptionsConfig, [{details: {required: true}}]]
+            - [setName, ['google_tag_manager_checkout']]
+        tags:
+            - { name: layout.block_type, alias: google_tag_manager_checkout }
