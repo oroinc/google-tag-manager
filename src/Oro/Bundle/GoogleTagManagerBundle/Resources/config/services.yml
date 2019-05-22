@@ -113,3 +113,17 @@ services:
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preRemove }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.event_listener.request_product_item:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\RequestProductItemEventListener'
+        public: false
+        arguments:
+            - '@security.token_storage'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.product_detail'
+            - '@oro_google_tag_manager.provider.product_price_detail'
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        tags:
+            - { name: doctrine.orm.entity_listener, entity: '%oro_rfp.entity.request_product_item.class%', event: prePersist }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
