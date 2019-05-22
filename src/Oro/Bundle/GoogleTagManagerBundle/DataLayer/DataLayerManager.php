@@ -51,7 +51,7 @@ class DataLayerManager
      *
      * @return array [['data_name' => 'data_value']]
      */
-    public function all(): array
+    public function collectAll(): array
     {
         $data = new ArrayCollection($this->session->get(self::KEY, []));
 
@@ -60,6 +60,32 @@ class DataLayerManager
         }
 
         return $data->toArray();
+    }
+
+    /**
+     * @param array $events
+     * @return array [['data_name' => 'data_value']]
+     */
+    public function getForEvents(array $events): array
+    {
+        $data = $this->session->get(self::KEY, []);
+
+        $result = [];
+        foreach ($data as $key => $item) {
+            if (!isset($item['event']) || !\in_array($item['event'], $events, true)) {
+                continue;
+            }
+
+            $result[] = $item;
+
+            unset($data[$key]);
+        }
+
+        if ($result) {
+            $this->session->set(self::KEY, $data);
+        }
+
+        return $result;
     }
 
     /**

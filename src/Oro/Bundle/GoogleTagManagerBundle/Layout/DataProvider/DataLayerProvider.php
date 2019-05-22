@@ -40,14 +40,15 @@ class DataLayerProvider
     }
 
     /**
-     * @param bool $reset
+     * @param array $events
      * @return array
      */
-    public function getData(bool $reset = false): array
+    public function getData(array $events = []): array
     {
-        $data = $this->dataLayerManager->all();
-
-        if ($reset) {
+        if ($events) {
+            $data = $this->dataLayerManager->getForEvents($events);
+        } else {
+            $data = $this->dataLayerManager->collectAll();
             $this->dataLayerManager->reset();
         }
 

@@ -27,16 +27,23 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(self::DATA_LAYER_VARIABLE_NAME, $this->provider->getVariableName());
     }
 
-    public function testGetConfigWithReset(): void
+    public function testGetConfigForEvents(): void
     {
-        $this->dataLayerManager->expects($this->once())
-            ->method('all')
-            ->willReturn([]);
+        $events = ['test_event2'];
+        $data = [['data']];
 
         $this->dataLayerManager->expects($this->once())
+            ->method('getForEvents')
+            ->with($events)
+            ->willReturn($data);
+
+        $this->dataLayerManager->expects($this->never())
+            ->method('collectAll');
+
+        $this->dataLayerManager->expects($this->never())
             ->method('reset');
 
-        $this->assertEquals([], $this->provider->getData(true));
+        $this->assertEquals($data, $this->provider->getData($events));
     }
 
     /**
@@ -48,10 +55,10 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
     public function testGetConfig(array $config, array $expected): void
     {
         $this->dataLayerManager->expects($this->once())
-            ->method('all')
+            ->method('collectAll')
             ->willReturn($config);
 
-        $this->dataLayerManager->expects($this->never())
+        $this->dataLayerManager->expects($this->once())
             ->method('reset');
 
         $this->assertEquals($expected, $this->provider->getData());

@@ -13,6 +13,13 @@ services:
             - '@doctrine'
             - '@oro_config.manager'
 
+    oro_google_tag_manager.provider.product_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider'
+        public: false
+        arguments:
+            - '@oro_locale.provider.config_default_localization'
+            - '@oro_entity.doctrine_helper'
+
     oro_google_tag_manager.provider.page_type:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider'
         public: false
@@ -35,20 +42,13 @@ services:
         tags:
             - { name: oro_google_tag_manager.page_type_guesser, priority: 100 }
 
-    oro_google_tag_manager.provider.product_detail_provider:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider'
-        public: false
-        arguments:
-            - '@oro_locale.provider.config_default_localization'
-            - '@oro_entity.doctrine_helper'
-
     oro_google_tag_manager.event_listener.website_search_index:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\WebsiteSearchIndexerListener'
         public: false
         arguments:
             - '@oro_website.provider.website_localization'
             - '@oro_website_search.manager.website_context_manager'
-            - '@oro_google_tag_manager.provider.product_detail_provider'
+            - '@oro_google_tag_manager.provider.product_detail'
         tags:
             - { name: kernel.event_listener, event: oro_website_search.event.index_entity.product, method: onWebsiteSearchIndex }
 
@@ -60,3 +60,29 @@ services:
         tags:
             - { name: kernel.event_listener, event: oro_datagrid.datagrid.build.pre.frontend-product-search-grid, method: onPreBuild }
             - { name: kernel.event_listener, event: oro_datagrid.search_datasource.result.after.frontend-product-search-grid, method: onResultAfter }
+
+    oro_google_tag_manager.provider.product_price_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider'
+        public: false
+        arguments:
+            - '@security.token_storage'
+            - '@oro_website.manager'
+            - '@oro_pricing.user_currency_manager'
+            - '@oro_pricing.provider.product_price'
+            - '@oro_pricing.model.product_price_scope_criteria_factory'
+
+    oro_google_tag_manager.event_listener.shopping_list_line_item:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\ShoppingListLineItemEventListener'
+        public: false
+        arguments:
+            - '@security.token_storage'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.product_detail'
+            - '@oro_google_tag_manager.provider.product_price_detail'
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        tags:
+            - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: prePersist }
+            - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preUpdate }
+            - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preRemove }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
