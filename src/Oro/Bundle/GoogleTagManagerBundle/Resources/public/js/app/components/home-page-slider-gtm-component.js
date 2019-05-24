@@ -26,17 +26,7 @@ define(function(require) {
          * @inheritDoc
          */
         _invokeEventImpression: function(impressionsData) {
-            mediator.trigger(
-                'gtm:event:push',
-                {
-                    'event': 'promotionImpression',
-                    'ecommerce': {
-                        'promoView': {
-                            'promotions': impressionsData
-                        }
-                    }
-                }
-            );
+            mediator.trigger('gtm:event:promotionImpressions', impressionsData);
         },
 
         /**
@@ -51,11 +41,11 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        _getImpressionData: function(model, index) {
+        _getImpressionData: function(model, position) {
             return {
                 name: model['name'],
                 creative: this._getBlockName(),
-                position: index
+                position: position
             };
         },
 
@@ -63,24 +53,14 @@ define(function(require) {
          * @inheritDoc
          */
         _invokeEventClick: function(clicksData, destinationUrl) {
-            mediator.trigger('gtm:event:push', {
-                'event': 'promotionClick',
-                'ecommerce': {
-                    'promoClick': {
-                        'promotions': clicksData
-                    }
-                },
-                'eventCallback': function() {
-                    document.location = destinationUrl;
-                }
-            });
+            mediator.trigger('gtm:event:promotionClick', clicksData, destinationUrl);
         },
 
         /**
          * @inheritDoc
          */
-        _getClickData: function(model, index) {
-            return this._getImpressionData(model, index);
+        _getClickData: function(model, position) {
+            return this._getImpressionData(model, position);
         }
     });
 

@@ -1,0 +1,16 @@
+layout:
+    actions:
+        - '@setBlockTheme':
+              themes: 'OroGoogleTagManagerBundle:layouts:blank/oro_product_frontend_product_view/related_products_gtm.html.twig'
+        - '@add':
+              id: related_products_gtm
+              parentId: product_view_related_products_container
+              blockType: block
+              options:
+                  visible: '=data["oro_google_tag_manager_settings"].isReady()'
+        - '@add':
+              id: upsell_products_gtm
+              parentId: product_view_upsell_products_container
+              blockType: block
+              options:
+                  visible: '=data["oro_google_tag_manager_settings"].isReady()'

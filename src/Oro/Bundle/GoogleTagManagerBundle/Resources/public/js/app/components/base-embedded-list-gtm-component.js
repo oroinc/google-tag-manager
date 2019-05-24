@@ -84,11 +84,11 @@ define(function(require) {
          * Implement this method to get impression data of the viewed item.
          * 
          * @param {Object} model Model of the viewed item
-         * @param {Number} index Position in the list
+         * @param {Number} position Position in the list
          * @returns {Object}
          * @private
          */
-        _getImpressionData: function(model, index) {
+        _getImpressionData: function(model, position) {
             throw new Error('This method should be implemented in descendant');
         },
 
@@ -135,12 +135,16 @@ define(function(require) {
                 return;
             }
 
-            // Prevent going by the link destination URL. We will get there in GTM eventCallback.
-            event.preventDefault();
-
-            var index = this._getPosition($clickedItem);
             var destinationUrl = event.currentTarget.href;
-            var clicksData = [this._getClickData(model, index)];
+            if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
+                destinationUrl = null;
+            } else {
+                // Prevent going by the link destination URL. We will get there in GTM eventCallback.
+                event.preventDefault();
+            }
+
+            var position = this._getPosition($clickedItem);
+            var clicksData = [this._getClickData(model, position)];
 
             this._invokeEventClick(clicksData, destinationUrl);
         },

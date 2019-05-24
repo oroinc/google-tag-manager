@@ -7,3 +7,5 @@ config:
         'orogoogletagmanager/js/app/components/products-embedded-list-gtm-component': 'bundles/orogoogletagmanager/js/app/components/products-embedded-list-gtm-component.js'
         'orogoogletagmanager/js/app/components/home-page-slider-gtm-component': 'bundles/orogoogletagmanager/js/app/components/home-page-slider-gtm-component.js'
         'orogoogletagmanager/js/app/components/checkout-gtm-component': 'bundles/orogoogletagmanager/js/app/components/checkout-gtm-component.js'
+        'orogoogletagmanager/js/app/components/products-datagrid-gtm-component': 'bundles/orogoogletagmanager/js/app/components/products-datagrid-gtm-component.js'
+        'orogoogletagmanager/js/app/product-details-gtm-helper': 'bundles/orogoogletagmanager/js/app/product-details-gtm-helper.js'
