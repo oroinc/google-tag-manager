@@ -1,0 +1,29 @@
+{% block _related_products_gtm_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class': ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/products-embedded-list-gtm-component',
+        'data-page-component-options': {
+            'relatedSiblingComponents': {
+                'embeddedListComponent': 'related-products-list'
+            },
+            'blockName': 'related-products'
+        }
+
+    }) %}
+    <div {{ block('block_attributes') }}></div>
+{% endblock %}
+
+{% block _upsell_products_gtm_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class': ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/products-embedded-list-gtm-component',
+        'data-page-component-options': {
+            'relatedSiblingComponents': {
+                'embeddedListComponent': 'upsell-products-list'
+            },
+            'blockName': 'upsell-products'
+        }
+
+    }) %}
+    <div {{ block('block_attributes') }}></div>
+{% endblock %}

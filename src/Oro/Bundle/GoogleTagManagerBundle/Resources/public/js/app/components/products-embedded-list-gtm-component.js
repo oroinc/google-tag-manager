@@ -4,6 +4,7 @@ define(function(require) {
     var mediator = require('oroui/js/mediator');
     var _ = require('underscore');
     var localeSettings = require('orolocale/js/locale-settings');
+    var ProductDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
 
     /**
      * Listens to oro:embedded-list:* events and invokes product click, product impression GTM events,
@@ -17,6 +18,11 @@ define(function(require) {
         }),
 
         /**
+         * @property {ProductDetailsGtmHelper}
+         */
+        productDetailsHelper: null,
+
+        /**
          * @inheritDoc
          */
         constructor: function ProductsEmbeddedListGtmComponent() {
@@ -26,38 +32,33 @@ define(function(require) {
         /**
          * @inheritDoc
          */
+        initialize: function(options) {
+            ProductsEmbeddedListGtmComponent.__super__.initialize.apply(this, arguments);
+
+            this.productDetailsHelper = new ProductDetailsGtmHelper(this.options.modelAwareSelector);
+        },
+
+        /**
+         * @inheritDoc
+         */
         _invokeEventImpression: function(impressionsData) {
-            mediator.trigger(
-                'gtm:event:push',
-                {
-                    'event': 'productImpression',
-                    'ecommerce': {
-                        'currencyCode': localeSettings.getCurrency(),
-                        'impressions': impressionsData
-                    }
-                }
-            );
+            mediator.trigger('gtm:event:productImpressions', impressionsData, localeSettings.getCurrency());
         },
 
         /**
          * @inheritDoc
          */
         _getModel: function($item) {
-            var model = $item.find(this.options.modelAwareSelector).triggerHandler('gtm:model:get');
-            if (typeof model !== 'undefined' && typeof model.id !== 'undefined' && typeof model.name !== 'undefined') {
-                return model;
-            }
-
-            return undefined;
+            return this.productDetailsHelper.getModel($item);
         },
 
         /**
          * @inheritDoc
          */
-        _getImpressionData: function(model, index) {
-            return _.extend({}, this._getProductDetailFromModel(model), {
+        _getImpressionData: function(model, position) {
+            return _.extend({}, this.productDetailsHelper.getDetailsFromModel(model), {
                 list: this._getBlockName(),
-                position: index
+                position: position
             });
         },
 
@@ -65,48 +66,16 @@ define(function(require) {
          * @inheritDoc
          */
         _invokeEventClick: function(clicksData, destinationUrl) {
-            mediator.trigger('gtm:event:push', {
-                'event': 'productClick',
-                'ecommerce': {
-                    'click': {
-                        'actionField': {
-                            'list': this._getBlockName()
-                        },
-                        'products': clicksData
-                    }
-                },
-                'eventCallback': function() {
-                    document.location = destinationUrl;
-                }
-            });
+            mediator.trigger('gtm:event:productClick', clicksData, destinationUrl, this._getBlockName());
         },
 
         /**
          * @inheritDoc
          */
-        _getClickData: function(model, index) {
-            return _.extend({}, this._getProductDetailFromModel(model), {
-                position: index
+        _getClickData: function(model, position) {
+            return _.extend({}, this.productDetailsHelper.getDetailsFromModel(model), {
+                position: position
             });
-        },
-
-        /**
-         * @param {Object} model Model of the viewed item
-         * @returns {Object} Prepared model data for event
-         * @private
-         */
-        _getProductDetailFromModel: function (model) {
-            return _.reduce(
-                ['id', 'name', 'category', 'brand', 'price'],
-                function (acc, attr) {
-                    if (typeof model[attr] !== "undefined") {
-                        acc[attr] = model[attr];
-                    }
-
-                    return acc;
-                },
-                {}
-            );
         }
     });
 
