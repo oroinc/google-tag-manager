@@ -54,7 +54,9 @@ define(function(require) {
                     }
                 },
                 'eventCallback': function() {
-                    document.location = destinationUrl;
+                    if (destinationUrl) {
+                        document.location = destinationUrl;
+                    }
                 }
             });
         },
