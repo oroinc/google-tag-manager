@@ -32,11 +32,11 @@ class ProductDetailExtension extends \Twig_Extension
     }
 
     /**
-     * @param Product $product
+     * @param mixed $product
      * @return array
      */
-    public function getProductDetail(Product $product): array
+    public function getProductDetail($product): array
     {
-        return $this->productDetailProvider->getData($product);
+        return $product instanceof Product ? $this->productDetailProvider->getData($product) : [];
     }
 }

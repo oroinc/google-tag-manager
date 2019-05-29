@@ -39,4 +39,15 @@ class ProductDetailExtensionTest extends \PHPUnit\Framework\TestCase
             $this->callTwigFunction($this->extension, 'oro_google_tag_manager_product_detail', [$product])
         );
     }
+
+    public function testGetProductDetailForUnsupportedParameter(): void
+    {
+        $this->productDetailProvider->expects($this->never())
+            ->method('getData');
+
+        $this->assertSame(
+            [],
+            $this->callTwigFunction($this->extension, 'oro_google_tag_manager_product_detail', [new \stdClass()])
+        );
+    }
 }
