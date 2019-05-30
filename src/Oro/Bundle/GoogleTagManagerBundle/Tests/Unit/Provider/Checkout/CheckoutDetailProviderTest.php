@@ -8,14 +8,12 @@ use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutStepProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
-use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
-use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Bundle\WorkflowBundle\Entity\WorkflowDefinition;
 use Oro\Bundle\WorkflowBundle\Entity\WorkflowStep;
 use Oro\Component\Testing\Unit\EntityTrait;
@@ -36,12 +34,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
     /** @var ProductPriceScopeCriteriaFactoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $priceScopeCriteriaFactory;
 
-    /** @var ShippingMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject */
-    private $shippingMethodLabelFormatter;
-
-    /** @var PaymentMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject */
-    private $paymentMethodLabelFormatter;
-
     /** @var CheckoutDetailProvider */
     private $provider;
 
@@ -52,31 +44,11 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->productPriceProvider = $this->createMock(ProductPriceProviderInterface::class);
         $this->priceScopeCriteriaFactory = $this->createMock(ProductPriceScopeCriteriaFactoryInterface::class);
 
-        $this->shippingMethodLabelFormatter = $this->createMock(ShippingMethodLabelFormatter::class);
-        $this->shippingMethodLabelFormatter->expects($this->any())
-            ->method('formatShippingMethodWithTypeLabel')
-            ->willReturnCallback(
-                function (string $shippingMethod, string $shippingType) {
-                    return $shippingMethod . ShippingMethodLabelFormatter::DELIMITER . $shippingType . '_formatted';
-                }
-            );
-
-        $this->paymentMethodLabelFormatter = $this->createMock(PaymentMethodLabelFormatter::class);
-        $this->paymentMethodLabelFormatter->expects($this->any())
-            ->method('formatPaymentMethodLabel')
-            ->willReturnCallback(
-                function (string $paymentMethod) {
-                    return $paymentMethod . '_formatted';
-                }
-            );
-
         $this->provider = new CheckoutDetailProvider(
             $this->productDetailProvider,
             $this->checkoutStepProvider,
             $this->productPriceProvider,
-            $this->priceScopeCriteriaFactory,
-            $this->shippingMethodLabelFormatter,
-            $this->paymentMethodLabelFormatter
+            $this->priceScopeCriteriaFactory
         );
     }
 
@@ -171,8 +143,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                         ],
                     ],
                     'currencyCode' => 'USD',
-                    'shippingMethod' => 'shipping_method, shipping_type_formatted',
-                    'paymentMethod' => 'payment_method_formatted',
                 ],
             ],
             $this->provider->getData($checkout)
@@ -220,10 +190,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         $checkout->setCurrency('USD')
             ->addLineItem($lineItem1)
             ->addLineItem($lineItem2)
-            ->addLineItem($lineItem3)
-            ->setShippingMethod('shipping_method')
-            ->setShippingMethodType('shipping_type')
-            ->setPaymentMethod('payment_method');
+            ->addLineItem($lineItem3);
 
         return [$checkout, $lineItem1, $lineItem2, $lineItem3];
     }

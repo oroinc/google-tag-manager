@@ -5,12 +5,10 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\CheckoutBundle\Entity\CheckoutLineItem;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
-use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
-use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Bundle\WorkflowBundle\Entity\WorkflowStep;
 
 /**
@@ -39,37 +37,21 @@ class CheckoutDetailProvider
     private $priceScopeCriteriaFactory;
 
     /**
-     * @var ShippingMethodLabelFormatter
-     */
-    private $shippingMethodLabelFormatter;
-
-    /**
-     * @var PaymentMethodLabelFormatter
-     */
-    private $paymentMethodLabelFormatter;
-
-    /**
      * @param ProductDetailProvider $productDataProvider
      * @param CheckoutStepProvider $checkoutStepProvider
      * @param ProductPriceProviderInterface $productPriceProvider
      * @param ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
-     * @param ShippingMethodLabelFormatter $shippingMethodLabelFormatter
-     * @param PaymentMethodLabelFormatter $paymentMethodLabelFormatter
      */
     public function __construct(
         ProductDetailProvider $productDataProvider,
         CheckoutStepProvider $checkoutStepProvider,
         ProductPriceProviderInterface $productPriceProvider,
-        ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory,
-        ShippingMethodLabelFormatter $shippingMethodLabelFormatter,
-        PaymentMethodLabelFormatter $paymentMethodLabelFormatter
+        ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
     ) {
         $this->productDetailProvider = $productDataProvider;
         $this->checkoutStepProvider = $checkoutStepProvider;
         $this->productPriceProvider = $productPriceProvider;
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
-        $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
-        $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
     }
 
     /**
@@ -104,7 +86,7 @@ class CheckoutDetailProvider
             );
         }
 
-        $data = [
+        return [
             'event' => 'checkout',
             'ecommerce' => [
                 'currencyCode' => $checkout->getCurrency(),
@@ -118,18 +100,6 @@ class CheckoutDetailProvider
                 ],
             ]
         ];
-
-        if ($checkout->getShippingMethod()) {
-            $data['ecommerce']['shippingMethod'] = $this->shippingMethodLabelFormatter
-                ->formatShippingMethodWithTypeLabel($checkout->getShippingMethod(), $checkout->getShippingMethodType());
-        }
-
-        if ($checkout->getPaymentMethod()) {
-            $data['ecommerce']['paymentMethod'] = $this->paymentMethodLabelFormatter
-                ->formatPaymentMethodLabel($checkout->getPaymentMethod());
-        }
-
-        return $data;
     }
 
     /**
