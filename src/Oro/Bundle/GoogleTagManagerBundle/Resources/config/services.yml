@@ -35,8 +35,6 @@ services:
             - '@oro_google_tag_manager.provider.checkout_step'
             - '@oro_pricing.provider.product_price'
             - '@oro_pricing.model.product_price_scope_criteria_factory'
-            - '@oro_shipping.formatter.shipping_method_label'
-            - '@oro_payment.formatter.payment_method_label'
 
     oro_google_tag_manager.provider.purchase_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider'
