@@ -3,6 +3,7 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Twig\ProductDetailExtension'
         public: false
         arguments:
-            - '@oro_google_tag_manager.provider.product_detail'
+            - '@Psr\Container\ContainerInterface'
         tags:
             - { name: twig.extension }
+            - { name: container.service_subscriber }

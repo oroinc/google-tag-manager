@@ -2,6 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider\Checkout;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
@@ -15,7 +16,14 @@ use Oro\Bundle\PaymentBundle\Entity\Repository\PaymentTransactionRepository;
 use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
+use Oro\Bundle\PromotionBundle\Entity\Coupon;
+use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
+use Oro\Bundle\TaxBundle\Model\Result;
+use Oro\Bundle\TaxBundle\Model\ResultElement;
+use Oro\Bundle\TaxBundle\Provider\TaxProviderInterface;
+use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
+use Oro\Bundle\WebsiteBundle\Entity\Website;
 use Oro\Component\Testing\Unit\EntityTrait;
 
 class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
@@ -27,6 +35,12 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
     private $productDetailProvider;
+
+    /** @var TaxProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $taxProvider;
+
+    /** @var EntityCouponsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $entityCouponsProvider;
 
     /** @var ShippingMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject */
     private $shippingMethodLabelFormatter;
@@ -41,6 +55,16 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
     {
         $this->doctrineHelper = $this->createMock(DoctrineHelper::class);
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
+
+        $this->taxProvider = $this->createMock(TaxProviderInterface::class);
+
+        /** @var TaxProviderRegistry|\PHPUnit\Framework\MockObject\MockObject $taxProviderRegistry */
+        $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
+        $taxProviderRegistry->expects($this->any())
+            ->method('getEnabledProvider')
+            ->willReturn($this->taxProvider);
+
+        $this->entityCouponsProvider = $this->createMock(EntityCouponsProviderInterface::class);
 
         $this->shippingMethodLabelFormatter = $this->createMock(ShippingMethodLabelFormatter::class);
         $this->shippingMethodLabelFormatter->expects($this->any())
@@ -63,6 +87,8 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->provider = new PurchaseDetailProvider(
             $this->doctrineHelper,
             $this->productDetailProvider,
+            $taxProviderRegistry,
+            $this->entityCouponsProvider,
             $this->shippingMethodLabelFormatter,
             $this->paymentMethodLabelFormatter
         );
@@ -93,10 +119,26 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals([], $this->provider->getData($checkout));
     }
 
-    public function testGetPurchaseData(): void
-    {
-        [$order, $lineItem1, $lineItem2] = $this->prepareOrder();
-
+    /**
+     * @dataProvider getPurchaseDataProvider
+     *
+     * @param Order $order
+     * @param OrderLineItem $lineItem1
+     * @param OrderLineItem $lineItem2
+     * @param float|null $taxAmount
+     * @param array $coupons
+     * @param string|null $paymentMethod
+     * @param array $expected
+     */
+    public function testGetPurchaseData(
+        Order $order,
+        OrderLineItem $lineItem1,
+        OrderLineItem $lineItem2,
+        ?float $taxAmount,
+        array $coupons,
+        ?string $paymentMethod,
+        array $expected
+    ): void {
         $orderRepository = $this->createMock(ObjectRepository::class);
         $orderRepository->expects($this->once())
             ->method('findOneBy')
@@ -107,7 +149,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         $paymentTransactionRepository->expects($this->once())
             ->method('getPaymentMethods')
             ->with(Order::class, [$order->getId()])
-            ->willReturn([$order->getId() => ['payment_method']]);
+            ->willReturn([$order->getId() => [$paymentMethod]]);
 
         $this->doctrineHelper->expects($this->any())
             ->method('getEntityRepositoryForClass')
@@ -138,15 +180,47 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->assertEquals(
-            [
-                'event' => 'purchase',
-                'ecommerce' => [
+        $this->assertTaxProviderCalled($order, $taxAmount);
+        $this->assertCouponsProviderCalled($order, $coupons);
+
+        $this->assertEquals(['event' => 'purchase', 'ecommerce' => $expected], $this->provider->getData($checkout));
+    }
+
+    /**
+     * @return array
+     */
+    public function getPurchaseDataProvider(): array
+    {
+        /** @var Order $order1 */
+        [$order1, $lineItem11, $lineItem12] = $this->prepareOrder();
+
+        $website = new Website();
+        $website->setName('Test Website');
+
+        $order1->setEstimatedShippingCostAmount(20.20)
+            ->setShippingMethod('shipping_method')
+            ->setShippingMethodType('shipping_type')
+            ->setWebsite($website);
+
+        [$order2, $lineItem21, $lineItem22] = $this->prepareOrder();
+
+        return [
+            'full data' => [
+                'order' => $order1,
+                'lineItem1' => $lineItem11,
+                'lineItem2' => $lineItem12,
+                'tax' => 11.8,
+                'coupons' => ['CODE1', 'CODE2'],
+                'paymentMethod' => 'payment_method',
+                'expected' => [
                     'purchase' => [
                         'actionField' => [
                             'id' => 42,
-                            'revenue' => 100500.15,
-                            'shipping' => 0.0,
+                            'revenue' => 1500.15,
+                            'tax' => 11.8,
+                            'shipping' => 20.20,
+                            'affiliation' => 'Test Website',
+                            'coupon' => 'CODE1,CODE2',
                         ],
                         'products' => [
                             [
@@ -164,10 +238,83 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'currencyCode' => 'USD',
                     'shippingMethod' => 'shipping_method, shipping_type_formatted',
                     'paymentMethod' => 'payment_method_formatted',
-                ],
+                ]
             ],
-            $this->provider->getData($checkout)
-        );
+            'without additional data' => [
+                'order' => $order2,
+                'lineItem1' => $lineItem21,
+                'lineItem2' => $lineItem22,
+                'tax' => null,
+                'coupons' => [],
+                'paymentMethod' => null,
+                'expected' => [
+                    'purchase' => [
+                        'actionField' => [
+                            'id' => 42,
+                            'revenue' => 1500.15,
+                        ],
+                        'products' => [
+                            [
+                                'id' => 'sku2',
+                                'name' => 'Product 2',
+                                'price' => 1.10,
+                                'brand' => 'Brand 2',
+                                'category' => 'Category 2',
+                                'quantity' => 5.5,
+                                'position' => 2,
+                                'variant' => 'item',
+                            ]
+                        ],
+                    ],
+                    'currencyCode' => 'USD',
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @param Order $order
+     * @param float|null $amount
+     */
+    private function assertTaxProviderCalled(Order $order, ?float $amount): void
+    {
+        $total = new ResultElement();
+        $total->offsetSet(ResultElement::TAX_AMOUNT, $amount);
+
+        $taxResult = new Result();
+        $taxResult->offsetSet(Result::TOTAL, $total);
+
+        if ($amount === null) {
+            $this->taxProvider->expects($this->once())
+                ->method('loadTax')
+                ->with($order)
+                ->willThrowException(new \Exception());
+        } else {
+            $this->taxProvider->expects($this->once())
+                ->method('loadTax')
+                ->with($order)
+                ->willReturn($taxResult);
+        }
+    }
+
+    /**
+     * @param Order $order
+     * @param array $codes
+     */
+    private function assertCouponsProviderCalled(Order $order, array $codes): void
+    {
+        $coupons = new ArrayCollection();
+        foreach ($codes as $code) {
+            $coupon = new Coupon();
+            $coupon->setCode($code);
+
+            $coupons->add($coupon);
+        }
+
+        $this->entityCouponsProvider->expects($this->once())
+            ->method('getCoupons')
+            ->with($order)
+            ->willReturn($coupons);
     }
 
     /**
@@ -196,12 +343,10 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         /** @var Order $order */
         $order = $this->getEntity(Order::class, ['id' => 42]);
-        $order->setTotal(100500.15)
+        $order->setTotal(1500.15)
             ->setCurrency('USD')
             ->addLineItem($lineItem1)
-            ->addLineItem($lineItem2)
-            ->setShippingMethod('shipping_method')
-            ->setShippingMethodType('shipping_type');
+            ->addLineItem($lineItem2);
 
         return [$order, $lineItem1, $lineItem2];
     }

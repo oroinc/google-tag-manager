@@ -4,25 +4,28 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Twig;
 
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\Product;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
+use Twig\TwigFunction;
 
 /**
  * Provide twig functions to work with product details for GTM data layer
  */
-class ProductDetailExtension extends \Twig_Extension
+class ProductDetailExtension extends \Twig_Extension implements ServiceSubscriberInterface
 {
-    /** @var ProductDetailProvider */
-    private $productDetailProvider;
+    /** @var ContainerInterface */
+    private $container;
 
     /**
-     * @param ProductDetailProvider $productDetailProvider
+     * @param ContainerInterface $container
      */
-    public function __construct(ProductDetailProvider $productDetailProvider)
+    public function __construct(ContainerInterface $container)
     {
-        $this->productDetailProvider = $productDetailProvider;
+        $this->container = $container;
     }
 
     /**
-     * @return array|\Twig\TwigFunction[]
+     * @return array|TwigFunction[]
      */
     public function getFunctions()
     {
@@ -37,6 +40,18 @@ class ProductDetailExtension extends \Twig_Extension
      */
     public function getProductDetail($product): array
     {
-        return $product instanceof Product ? $this->productDetailProvider->getData($product) : [];
+        return $product instanceof Product
+            ? $this->container->get(ProductDetailProvider::class)->getData($product)
+            : [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getSubscribedServices()
+    {
+        return [
+            ProductDetailProvider::class
+        ];
     }
 }

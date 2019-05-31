@@ -20,6 +20,9 @@ services:
             - '@oro_locale.provider.current_localization'
             - '@oro_entity.doctrine_helper'
 
+    Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider:
+        alias: oro_google_tag_manager.provider.product_detail
+
     oro_google_tag_manager.provider.checkout_step:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutStepProvider'
         public: false
@@ -42,6 +45,8 @@ services:
         arguments:
             - '@oro_entity.doctrine_helper'
             - '@oro_google_tag_manager.provider.product_detail'
+            - '@oro_tax.provider.tax_provider_registry'
+            - '@oro_promotion.provider.entity_coupons_provider'
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
 

@@ -14,7 +14,7 @@
 
                 {% if product.prices is defined %}
                     {% set productPrice = macros.getPrice(product.prices) %}
-                {% else if productPrices is defined %}
+                {% elseif productPrices is defined %}
                     {% set productPrice = macros.getPrice(productPrices) %}
                 {% endif %}
 

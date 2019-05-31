@@ -10,47 +10,54 @@ use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Entity\Repository\PaymentTransactionRepository;
 use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
+use Oro\Bundle\PromotionBundle\Entity\Coupon;
+use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
+use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
 
 /**
  * Returns data for checkout steps (Checkout events) and success page (Purchase event).
  */
 class PurchaseDetailProvider
 {
-    /**
-     * @var DoctrineHelper
-     */
+    /** @var DoctrineHelper */
     private $doctrineHelper;
 
-    /**
-     * @var ProductDetailProvider
-     */
+    /** @var ProductDetailProvider */
     private $productDetailProvider;
 
-    /**
-     * @var ShippingMethodLabelFormatter
-     */
+    /** @var TaxProviderRegistry */
+    private $taxProviderRegistry;
+
+    /** @var EntityCouponsProviderInterface */
+    private $entityCouponsProvider;
+
+    /** @var ShippingMethodLabelFormatter */
     private $shippingMethodLabelFormatter;
 
-    /**
-     * @var PaymentMethodLabelFormatter
-     */
+    /** @var PaymentMethodLabelFormatter */
     private $paymentMethodLabelFormatter;
 
     /**
      * @param DoctrineHelper $doctrineHelper
      * @param ProductDetailProvider $productDataProvider
+     * @param TaxProviderRegistry $taxProviderRegistry
+     * @param EntityCouponsProviderInterface $entityCouponsProvider
      * @param ShippingMethodLabelFormatter $shippingMethodLabelFormatter
      * @param PaymentMethodLabelFormatter $paymentMethodLabelFormatter
      */
     public function __construct(
         DoctrineHelper $doctrineHelper,
         ProductDetailProvider $productDataProvider,
+        TaxProviderRegistry $taxProviderRegistry,
+        EntityCouponsProviderInterface $entityCouponsProvider,
         ShippingMethodLabelFormatter $shippingMethodLabelFormatter,
         PaymentMethodLabelFormatter $paymentMethodLabelFormatter
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->productDetailProvider = $productDataProvider;
+        $this->taxProviderRegistry = $taxProviderRegistry;
+        $this->entityCouponsProvider = $entityCouponsProvider;
         $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
         $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
     }
@@ -84,20 +91,70 @@ class PurchaseDetailProvider
             );
         }
 
-        $data = [
-            'event' => 'purchase',
-            'ecommerce' => [
-                'currencyCode' => $order->getCurrency(),
-                'purchase' => [
-                    'actionField' => [
-                        'id' => $order->getId(),
-                        'revenue' => (float) $order->getTotal(),
-                        'shipping' => $this->formatPrice($order->getShippingCost())
+        return $this->addAdditionalData(
+            $order,
+            [
+                'event' => 'purchase',
+                'ecommerce' => [
+                    'currencyCode' => $order->getCurrency(),
+                    'purchase' => [
+                        'actionField' => [
+                            'id' => $order->getId(),
+                            'revenue' => (float) $order->getTotal(),
+                        ],
+                        'products' => $products,
                     ],
-                    'products' => $products,
-                ],
+                ]
             ]
-        ];
+        );
+    }
+
+    /**
+     * @param Order $order
+     * @param array $data
+     * @return array
+     */
+    private function addAdditionalData(Order $order, array $data): array
+    {
+        $actionField = &$data['ecommerce']['purchase']['actionField'];
+
+        try {
+            $result = $this->taxProviderRegistry
+                ->getEnabledProvider()
+                ->loadTax($order);
+
+            $taxAmount = (float) $result->getTotal()
+                ->getTaxAmount();
+
+            if (abs($taxAmount) <= 1e-6) {
+                $taxAmount = 0;
+            }
+
+            $actionField['tax'] = $taxAmount;
+        } catch (\Exception $e) {
+        }
+
+        $coupons = $this->entityCouponsProvider->getCoupons($order)->toArray();
+        if ($coupons) {
+            $coupons = array_map(
+                static function (Coupon $coupon) {
+                    return $coupon->getCode();
+                },
+                $coupons
+            );
+
+            sort($coupons);
+
+            $actionField['coupon'] = implode(',', $coupons);
+        }
+
+        if ($order->getShippingCost()) {
+            $actionField['shipping'] = $this->formatPrice($order->getShippingCost());
+        }
+
+        if ($order->getWebsite()) {
+            $actionField['affiliation'] = $order->getWebsite()->getName();
+        }
 
         if ($order->getShippingMethod()) {
             $data['ecommerce']['shippingMethod'] = $this->shippingMethodLabelFormatter

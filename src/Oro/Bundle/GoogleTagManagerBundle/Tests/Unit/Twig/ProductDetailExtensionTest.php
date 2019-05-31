@@ -6,6 +6,7 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Twig\ProductDetailExtension;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Component\Testing\Unit\TwigExtensionTestCaseTrait;
+use Psr\Container\ContainerInterface;
 
 class ProductDetailExtensionTest extends \PHPUnit\Framework\TestCase
 {
@@ -21,7 +22,14 @@ class ProductDetailExtensionTest extends \PHPUnit\Framework\TestCase
     {
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
 
-        $this->extension = new ProductDetailExtension($this->productDetailProvider);
+        /** @var ContainerInterface|\PHPUnit\Framework\MockObject\MockObject $container */
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->any())
+            ->method('get')
+            ->with(ProductDetailProvider::class)
+            ->willReturn($this->productDetailProvider);
+
+        $this->extension = new ProductDetailExtension($container);
     }
 
     public function testGetProductDetail(): void
