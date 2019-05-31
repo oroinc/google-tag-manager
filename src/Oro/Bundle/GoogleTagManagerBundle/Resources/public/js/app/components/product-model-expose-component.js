@@ -3,6 +3,7 @@ define(function(require) {
 
     var ProductModelExposeComponent;
     var BaseComponent = require('oroui/js/app/components/base/component');
+    var _ = require('underscore');
 
     /**
      * Allows to fetch GTM model from DOM element.

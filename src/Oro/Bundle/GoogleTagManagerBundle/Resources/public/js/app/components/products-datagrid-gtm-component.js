@@ -1,7 +1,10 @@
 define(function(require) {
+    'use strict';
+
     var ProductsDatagridGtmComponent;
     var mediator = require('oroui/js/mediator');
     var BaseComponent = require('oroui/js/app/components/base/component');
+    var $ = require('jquery');
     var _ = require('underscore');
     var ProductDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
 
@@ -84,11 +87,9 @@ define(function(require) {
 
             // Skips links without new url ("javascript:void(null)", "#" and equal)
             var link = event.currentTarget;
-            if (link.protocol !== window.location.protocol
-                || (
-                    link.pathname === window.location.pathname
-                    && link.search === window.location.search
-                )) {
+            if (link.protocol !== window.location.protocol ||
+                (link.pathname === window.location.pathname && link.search === window.location.search)
+            ) {
                 return;
             }
 
@@ -125,7 +126,7 @@ define(function(require) {
                 viewMode: this.productsDatagridComponent.themeOptions.currentRowView || 'default'
             });
         },
-        
+
         /**
          * @param {HTMLElement} product
          * @returns {Number}

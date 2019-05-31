@@ -1,6 +1,7 @@
 define(function(require) {
     var BaseEmbeddedListGtmComponent;
     var BaseComponent = require('oroui/js/app/components/base/component');
+    var $ = require('jquery');
     var _ = require('underscore');
 
     /**
@@ -72,7 +73,7 @@ define(function(require) {
 
         /**
          * Implement this method to invoke gtm:event:push event for impression.
-         * 
+         *
          * @param {Array} impressionsData
          * @private
          */
@@ -82,7 +83,7 @@ define(function(require) {
 
         /**
          * Implement this method to get impression data of the viewed item.
-         * 
+         *
          * @param {Object} model Model of the viewed item
          * @param {Number} position Position in the list
          * @returns {Object}
@@ -94,7 +95,7 @@ define(function(require) {
 
         /**
          * Implement this method to get model from the viewed item.
-         * 
+         *
          * @param {jQuery.Element} $item
          * @returns {Object|undefined}
          * @private
