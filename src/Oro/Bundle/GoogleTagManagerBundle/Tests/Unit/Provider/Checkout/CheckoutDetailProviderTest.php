@@ -117,7 +117,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                         'actionField' => [
                             'step' => 3,
                             'option' => 'enter_shipping_method',
-                            'affiliation' => 'test_workflow',
                         ],
                         'products' => [
                             [

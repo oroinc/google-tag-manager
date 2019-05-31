@@ -42,6 +42,8 @@ services:
         arguments:
             - '@oro_entity.doctrine_helper'
             - '@oro_google_tag_manager.provider.product_detail'
+            - '@oro_tax.provider.tax_provider_registry'
+            - '@oro_promotion.provider.entity_coupons_provider'
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
 

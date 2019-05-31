@@ -94,7 +94,6 @@ class CheckoutDetailProvider
                     'actionField' => [
                         'step' => $position,
                         'option' => $step->getName(),
-                        'affiliation' => $step->getDefinition()->getName(),
                     ],
                     'products' => $products,
                 ],
