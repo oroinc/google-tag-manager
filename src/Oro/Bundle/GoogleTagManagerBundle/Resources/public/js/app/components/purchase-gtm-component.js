@@ -1,12 +1,12 @@
 define(function(require) {
     'use strict';
 
-    var CheckoutGtmComponent;
+    var PurchaseGtmComponent;
     var BaseComponent = require('oroui/js/app/components/base/component');
     var mediator = require('oroui/js/mediator');
     var _ = require('underscore');
 
-    CheckoutGtmComponent = BaseComponent.extend({
+    PurchaseGtmComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
@@ -15,10 +15,17 @@ define(function(require) {
         },
 
         /**
+         * @property {Object}
+         */
+        listen: {
+            'gtm:data-layer-manager:ready mediator': '_onReady'
+        },
+
+        /**
          * @inheritDoc
          */
-        constructor: function CheckoutGtmComponent() {
-            CheckoutGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function PurchaseGtmComponent() {
+            PurchaseGtmComponent.__super__.constructor.apply(this, arguments);
         },
 
         /**
@@ -26,12 +33,14 @@ define(function(require) {
          */
         initialize: function(options) {
             this.options = _.defaults(options || {}, this.options);
+        },
 
+        _onReady: function() {
             _.each(this.options.data, function(data) {
                 mediator.trigger('gtm:event:push', data);
             });
         }
     });
 
-    return CheckoutGtmComponent;
+    return PurchaseGtmComponent;
 });

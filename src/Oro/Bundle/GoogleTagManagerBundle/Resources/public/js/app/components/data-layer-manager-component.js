@@ -35,7 +35,9 @@ define(function(require) {
         initialize: function(options) {
             this._dataLayer = window[options.dataLayerName];
 
-            mediator.trigger('gtm:data-layer-manager:ready');
+            mediator.once('page:afterChange', function() {
+                mediator.trigger('gtm:data-layer-manager:ready');
+            });
         },
 
         getDataLayer: function() {

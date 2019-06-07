@@ -34,6 +34,9 @@ class ShoppingListLineItemEventListener
     /** @var GoogleTagManagerSettingsProviderInterface */
     private $settingsProvider;
 
+    /** @var int */
+    private $batchSize = 30;
+
     /** @var array */
     private $added = [];
 
@@ -59,6 +62,18 @@ class ShoppingListLineItemEventListener
         $this->productDetailProvider = $productDetailProvider;
         $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->settingsProvider = $settingsProvider;
+    }
+
+    /**
+     * @param int $batchSize
+     */
+    public function setBatchSize(int $batchSize): void
+    {
+        if ($batchSize < 1) {
+            throw new \InvalidArgumentException(sprintf('Batch size must be greater than zero, %d given.', $batchSize));
+        }
+
+        $this->batchSize = $batchSize;
     }
 
     /**
@@ -126,31 +141,35 @@ class ShoppingListLineItemEventListener
     public function postFlush(): void
     {
         foreach ($this->added as $currency => $added) {
-            $this->dataLayerManager->add(
-                [
-                    'event' => 'addToCart',
-                    'ecommerce' => [
-                        'currencyCode' => $currency,
-                        'add' => [
-                            'products' => $added
+            foreach (array_chunk($added, $this->batchSize) as $chunk) {
+                $this->dataLayerManager->add(
+                    [
+                        'event' => 'addToCart',
+                        'ecommerce' => [
+                            'currencyCode' => $currency,
+                            'add' => [
+                                'products' => $chunk
+                            ]
                         ]
                     ]
-                ]
-            );
+                );
+            }
         }
 
         foreach ($this->removed as $currency => $removed) {
-            $this->dataLayerManager->add(
-                [
-                    'event' => 'removeFromCart',
-                    'ecommerce' => [
-                        'currencyCode' => $currency,
-                        'remove' => [
-                            'products' => $removed
+            foreach (array_chunk($removed, $this->batchSize) as $chunk) {
+                $this->dataLayerManager->add(
+                    [
+                        'event' => 'removeFromCart',
+                        'ecommerce' => [
+                            'currencyCode' => $currency,
+                            'remove' => [
+                                'products' => $chunk
+                            ]
                         ]
                     ]
-                ]
-            );
+                );
+            }
         }
 
         $this->onClear();

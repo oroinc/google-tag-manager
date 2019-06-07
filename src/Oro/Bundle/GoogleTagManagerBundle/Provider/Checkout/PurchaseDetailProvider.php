@@ -38,6 +38,9 @@ class PurchaseDetailProvider
     /** @var PaymentMethodLabelFormatter */
     private $paymentMethodLabelFormatter;
 
+    /** @var int */
+    private $batchSize = 30;
+
     /**
      * @param DoctrineHelper $doctrineHelper
      * @param ProductDetailProvider $productDataProvider
@@ -60,6 +63,18 @@ class PurchaseDetailProvider
         $this->entityCouponsProvider = $entityCouponsProvider;
         $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
         $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
+    }
+
+    /**
+     * @param int $batchSize
+     */
+    public function setBatchSize(int $batchSize): void
+    {
+        if ($batchSize < 1) {
+            throw new \InvalidArgumentException(sprintf('Batch size must be greater than zero, %d given.', $batchSize));
+        }
+
+        $this->batchSize = $batchSize;
     }
 
     /**
@@ -91,7 +106,7 @@ class PurchaseDetailProvider
             );
         }
 
-        return $this->addAdditionalData(
+        $data = $this->addAdditionalData(
             $order,
             [
                 'event' => 'purchase',
@@ -107,6 +122,19 @@ class PurchaseDetailProvider
                 ]
             ]
         );
+
+        $result = [];
+        foreach (array_chunk($products, $this->batchSize) as $key => $chunk) {
+            $data['ecommerce']['purchase']['products'] = $chunk;
+
+            $result[] = $data;
+
+            if ($key === 0) {
+                $data['ecommerce']['purchase']['actionField'] = ['id' => $order->getId()];
+            }
+        }
+
+        return $result;
     }
 
     /**

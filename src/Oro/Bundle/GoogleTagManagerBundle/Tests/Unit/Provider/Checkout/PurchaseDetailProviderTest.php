@@ -92,6 +92,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->shippingMethodLabelFormatter,
             $this->paymentMethodLabelFormatter
         );
+        $this->provider->setBatchSize(1);
     }
 
     public function testGetPurchaseDataWithoutOrder(): void
@@ -125,6 +126,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
      * @param Order $order
      * @param OrderLineItem $lineItem1
      * @param OrderLineItem $lineItem2
+     * @param OrderLineItem $lineItem3
      * @param float|null $taxAmount
      * @param array $coupons
      * @param string|null $paymentMethod
@@ -134,6 +136,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         Order $order,
         OrderLineItem $lineItem1,
         OrderLineItem $lineItem2,
+        OrderLineItem $lineItem3,
         ?float $taxAmount,
         array $coupons,
         ?string $paymentMethod,
@@ -164,11 +167,12 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         $checkout->getCompletedData()
             ->offsetSet('orders', [['entityId' => ['id' => $order->getId()]]]);
 
-        $this->productDetailProvider->expects($this->exactly(2))
+        $this->productDetailProvider->expects($this->exactly(3))
             ->method('getData')
             ->withConsecutive(
                 [$this->identicalTo($lineItem1->getProduct())],
-                [$this->identicalTo($lineItem2->getProduct())]
+                [$this->identicalTo($lineItem2->getProduct())],
+                [$this->identicalTo($lineItem3->getProduct())]
             )
             ->willReturnOnConsecutiveCalls(
                 [],
@@ -177,22 +181,29 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'name' => 'Product 2',
                     'brand' => 'Brand 2',
                     'category' => 'Category 2',
+                ],
+                [
+                    'id' => 'sku3',
+                    'name' => 'Product 3',
+                    'brand' => 'Brand 3',
+                    'category' => 'Category 3',
                 ]
             );
 
         $this->assertTaxProviderCalled($order, $taxAmount);
         $this->assertCouponsProviderCalled($order, $coupons);
 
-        $this->assertEquals(['event' => 'purchase', 'ecommerce' => $expected], $this->provider->getData($checkout));
+        $this->assertEquals($expected, $this->provider->getData($checkout));
     }
 
     /**
      * @return array
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function getPurchaseDataProvider(): array
     {
         /** @var Order $order1 */
-        [$order1, $lineItem11, $lineItem12] = $this->prepareOrder();
+        [$order1, $lineItem11, $lineItem12, $lineItem13] = $this->prepareOrder();
 
         $website = new Website();
         $website->setName('Test Website');
@@ -202,71 +213,131 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setShippingMethodType('shipping_type')
             ->setWebsite($website);
 
-        [$order2, $lineItem21, $lineItem22] = $this->prepareOrder();
+        [$order2, $lineItem21, $lineItem22, $lineItem23] = $this->prepareOrder();
 
         return [
             'full data' => [
                 'order' => $order1,
                 'lineItem1' => $lineItem11,
                 'lineItem2' => $lineItem12,
+                'lineItem3' => $lineItem13,
                 'tax' => 11.8,
                 'coupons' => ['CODE1', 'CODE2'],
                 'paymentMethod' => 'payment_method',
                 'expected' => [
-                    'purchase' => [
-                        'actionField' => [
-                            'id' => 42,
-                            'revenue' => 1500.15,
-                            'tax' => 11.8,
-                            'shipping' => 20.20,
-                            'affiliation' => 'Test Website',
-                            'coupon' => 'CODE1,CODE2',
-                        ],
-                        'products' => [
-                            [
-                                'id' => 'sku2',
-                                'name' => 'Product 2',
-                                'price' => 1.10,
-                                'brand' => 'Brand 2',
-                                'category' => 'Category 2',
-                                'quantity' => 5.5,
-                                'position' => 2,
-                                'variant' => 'item',
-                            ]
-                        ],
+                    [
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'purchase' => [
+                                'actionField' => [
+                                    'id' => 42,
+                                    'revenue' => 1500.15,
+                                    'tax' => 11.8,
+                                    'shipping' => 20.20,
+                                    'affiliation' => 'Test Website',
+                                    'coupon' => 'CODE1,CODE2',
+                                ],
+                                'products' => [
+                                    [
+                                        'id' => 'sku2',
+                                        'name' => 'Product 2',
+                                        'price' => 1.1,
+                                        'brand' => 'Brand 2',
+                                        'category' => 'Category 2',
+                                        'quantity' => 5.5,
+                                        'position' => 2,
+                                        'variant' => 'item',
+                                    ]
+                                ],
+                            ],
+                            'currencyCode' => 'USD',
+                            'shippingMethod' => 'shipping_method, shipping_type_formatted',
+                            'paymentMethod' => 'payment_method_formatted',
+                        ]
                     ],
-                    'currencyCode' => 'USD',
-                    'shippingMethod' => 'shipping_method, shipping_type_formatted',
-                    'paymentMethod' => 'payment_method_formatted',
+                    [
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'purchase' => [
+                                'actionField' => [
+                                    'id' => 42,
+                                ],
+                                'products' => [
+                                    [
+                                        'id' => 'sku3',
+                                        'name' => 'Product 3',
+                                        'price' => 5.5,
+                                        'brand' => 'Brand 3',
+                                        'category' => 'Category 3',
+                                        'quantity' => 10.22,
+                                        'position' => 3,
+                                        'variant' => 'set',
+                                    ]
+                                ],
+                            ],
+                            'currencyCode' => 'USD',
+                            'shippingMethod' => 'shipping_method, shipping_type_formatted',
+                            'paymentMethod' => 'payment_method_formatted',
+                        ]
+                    ]
                 ]
             ],
             'without additional data' => [
                 'order' => $order2,
                 'lineItem1' => $lineItem21,
                 'lineItem2' => $lineItem22,
+                'lineItem3' => $lineItem23,
                 'tax' => null,
                 'coupons' => [],
                 'paymentMethod' => null,
                 'expected' => [
-                    'purchase' => [
-                        'actionField' => [
-                            'id' => 42,
-                            'revenue' => 1500.15,
-                        ],
-                        'products' => [
-                            [
-                                'id' => 'sku2',
-                                'name' => 'Product 2',
-                                'price' => 1.10,
-                                'brand' => 'Brand 2',
-                                'category' => 'Category 2',
-                                'quantity' => 5.5,
-                                'position' => 2,
-                                'variant' => 'item',
-                            ]
-                        ],
+                    [
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'purchase' => [
+                                'actionField' => [
+                                    'id' => 42,
+                                    'revenue' => 1500.15,
+                                ],
+                                'products' => [
+                                    [
+                                        'id' => 'sku2',
+                                        'name' => 'Product 2',
+                                        'price' => 1.1,
+                                        'brand' => 'Brand 2',
+                                        'category' => 'Category 2',
+                                        'quantity' => 5.5,
+                                        'position' => 2,
+                                        'variant' => 'item',
+                                    ]
+                                ],
+                            ],
+                            'currencyCode' => 'USD',
+                        ]
                     ],
-                    'currencyCode' => 'USD',
+                    [
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'purchase' => [
+                                'actionField' => [
+                                    'id' => 42,
+                                ],
+                                'products' => [
+                                    [
+                                        'id' => 'sku3',
+                                        'name' => 'Product 3',
+                                        'price' => 5.5,
+                                        'brand' => 'Brand 3',
+                                        'category' => 'Category 3',
+                                        'quantity' => 10.22,
+                                        'position' => 3,
+                                        'variant' => 'set',
+                                    ]
+                                ],
+                            ],
+                            'currencyCode' => 'USD',
+                        ]
+                    ]
                 ]
             ]
         ];
@@ -326,6 +397,8 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         $product1 = $this->getEntity(Product::class, ['id' => 1001]);
         /** @var Product $product2 */
         $product2 = $this->getEntity(Product::class, ['id' => 2002]);
+        /** @var Product $product3 */
+        $product3 = $this->getEntity(Product::class, ['id' => 3003]);
 
         $lineItem1 = new OrderLineItem();
         $lineItem1->setProduct($product1)
@@ -341,13 +414,24 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setPrice(Price::create(1.1, 'USD'))
             ->preSave();
 
+        $productUnit3 = new ProductUnit();
+        $productUnit3->setCode('set');
+
+        $lineItem3 = new OrderLineItem();
+        $lineItem3->setProduct($product3)
+            ->setProductUnit($productUnit3)
+            ->setQuantity(10.22)
+            ->setPrice(Price::create(5.5, 'USD'))
+            ->preSave();
+
         /** @var Order $order */
         $order = $this->getEntity(Order::class, ['id' => 42]);
         $order->setTotal(1500.15)
             ->setCurrency('USD')
             ->addLineItem($lineItem1)
-            ->addLineItem($lineItem2);
+            ->addLineItem($lineItem2)
+            ->addLineItem($lineItem3);
 
-        return [$order, $lineItem1, $lineItem2];
+        return [$order, $lineItem1, $lineItem2, $lineItem3];
     }
 }
