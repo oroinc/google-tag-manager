@@ -10,7 +10,6 @@ use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
-use Oro\Bundle\LocaleBundle\Provider\LocalizationProviderInterface;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Brand as BrandStub;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Product as ProductStub;
 use Oro\Component\Testing\Unit\EntityTrait;
@@ -18,9 +17,6 @@ use Oro\Component\Testing\Unit\EntityTrait;
 class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|LocalizationProviderInterface */
-    private $currentLocalizationProvider;
 
     /** @var ProductDetailProvider */
     private $provider;
@@ -36,8 +32,6 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-        $this->currentLocalizationProvider = $this->createMock(LocalizationProviderInterface::class);
-
         $this->categoryRepository = $this->createMock(CategoryRepository::class);
         $this->categoryRepository->expects($this->any())
             ->method('getPath')
@@ -50,7 +44,7 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->with(Category::class)
             ->willReturn($this->categoryRepository);
 
-        $this->provider = new ProductDetailProvider($this->currentLocalizationProvider, $this->doctrineHelper);
+        $this->provider = new ProductDetailProvider($this->doctrineHelper);
     }
 
     /**
@@ -61,25 +55,7 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetData(ProductStub $product, array $excepted): void
     {
-        $this->currentLocalizationProvider->expects($this->any())
-            ->method('getCurrentLocalization')
-            ->willReturn($this->getLocalization());
-
         $this->assertSame($excepted, $this->provider->getData($product));
-    }
-
-    /**
-     * @dataProvider getDataDataProvider
-     *
-     * @param ProductStub $product
-     * @param array $excepted
-     */
-    public function testGetDataForLocalization(ProductStub $product, array $excepted): void
-    {
-        $this->currentLocalizationProvider->expects($this->never())
-            ->method('getCurrentLocalization');
-
-        $this->assertSame($excepted, $this->provider->getData($product, $this->getLocalization()));
     }
 
     /**
@@ -120,12 +96,62 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @dataProvider getDataForLocalizationProvider
+     *
+     * @param ProductStub $product
+     * @param array $excepted
+     */
+    public function testGetDataForLocalization(ProductStub $product, array $excepted): void
+    {
+        $this->assertSame($excepted, $this->provider->getData($product, $this->getLocalization()));
+    }
+
+    /**
+     * @return array
+     */
+    public function getDataForLocalizationProvider(): array
+    {
+        $product = $this->getProduct('SKU-1', 'Product name', true);
+        $product->setBrand($this->getBrand('ACME Brand', true))
+            ->setCategory($this->getCategory('Category 2', null, true));
+
+        return [
+            'product without required name' => [
+                'product' => $this->getProduct(null, 'Product name', true),
+                'excepted' =>  [],
+            ],
+            'product without required sku' => [
+                'product' => $this->getProduct('SKU-1', null, true),
+                'excepted' =>  [],
+            ],
+            'product with required data' => [
+                'product' => $this->getProduct('SKU-1', 'Product name', true),
+                'excepted' =>  [
+                    'id' => 'SKU-1',
+                    'name' => 'Product name',
+                ],
+            ],
+            'product with all data' => [
+                'product' => $product,
+                'excepted' =>  [
+                    'id' => 'SKU-1',
+                    'name' => 'Product name',
+                    'brand' => 'ACME Brand',
+                    'category' => 'Category 1 / Category 2',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * @param string $translate
-     * @param Localization $localization
+     * @param Localization|null $localization
      * @return LocalizedFallbackValue
      */
-    private function createLocalizedFallbackValue(string $translate, Localization $localization): LocalizedFallbackValue
-    {
+    private function createLocalizedFallbackValue(
+        string $translate,
+        ?Localization $localization
+    ): LocalizedFallbackValue {
         $fallbackValue = new LocalizedFallbackValue();
         $fallbackValue->setString($translate);
         $fallbackValue->setLocalization($localization);
@@ -148,14 +174,17 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
     /**
      * @param string|null $sku
      * @param string|null $name
+     * @param bool $isLocalized
      * @return ProductStub
      */
-    private function getProduct(?string $sku, ?string $name): ProductStub
+    private function getProduct(?string $sku, ?string $name, bool $isLocalized = false): ProductStub
     {
         $product = $this->getEntity(ProductStub::class, ['sku' => $sku]);
 
         if ($name) {
-            $product->addName($this->createLocalizedFallbackValue($name, $this->getLocalization()));
+            $product->addName(
+                $this->createLocalizedFallbackValue($name, $isLocalized ? $this->getLocalization() : null)
+            );
         }
 
         return $product;
@@ -163,16 +192,17 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param string $name
+     * @param bool $isLocalized
      * @return BrandStub
      */
-    private function getBrand(string $name): BrandStub
+    private function getBrand(string $name, bool $isLocalized = false): BrandStub
     {
         return $this->getEntity(
             BrandStub::class,
             [
                 'names' => new ArrayCollection(
                     [
-                        $this->createLocalizedFallbackValue($name, $this->getLocalization())
+                        $this->createLocalizedFallbackValue($name, $isLocalized ? $this->getLocalization() : null)
                     ]
                 ),
             ]
@@ -182,9 +212,10 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
     /**
      * @param string $title
      * @param int|null $id
+     * @param bool $isLocalized
      * @return CategoryStub
      */
-    private function getCategory(string $title, ?int$id = null): CategoryStub
+    private function getCategory(string $title, ?int$id = null, bool $isLocalized = false): CategoryStub
     {
         return $this->getEntity(
             CategoryStub::class,
@@ -192,7 +223,7 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
                 'id' => $id,
                 'titles' => new ArrayCollection(
                     [
-                        $this->createLocalizedFallbackValue($title, $this->getLocalization())
+                        $this->createLocalizedFallbackValue($title, $isLocalized ? $this->getLocalization() : null)
                     ]
                 ),
             ]

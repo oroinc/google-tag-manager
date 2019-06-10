@@ -17,7 +17,9 @@ use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\PromotionBundle\Entity\Coupon;
+use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
+use Oro\Bundle\RuleBundle\Entity\Rule;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Bundle\TaxBundle\Model\Result;
 use Oro\Bundle\TaxBundle\Model\ResultElement;
@@ -375,9 +377,15 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
     private function assertCouponsProviderCalled(Order $order, array $codes): void
     {
         $coupons = new ArrayCollection();
-        foreach ($codes as $code) {
+        foreach (array_merge($codes, ['', null]) as $code) {
+            $rule = new Rule();
+            $rule->setName($code);
+
+            $promotion = new Promotion();
+            $promotion->setRule($rule);
+
             $coupon = new Coupon();
-            $coupon->setCode($code);
+            $coupon->setPromotion($promotion);
 
             $coupons->add($coupon);
         }

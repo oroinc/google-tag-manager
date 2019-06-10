@@ -43,7 +43,7 @@ class FrontendProductDatagridListener
         $config->offsetAddToArrayByPath('[source][query][select]', [
             sprintf(
                 'text.%s as %s',
-                WebsiteSearchIndexerListener::PRODUCT_DETAIL_L10N_FIELD,
+                WebsiteSearchIndexerListener::PRODUCT_DETAIL_FIELD,
                 self::COLUMN_PRODUCT_DETAIL
             ),
         ]);

@@ -20,7 +20,6 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider'
         public: false
         arguments:
-            - '@oro_locale.provider.current_localization'
             - '@oro_entity.doctrine_helper'
 
     Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider:
@@ -83,7 +82,6 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\WebsiteSearchIndexerListener'
         public: false
         arguments:
-            - '@oro_website.provider.website_localization'
             - '@oro_website_search.manager.website_context_manager'
             - '@oro_google_tag_manager.provider.product_detail'
         tags:

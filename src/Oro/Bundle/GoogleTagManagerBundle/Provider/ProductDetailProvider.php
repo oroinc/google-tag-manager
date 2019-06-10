@@ -7,7 +7,6 @@ use Oro\Bundle\CatalogBundle\Entity\Category;
 use Oro\Bundle\CatalogBundle\Entity\Repository\CategoryRepository;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
-use Oro\Bundle\LocaleBundle\Provider\LocalizationProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 
 /**
@@ -15,9 +14,6 @@ use Oro\Bundle\ProductBundle\Entity\Product;
  */
 class ProductDetailProvider
 {
-    /** @var LocalizationProviderInterface */
-    private $currentLocalizationProvider;
-
     /** @var DoctrineHelper */
     private $doctrineHelper;
 
@@ -25,14 +21,10 @@ class ProductDetailProvider
     private $categoryPaths = [];
 
     /**
-     * @param LocalizationProviderInterface $currentLocalizationProvider
      * @param DoctrineHelper $doctrineHelper
      */
-    public function __construct(
-        LocalizationProviderInterface $currentLocalizationProvider,
-        DoctrineHelper $doctrineHelper
-    ) {
-        $this->currentLocalizationProvider = $currentLocalizationProvider;
+    public function __construct(DoctrineHelper $doctrineHelper)
+    {
         $this->doctrineHelper = $doctrineHelper;
     }
 
@@ -48,8 +40,6 @@ class ProductDetailProvider
         if (!$product->getSku()) {
             return [];
         }
-
-        $localization = $localization ?? $this->currentLocalizationProvider->getCurrentLocalization();
 
         $name = $product->getName($localization);
         if (!$name || !$name->getString()) {
