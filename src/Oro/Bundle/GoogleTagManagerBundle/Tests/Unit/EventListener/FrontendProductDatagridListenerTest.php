@@ -58,7 +58,7 @@ class FrontendProductDatagridListenerTest extends \PHPUnit\Framework\TestCase
             'source' => [
                 'query' => [
                     'select' => [
-                        'text.product_detail_LOCALIZATION_ID as product_detail'
+                        'text.product_detail as product_detail'
                     ],
                 ],
             ],

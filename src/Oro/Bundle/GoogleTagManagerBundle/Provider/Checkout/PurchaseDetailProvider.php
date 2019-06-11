@@ -134,18 +134,9 @@ class PurchaseDetailProvider
         } catch (\Exception $e) {
         }
 
-        $coupons = $this->entityCouponsProvider->getCoupons($order)->toArray();
-        if ($coupons) {
-            $coupons = array_map(
-                static function (Coupon $coupon) {
-                    return $coupon->getCode();
-                },
-                $coupons
-            );
-
-            sort($coupons);
-
-            $actionField['coupon'] = implode(',', $coupons);
+        $promotions = $this->getPromotions($order);
+        if ($promotions) {
+            $actionField['coupon'] = implode(',', $promotions);
         }
 
         if ($order->getShippingCost()) {
@@ -168,6 +159,39 @@ class PurchaseDetailProvider
         }
 
         return $data;
+    }
+
+    /**
+     * @param Order $order
+     * @return array
+     */
+    private function getPromotions(Order $order): array
+    {
+        /** @var Coupon[] $coupons */
+        $coupons = $this->entityCouponsProvider->getCoupons($order)->toArray();
+        if (!$coupons) {
+            return [];
+        }
+
+        $promotions = [];
+        foreach ($coupons as $coupon) {
+            $promotion = $coupon->getPromotion();
+            if (!$promotion) {
+                continue;
+            }
+
+            $rule = $promotion->getRule();
+            if (!$rule) {
+                continue;
+            }
+
+            $promotions[] = $rule->getName();
+        }
+
+        $promotions = \array_filter(\array_unique($promotions));
+        \sort($promotions);
+
+        return $promotions;
     }
 
     /**
