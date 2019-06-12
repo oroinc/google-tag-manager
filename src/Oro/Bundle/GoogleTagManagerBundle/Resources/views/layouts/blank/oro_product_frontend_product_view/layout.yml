@@ -3,7 +3,7 @@ layout:
         - '@setBlockTheme':
             themes: 'layout.html.twig'
         - '@add':
-            id: google_tag_manager_product_model_expose
+            id: google_tag_manager_product_view_detail
             parentId: product_view_primary_wrapper
             blockType: block
             options:

@@ -9,7 +9,7 @@
         {% endif %}
 
         {% if productDetail is not empty %}
-            {% if product.type is not constant('Oro\\Bundle\\ProductBundle\\Entity\\Product::TYPE_CONFIGURABLE') %}
+            {% if not is_configurable_product_type(product.type) or matrixFormType == 'none' %}
                 {% set productPrice = '' %}
 
                 {% if product.prices is defined %}

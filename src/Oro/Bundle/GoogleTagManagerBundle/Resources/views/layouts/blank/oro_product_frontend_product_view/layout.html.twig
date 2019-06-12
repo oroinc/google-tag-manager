@@ -1,13 +1,22 @@
-{% block _google_tag_manager_product_model_expose_widget %}
+{% block _google_tag_manager_product_view_detail_widget %}
     {% import 'OroGoogleTagManagerBundle::macros.html.twig' as macros %}
 
     {% set productDetail = oro_google_tag_manager_product_detail(product) %}
     {% if productDetail is not empty %}
+        {% if not is_configurable_product_type(product.type) or matrixFormType == 'none' %}
+            {% set productDetail = productDetail|merge({price: macros.getPrice(productPrices)}) %}
+        {% endif %}
+
         {% set attr = layout_attr_defaults(attr, {
-            '~class': ' product-model-exposed hidden',
-            'data-page-component-module': 'orogoogletagmanager/js/app/components/product-model-expose-component',
-            'data-page-component-options': {'data': productDetail|merge({price: macros.getPrice(productPrices)})}
+            '~class': ' hidden',
+            'data-page-component-module': 'oroui/js/app/components/view-component',
+            '~data-page-component-options': {
+                view: 'orogoogletagmanager/js/app/views/product-gtm-view',
+                data: productDetail
+            },
         }) %}
-        <div {{ block('block_attributes') }}></div>
+        <div {{ block('block_attributes') }}>
+            {{ block_widget(block) }}
+        </div>
     {% endif %}
 {% endblock %}
