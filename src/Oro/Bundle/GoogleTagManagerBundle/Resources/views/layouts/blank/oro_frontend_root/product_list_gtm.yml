@@ -7,16 +7,16 @@ layout:
             parentId: featured_products_container
             blockType: block
             options:
-                visible: '=data["oro_google_tag_manager_settings"].isReady()'
+                visible: '=data["featured_products"].getProducts() && data["oro_google_tag_manager_settings"].isReady()'
         - '@add':
             id: new_arrivals_list_gtm
             parentId: new_arrival_products_container
             blockType: block
             options:
-                visible: '=data["oro_google_tag_manager_settings"].isReady()'
+                visible: '=data["new_arrivals"].getProducts() && data["oro_google_tag_manager_settings"].isReady()'
         - '@add':
             id: top_selling_list_gtm
             parentId: top_selling_items_container
             blockType: block
             options:
-                visible: '=data["oro_google_tag_manager_settings"].isReady()'
+                visible: '=data["top_selling_items"].getProducts() && data["oro_google_tag_manager_settings"].isReady()'
