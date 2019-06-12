@@ -37,6 +37,11 @@ class CheckoutDetailProvider
     private $priceScopeCriteriaFactory;
 
     /**
+     * @var int
+     */
+    private $batchSize = 30;
+
+    /**
      * @param ProductDetailProvider $productDataProvider
      * @param CheckoutStepProvider $checkoutStepProvider
      * @param ProductPriceProviderInterface $productPriceProvider
@@ -52,6 +57,18 @@ class CheckoutDetailProvider
         $this->checkoutStepProvider = $checkoutStepProvider;
         $this->productPriceProvider = $productPriceProvider;
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
+    }
+
+    /**
+     * @param int $batchSize
+     */
+    public function setBatchSize(int $batchSize): void
+    {
+        if ($batchSize < 1) {
+            throw new \InvalidArgumentException(sprintf('Batch size must be greater than zero, %d given.', $batchSize));
+        }
+
+        $this->batchSize = $batchSize;
     }
 
     /**
@@ -86,7 +103,7 @@ class CheckoutDetailProvider
             );
         }
 
-        return [
+        $data = [
             'event' => 'checkout',
             'ecommerce' => [
                 'currencyCode' => $checkout->getCurrency(),
@@ -94,11 +111,19 @@ class CheckoutDetailProvider
                     'actionField' => [
                         'step' => $position,
                         'option' => $step->getName(),
-                    ],
-                    'products' => $products,
+                    ]
                 ],
             ]
         ];
+
+        return array_map(
+            static function (array $chunk) use ($data) {
+                $data['ecommerce']['checkout']['products'] = $chunk;
+
+                return $data;
+            },
+            array_chunk($products, $this->batchSize)
+        );
     }
 
     /**

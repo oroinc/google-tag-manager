@@ -1,3 +1,6 @@
+parameters:
+    oro_google_tag_manager.products.batch_size: 30
+
 services:
     oro_google_tag_manager.data_layer.manager:
         class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager'
@@ -34,6 +37,8 @@ services:
             - '@oro_google_tag_manager.provider.checkout_step'
             - '@oro_pricing.provider.product_price'
             - '@oro_pricing.model.product_price_scope_criteria_factory'
+        calls:
+            - [setBatchSize, ['%oro_google_tag_manager.products.batch_size%']]
 
     oro_google_tag_manager.provider.purchase_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider'
@@ -45,6 +50,8 @@ services:
             - '@oro_promotion.provider.entity_coupons_provider'
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
+        calls:
+            - [setBatchSize, ['%oro_google_tag_manager.products.batch_size%']]
 
     oro_google_tag_manager.provider.page_type:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider'
@@ -105,10 +112,25 @@ services:
             - '@oro_google_tag_manager.provider.product_detail'
             - '@oro_google_tag_manager.provider.product_price_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        calls:
+            - [setBatchSize, ['%oro_google_tag_manager.products.batch_size%']]
         tags:
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: prePersist }
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preUpdate }
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preRemove }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.event_listener.checkout:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\CheckoutEventListener'
+        public: false
+        arguments:
+            - '@security.token_storage'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.purchase_detail'
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        tags:
+            - { name: doctrine.orm.entity_listener, entity: '%oro_checkout.entity.checkout.class%', event: preUpdate }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 

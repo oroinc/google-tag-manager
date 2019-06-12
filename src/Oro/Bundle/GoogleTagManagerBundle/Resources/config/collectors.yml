@@ -23,14 +23,3 @@ services:
             - '@oro_web_catalog.layout.data_provider.breadcrumb_data'
         tags:
             - { name: oro_google_tag_manager.data_layer.collector }
-
-    oro_google_tag_manager.data_layer.collector.checkout_detail:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CheckoutDetailCollector'
-        public: false
-        arguments:
-            - '@request_stack'
-            - '@oro_google_tag_manager.provider.checkout_detail'
-            - '@oro_google_tag_manager.provider.purchase_detail'
-            - 'oro_checkout_frontend_checkout'
-        tags:
-            - { name: oro_google_tag_manager.data_layer.collector }

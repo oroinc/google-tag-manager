@@ -50,8 +50,12 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->productPriceProvider,
             $this->priceScopeCriteriaFactory
         );
+        $this->provider->setBatchSize(1);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function testGetCheckoutData(): void
     {
         [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
@@ -111,38 +115,54 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals(
             [
-                'event' => 'checkout',
-                'ecommerce' => [
-                    'checkout' => [
-                        'actionField' => [
-                            'step' => 3,
-                            'option' => 'enter_shipping_method',
-                        ],
-                        'products' => [
-                            [
-                                'id' => 'sku2',
-                                'name' => 'Product 2',
-                                'price' => 10.10,
-                                'brand' => 'Brand 2',
-                                'category' => 'Category 2',
-                                'quantity' => 5.5,
-                                'position' => 2,
-                                'variant' => 'item',
+                [
+                    'event' => 'checkout',
+                    'ecommerce' => [
+                        'checkout' => [
+                            'actionField' => [
+                                'step' => 3,
+                                'option' => 'enter_shipping_method',
                             ],
-                            [
-                                'id' => 'sku3',
-                                'name' => 'Product 3',
-                                'price' => 100.10,
-                                'brand' => 'Brand 3',
-                                'category' => 'Category 3',
-                                'quantity' => 15.15,
-                                'position' => 3,
-                                'variant' => 'set',
-                            ]
+                            'products' => [
+                                [
+                                    'id' => 'sku2',
+                                    'name' => 'Product 2',
+                                    'price' => 10.10,
+                                    'brand' => 'Brand 2',
+                                    'category' => 'Category 2',
+                                    'quantity' => 5.5,
+                                    'position' => 2,
+                                    'variant' => 'item',
+                                ],
+                            ],
                         ],
+                        'currencyCode' => 'USD',
                     ],
-                    'currencyCode' => 'USD',
                 ],
+                [
+                    'event' => 'checkout',
+                    'ecommerce' => [
+                        'checkout' => [
+                            'actionField' => [
+                                'step' => 3,
+                                'option' => 'enter_shipping_method',
+                            ],
+                            'products' => [
+                                [
+                                    'id' => 'sku3',
+                                    'name' => 'Product 3',
+                                    'price' => 100.10,
+                                    'brand' => 'Brand 3',
+                                    'category' => 'Category 3',
+                                    'quantity' => 15.15,
+                                    'position' => 3,
+                                    'variant' => 'set',
+                                ],
+                            ],
+                        ],
+                        'currencyCode' => 'USD',
+                    ],
+                ]
             ],
             $this->provider->getData($checkout)
         );

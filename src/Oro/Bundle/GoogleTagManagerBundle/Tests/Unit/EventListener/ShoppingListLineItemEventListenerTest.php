@@ -77,6 +77,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             $this->productPriceDetailProvider,
             $this->settingsProvider
         );
+        $this->listener->setBatchSize(1);
     }
 
     public function testPrePersistNotApplicable(): void
@@ -97,13 +98,13 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testPrePersist(): void
     {
-        $this->settingsProvider->expects($this->once())
+        $this->settingsProvider->expects($this->any())
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
         $item = $this->getLineItem();
 
-        $this->productPriceDetailProvider->expects($this->once())
+        $this->productPriceDetailProvider->expects($this->any())
             ->method('getPrice')
             ->with(
                 $item->getProduct(),
@@ -112,7 +113,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->once())
+        $this->dataLayerManager->expects($this->exactly(2))
             ->method('add')
             ->with(
                 [
@@ -137,6 +138,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             );
 
         $this->listener->prePersist($item);
+        $this->listener->prePersist($item);
         $this->listener->postFlush();
     }
 
@@ -147,7 +149,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
      */
     public function testPreUpdateNotApplicable(array $changeSet): void
     {
-        $this->settingsProvider->expects($this->once())
+        $this->settingsProvider->expects($this->any())
             ->method('getGoogleTagManagerSettings')
             ->willReturn(null);
 
@@ -174,7 +176,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
      */
     public function testPreUpdate(array $changeSet, array $expected): void
     {
-        $this->settingsProvider->expects($this->once())
+        $this->settingsProvider->expects($this->any())
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
@@ -384,13 +386,13 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testPreRemove(): void
     {
-        $this->settingsProvider->expects($this->once())
+        $this->settingsProvider->expects($this->any())
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
         $item = $this->getLineItem();
 
-        $this->productPriceDetailProvider->expects($this->once())
+        $this->productPriceDetailProvider->expects($this->any())
             ->method('getPrice')
             ->with(
                 $item->getProduct(),
@@ -399,7 +401,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->once())
+        $this->dataLayerManager->expects($this->exactly(2))
             ->method('add')
             ->with(
                 [
@@ -423,6 +425,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $this->listener->preRemove($item);
         $this->listener->preRemove($item);
         $this->listener->postFlush();
     }
