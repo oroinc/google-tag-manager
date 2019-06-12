@@ -1,6 +1,7 @@
 define(function(require) {
     var BaseEmbeddedListGtmComponent;
     var BaseComponent = require('oroui/js/app/components/base/component');
+    var mediator = require('oroui/js/mediator');
     var $ = require('jquery');
     var _ = require('underscore');
 
@@ -20,6 +21,11 @@ define(function(require) {
         options: _.extend({}, BaseComponent.prototype.options, {
             blockName: ''
         }),
+
+        /**
+         * @property {Boolean}
+         */
+        _gtmReady: false,
 
         /**
          * @inheritDoc
@@ -45,10 +51,16 @@ define(function(require) {
          * @inheritDoc
          */
         delegateListeners: function() {
+            mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
+
             this.embeddedListComponent.on('oro:embedded-list:shown', this._onImpression.bind(this));
             this.embeddedListComponent.on('oro:embedded-list:clicked', this._onClick.bind(this));
 
             BaseEmbeddedListGtmComponent.__super__.delegateListeners.apply(this, arguments);
+        },
+
+        _onGtmReady: function() {
+            this._gtmReady = true;
         },
 
         /**
@@ -139,7 +151,7 @@ define(function(require) {
             var destinationUrl = event.currentTarget.href;
             if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
                 destinationUrl = null;
-            } else {
+            } else if (this._gtmReady) {
                 // Prevent going by the link destination URL. We will get there in GTM eventCallback.
                 event.preventDefault();
             }
@@ -180,6 +192,8 @@ define(function(require) {
             if (this.disposed) {
                 return;
             }
+
+            mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
 
             this.embeddedListComponent.off('oro:embedded-list:shown', this._onImpression.bind(this));
             this.embeddedListComponent.off('oro:embedded-list:clicked', this._onClick.bind(this));
