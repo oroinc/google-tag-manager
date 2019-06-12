@@ -19,6 +19,7 @@ define(function(require) {
             'gtm:event:promotionClick mediator': '_onPromotionClick',
             'gtm:event:promotionImpressions mediator': '_onPromotionImpressions',
             'gtm:event:productClick mediator': '_onProductClick',
+            'gtm:event:productDetail mediator': '_onProductDetail',
             'gtm:event:productImpressions mediator': '_onProductImpressions'
         },
 
@@ -86,6 +87,29 @@ define(function(require) {
                     }
                 }
             });
+        },
+
+        /**
+         * @param {Object} detailData
+         * @param {String} [currencyCode]
+         * @param {String} [listName]
+         * @private
+         */
+        _onProductDetail: function(detailData, currencyCode, listName) {
+            var data = {
+                ecommerce: {
+                    currencyCode: currencyCode,
+                    detail: {
+                        products: detailData
+                    }
+                }
+            };
+
+            if (listName) {
+                data['ecommerce']['detail']['actionField'] = {list: listName};
+            }
+
+            this._onPush(data);
         },
 
         /**
