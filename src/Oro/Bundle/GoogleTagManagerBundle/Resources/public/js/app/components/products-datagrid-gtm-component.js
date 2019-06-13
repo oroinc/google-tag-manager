@@ -28,6 +28,11 @@ define(function(require) {
         }),
 
         /**
+         * @property {Boolean}
+         */
+        _gtmReady: false,
+
+        /**
          * @property {jQuery.Element}
          */
         $datagridEl: null,
@@ -67,8 +72,14 @@ define(function(require) {
         delegateListeners: function() {
             ProductsDatagridGtmComponent.__super__.delegateListeners.apply(this, arguments);
 
+            mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
+
             // Both click and mouseup needed to be able to track both left and middle buttons clicks.
             this.$datagridEl.on('click mouseup', this.options.productSelector + ' a', this._onClick.bind(this));
+        },
+
+        _onGtmReady: function() {
+            this._gtmReady = true;
         },
 
         /**
@@ -102,7 +113,7 @@ define(function(require) {
             var destinationUrl = link.href;
             if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
                 destinationUrl = null;
-            } else {
+            } else if (this._gtmReady) {
                 // Prevent going by the link destination URL. We will get there in GTM eventCallback.
                 event.preventDefault();
             }
@@ -151,6 +162,8 @@ define(function(require) {
             if (this.disposed) {
                 return;
             }
+
+            mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
 
             this.$datagridEl.off('click mouseup', this.options.productSelector, this._onClick.bind(this));
 

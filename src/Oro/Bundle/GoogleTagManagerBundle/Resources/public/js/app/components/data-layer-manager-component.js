@@ -4,12 +4,21 @@ define(function(require) {
     var DataLayerManagerComponent;
     var BaseComponent = require('oroui/js/app/components/base/component');
     var mediator = require('oroui/js/mediator');
+    var $ = require('jquery');
+    var _ = require('underscore');
 
     DataLayerManagerComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
-        _dataLayer: null,
+        options: _.extend({}, BaseComponent.prototype.options, {
+            dataLayerName: ''
+        }),
+
+        /**
+         * @property {Array}
+         */
+        _dataLayer: [],
 
         /**
          * @property {Object}
@@ -34,13 +43,54 @@ define(function(require) {
          * @param {Object} options
          */
         initialize: function(options) {
-            this._dataLayer = window[options.dataLayerName];
+            DataLayerManagerComponent.__super__.initialize.apply(this, arguments);
 
-            mediator.once('page:afterChange', function() {
-                mediator.trigger('gtm:data-layer-manager:ready');
-            });
+            this.options = _.defaults(options || {}, this.options);
         },
 
+        /**
+         * @inheritDoc
+         */
+        delegateListeners: function() {
+            DataLayerManagerComponent.__super__.delegateListeners.apply(this, arguments);
+
+            var gtmLoaded = $.Deferred();
+            var dataLayer = window[this.options.dataLayerName];
+            if (dataLayer instanceof Array && dataLayer.push !== Array.prototype.push) {
+                // Google Tag Manager has been already loaded.
+                gtmLoaded.resolve();
+            } else {
+                window.addEventListener('gtm:loaded', function() {
+                    gtmLoaded.resolve();
+                }, {once: true});
+            }
+
+            var pageLoaded = $.Deferred();
+            mediator.once('page:afterChange', function() {
+                pageLoaded.resolve();
+            });
+
+            // Wait until GTM is loaded and page is fully ready.
+            $.when([gtmLoaded, pageLoaded]).done((function() {
+                // Copy dataLayer contents if we already have something queued to push to data layer.
+                var dataLayerOld = this._dataLayer;
+
+                this._dataLayer = window[this.options.dataLayerName];
+
+                if (dataLayerOld.length) {
+                    // Push queued content to data layer.
+                    _.each(dataLayerOld, (function(item) {
+                        this._onPush(item);
+                    }).bind(this));
+                }
+
+                mediator.trigger('gtm:data-layer-manager:ready');
+            }).bind(this));
+        },
+
+        /**
+         * @returns {Array}
+         */
         getDataLayer: function() {
             return this._dataLayer;
         },
