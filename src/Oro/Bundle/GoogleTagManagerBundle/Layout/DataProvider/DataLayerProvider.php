@@ -20,13 +20,20 @@ class DataLayerProvider
     private $variableName;
 
     /**
+     * @var int
+     */
+    private $batchSize;
+
+    /**
      * @param DataLayerManager $dataLayerManager
      * @param string $variableName
+     * @param int $batchSize
      */
-    public function __construct(DataLayerManager $dataLayerManager, string $variableName)
+    public function __construct(DataLayerManager $dataLayerManager, string $variableName, int $batchSize)
     {
         $this->dataLayerManager = $dataLayerManager;
         $this->variableName = $variableName;
+        $this->batchSize = $batchSize;
     }
 
     /**
@@ -35,6 +42,14 @@ class DataLayerProvider
     public function getVariableName(): string
     {
         return $this->variableName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBatchSize(): int
+    {
+        return $this->batchSize;
     }
 
     /**

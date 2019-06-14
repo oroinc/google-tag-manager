@@ -14,9 +14,24 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
+        $rootNode = $treeBuilder->root('oro_google_tag_manager');
+
+        $rootNode
+            ->children()
+                ->arrayNode('config')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('batch_size')
+                            ->info('Number of product items in each batch for sending to GTM')
+                            ->min(1)
+                            ->defaultValue(30)
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
 
         SettingsBuilder::append(
-            $treeBuilder->root('oro_google_tag_manager'),
+            $rootNode,
             [
                 'integration' => [
                     'value' => null,

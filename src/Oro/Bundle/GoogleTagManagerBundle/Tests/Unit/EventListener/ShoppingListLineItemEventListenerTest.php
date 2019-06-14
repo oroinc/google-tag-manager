@@ -75,9 +75,9 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             $this->dataLayerManager,
             $this->productDetailProvider,
             $this->productPriceDetailProvider,
-            $this->settingsProvider
+            $this->settingsProvider,
+            1
         );
-        $this->listener->setBatchSize(1);
     }
 
     public function testPrePersistNotApplicable(): void

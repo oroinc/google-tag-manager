@@ -39,35 +39,26 @@ class CheckoutDetailProvider
     /**
      * @var int
      */
-    private $batchSize = 30;
+    private $batchSize;
 
     /**
      * @param ProductDetailProvider $productDataProvider
      * @param CheckoutStepProvider $checkoutStepProvider
      * @param ProductPriceProviderInterface $productPriceProvider
      * @param ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
+     * @param int $batchSize
      */
     public function __construct(
         ProductDetailProvider $productDataProvider,
         CheckoutStepProvider $checkoutStepProvider,
         ProductPriceProviderInterface $productPriceProvider,
-        ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
+        ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory,
+        int $batchSize = 30
     ) {
         $this->productDetailProvider = $productDataProvider;
         $this->checkoutStepProvider = $checkoutStepProvider;
         $this->productPriceProvider = $productPriceProvider;
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
-    }
-
-    /**
-     * @param int $batchSize
-     */
-    public function setBatchSize(int $batchSize): void
-    {
-        if ($batchSize < 1) {
-            throw new \InvalidArgumentException(sprintf('Batch size must be greater than zero, %d given.', $batchSize));
-        }
-
         $this->batchSize = $batchSize;
     }
 

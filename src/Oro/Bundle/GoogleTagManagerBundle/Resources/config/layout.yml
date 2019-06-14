@@ -14,6 +14,7 @@ services:
         arguments:
             - '@oro_google_tag_manager.data_layer.manager'
             - '%oro_google_tag_manager.data_layer.variable_name%'
+            - '%oro_google_tag_manager.products.batch_size%'
         tags:
             - { name: layout.data_provider, alias: 'oro_google_tag_manager_data_layer' }
 

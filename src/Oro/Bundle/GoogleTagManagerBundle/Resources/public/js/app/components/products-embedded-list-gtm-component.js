@@ -4,24 +4,12 @@ define(function(require) {
     var mediator = require('oroui/js/mediator');
     var _ = require('underscore');
     var localeSettings = require('orolocale/js/locale-settings');
-    var ProductDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
+    var productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
 
     /**
      * Listens to oro:embedded-list:* events and invokes product click, product impression GTM events,
      */
     ProductsEmbeddedListGtmComponent = BaseComponent.extend({
-        /**
-         * @property {Object}
-         */
-        options: _.extend({}, BaseComponent.prototype.options, {
-            modelAwareSelector: '.gtm-product-model-exposed'
-        }),
-
-        /**
-         * @property {ProductDetailsGtmHelper}
-         */
-        productDetailsHelper: null,
-
         /**
          * @inheritDoc
          */
@@ -34,8 +22,6 @@ define(function(require) {
          */
         initialize: function(options) {
             ProductsEmbeddedListGtmComponent.__super__.initialize.apply(this, arguments);
-
-            this.productDetailsHelper = new ProductDetailsGtmHelper(this.options.modelAwareSelector);
         },
 
         /**
@@ -49,14 +35,14 @@ define(function(require) {
          * @inheritDoc
          */
         _getModel: function($item) {
-            return this.productDetailsHelper.getModel($item);
+            return productDetailsGtmHelper.getModel($item);
         },
 
         /**
          * @inheritDoc
          */
         _getImpressionData: function(model, position) {
-            return _.extend({}, this.productDetailsHelper.getDetailsFromModel(model), {
+            return _.extend({}, productDetailsGtmHelper.getDetailsFromModel(model), {
                 list: this._getBlockName(),
                 position: position
             });
@@ -73,7 +59,7 @@ define(function(require) {
          * @inheritDoc
          */
         _getClickData: function(model, position) {
-            return _.extend({}, this.productDetailsHelper.getDetailsFromModel(model), {
+            return _.extend({}, productDetailsGtmHelper.getDetailsFromModel(model), {
                 position: position
             });
         }

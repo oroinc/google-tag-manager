@@ -1,10 +1,13 @@
 layout:
     actions:
         - '@setBlockTheme':
-              themes: 'OroGoogleTagManagerBundle:layouts:blank/imports/oro_product_grid/google_tag_manager_product_grid.html.twig'
+            themes: 'OroGoogleTagManagerBundle:layouts:blank/imports/oro_product_grid/google_tag_manager_product_grid.html.twig'
         - '@add':
-              id: __google_tag_manager_product_grid
-              parentId: product_grid_container
-              blockType: block
-              options:
-                  visible: '=data["oro_google_tag_manager_settings"].isReady()'
+            id: __google_tag_manager_product_grid
+            parentId: product_grid_container
+            blockType: block
+            options:
+                visible: '=data["oro_google_tag_manager_settings"].isReady()'
+                attr:
+                    data-page-component-options:
+                        batchSize: '=data["oro_google_tag_manager_data_layer"].getBatchSize()'

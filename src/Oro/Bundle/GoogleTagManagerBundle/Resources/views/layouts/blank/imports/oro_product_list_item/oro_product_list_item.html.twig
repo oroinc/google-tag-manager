@@ -23,11 +23,7 @@
                 {% endif %}
             {% endif %}
 
-            {% set attr = layout_attr_defaults(attr, {
-                '~class': ' gtm-product-model-exposed hidden',
-                'data-page-component-module': 'orogoogletagmanager/js/app/components/product-model-expose-component',
-                'data-page-component-options': {'data': productDetail}
-            }) %}
+            {% set attr = layout_attr_defaults(attr, {'~class': ' hidden', 'data-gtm-model': productDetail}) %}
             <div {{ block('block_attributes') }}></div>
         {% endif %}
     {% endif %}
