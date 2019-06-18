@@ -35,7 +35,7 @@ class ShoppingListLineItemEventListener
     private $settingsProvider;
 
     /** @var int */
-    private $batchSize = 30;
+    private $batchSize;
 
     /** @var array */
     private $added = [];
@@ -49,30 +49,21 @@ class ShoppingListLineItemEventListener
      * @param ProductDetailProvider $productDetailProvider
      * @param ProductPriceDetailProvider $productPriceDetailProvider
      * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
+     * @param int $batchSize
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         DataLayerManager $dataLayerManager,
         ProductDetailProvider $productDetailProvider,
         ProductPriceDetailProvider $productPriceDetailProvider,
-        GoogleTagManagerSettingsProviderInterface $settingsProvider
+        GoogleTagManagerSettingsProviderInterface $settingsProvider,
+        int $batchSize = 30
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->dataLayerManager = $dataLayerManager;
         $this->productDetailProvider = $productDetailProvider;
         $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->settingsProvider = $settingsProvider;
-    }
-
-    /**
-     * @param int $batchSize
-     */
-    public function setBatchSize(int $batchSize): void
-    {
-        if ($batchSize < 1) {
-            throw new \InvalidArgumentException(sprintf('Batch size must be greater than zero, %d given.', $batchSize));
-        }
-
         $this->batchSize = $batchSize;
     }
 

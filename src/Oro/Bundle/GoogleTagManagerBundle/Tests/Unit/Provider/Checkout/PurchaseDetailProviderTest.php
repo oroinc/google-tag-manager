@@ -92,9 +92,9 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             $taxProviderRegistry,
             $this->entityCouponsProvider,
             $this->shippingMethodLabelFormatter,
-            $this->paymentMethodLabelFormatter
+            $this->paymentMethodLabelFormatter,
+            1
         );
-        $this->provider->setBatchSize(1);
     }
 
     public function testGetPurchaseDataWithoutOrder(): void

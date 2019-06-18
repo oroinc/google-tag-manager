@@ -9,6 +9,8 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
 {
     private const DATA_LAYER_VARIABLE_NAME = 'dataLayer';
 
+    private const BATCH_SIZE = 11;
+
     /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
     private $dataLayerManager;
 
@@ -19,12 +21,21 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
     {
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);
 
-        $this->provider = new DataLayerProvider($this->dataLayerManager, self::DATA_LAYER_VARIABLE_NAME);
+        $this->provider = new DataLayerProvider(
+            $this->dataLayerManager,
+            self::DATA_LAYER_VARIABLE_NAME,
+            self::BATCH_SIZE
+        );
     }
 
     public function testGetVariableName(): void
     {
         $this->assertEquals(self::DATA_LAYER_VARIABLE_NAME, $this->provider->getVariableName());
+    }
+
+    public function testGetBatchSize(): void
+    {
+        $this->assertEquals(self::BATCH_SIZE, $this->provider->getBatchSize());
     }
 
     public function testGetConfigForEvents(): void

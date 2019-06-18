@@ -3,28 +3,20 @@ define(function(require) {
     var _ = require('underscore');
 
     /**
-     * @param {String} [modelAwareSelector]
-     * @constructor
-     */
-    function ProductsDetailsGtmHelper(modelAwareSelector) {
-        this.modelAwareSelector = modelAwareSelector || '.gtm-product-model-exposed';
-    }
-
-    /**
      * Provides product details ready for GTM events related to products.
      */
-    _.extend(ProductsDetailsGtmHelper.prototype, {
+    var productsDetailsGtmHelper = {
         /**
          * @property {String}
          */
-        modelAwareSelector: null,
+        modelAwareSelector: '[data-gtm-model]',
 
         /**
-         * @param {HTMLElement} element HTML element representing a product
+         * @param {HTMLElement|jQuery.Element} element HTML or jQuery element representing a product
          * @returns {Object|undefined}
          */
         getModel: function(element) {
-            var model = $(element).find(this.modelAwareSelector).triggerHandler('gtm:model:get');
+            var model = $(element).find(productsDetailsGtmHelper.modelAwareSelector).data('gtmModel');
             if (typeof model !== 'undefined' && typeof model.id !== 'undefined' && typeof model.name !== 'undefined') {
                 return model;
             }
@@ -62,7 +54,7 @@ define(function(require) {
 
             return this.getDetailsFromModel(model);
         }
-    });
+    };
 
-    return ProductsDetailsGtmHelper;
+    return productsDetailsGtmHelper;
 });

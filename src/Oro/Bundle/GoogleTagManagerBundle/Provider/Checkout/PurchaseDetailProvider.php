@@ -39,7 +39,7 @@ class PurchaseDetailProvider
     private $paymentMethodLabelFormatter;
 
     /** @var int */
-    private $batchSize = 30;
+    private $batchSize;
 
     /**
      * @param DoctrineHelper $doctrineHelper
@@ -48,6 +48,7 @@ class PurchaseDetailProvider
      * @param EntityCouponsProviderInterface $entityCouponsProvider
      * @param ShippingMethodLabelFormatter $shippingMethodLabelFormatter
      * @param PaymentMethodLabelFormatter $paymentMethodLabelFormatter
+     * @param int $batchSize
      */
     public function __construct(
         DoctrineHelper $doctrineHelper,
@@ -55,7 +56,8 @@ class PurchaseDetailProvider
         TaxProviderRegistry $taxProviderRegistry,
         EntityCouponsProviderInterface $entityCouponsProvider,
         ShippingMethodLabelFormatter $shippingMethodLabelFormatter,
-        PaymentMethodLabelFormatter $paymentMethodLabelFormatter
+        PaymentMethodLabelFormatter $paymentMethodLabelFormatter,
+        int $batchSize = 30
     ) {
         $this->doctrineHelper = $doctrineHelper;
         $this->productDetailProvider = $productDataProvider;
@@ -63,17 +65,6 @@ class PurchaseDetailProvider
         $this->entityCouponsProvider = $entityCouponsProvider;
         $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
         $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
-    }
-
-    /**
-     * @param int $batchSize
-     */
-    public function setBatchSize(int $batchSize): void
-    {
-        if ($batchSize < 1) {
-            throw new \InvalidArgumentException(sprintf('Batch size must be greater than zero, %d given.', $batchSize));
-        }
-
         $this->batchSize = $batchSize;
     }
 

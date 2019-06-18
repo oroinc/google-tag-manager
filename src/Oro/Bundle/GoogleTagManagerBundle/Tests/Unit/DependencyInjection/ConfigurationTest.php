@@ -28,6 +28,9 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
                         'scope' => 'app',
                     ],
                 ],
+                'config' => [
+                    'batch_size' => 30,
+                ],
             ],
             $processor->processConfiguration(new Configuration(), [])
         );

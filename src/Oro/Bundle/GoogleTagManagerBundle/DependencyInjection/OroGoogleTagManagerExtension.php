@@ -24,5 +24,7 @@ class OroGoogleTagManagerExtension extends Extension
         $loader->load('layout.yml');
         $loader->load('services.yml');
         $loader->load('twig.yml');
+
+        $container->setParameter('oro_google_tag_manager.products.batch_size', $config['config']['batch_size']);
     }
 }

@@ -6,7 +6,8 @@ define(function(require) {
     var BaseComponent = require('oroui/js/app/components/base/component');
     var $ = require('jquery');
     var _ = require('underscore');
-    var ProductDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
+    var productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
+    var localeSettings = require('orolocale/js/locale-settings');
 
     /**
      * Handles clicks on products datagrid to invoke GTM productClick events.
@@ -23,7 +24,7 @@ define(function(require) {
          */
         options: _.extend({}, BaseComponent.prototype.options, {
             productSelector: '.grid-row.product-item',
-            modelAwareSelector: '.gtm-product-model-exposed',
+            batchSize: 30,
             listName: ''
         }),
 
@@ -36,11 +37,6 @@ define(function(require) {
          * @property {jQuery.Element}
          */
         $datagridEl: null,
-
-        /**
-         * @property {ProductDetailsGtmHelper}
-         */
-        productDetailsHelper: null,
 
         /**
          * @inheritDoc
@@ -63,7 +59,7 @@ define(function(require) {
 
             this.$datagridEl = this.productsDatagridComponent.$el;
 
-            this.productDetailsHelper = new ProductDetailsGtmHelper(this.options.modelAwareSelector);
+            mediator.once('page:afterChange', this._onView.bind(this));
         },
 
         /**
@@ -76,6 +72,31 @@ define(function(require) {
 
             // Both click and mouseup needed to be able to track both left and middle buttons clicks.
             this.$datagridEl.on('click mouseup', this.options.productSelector + ' a', this._onClick.bind(this));
+
+            this.listenTo(this.productsDatagridComponent.grid, 'content:update', this._onView.bind(this));
+        },
+
+        /**
+         * @private
+         */
+        _onView: function() {
+            var productsDetails = [];
+            var listName = this._getListName();
+
+            this.$datagridEl.find(this.options.productSelector).each((function(i, product) {
+                var details = this._getProductDetails(product);
+                if (details) {
+                    productsDetails.push(_.extend(details, {list: listName}));
+                }
+            }).bind(this));
+
+            _.each(this._chunk(productsDetails, this.options.batchSize), function(productsDetailsChunk) {
+                mediator.trigger(
+                    'gtm:event:productImpressions',
+                    productsDetailsChunk,
+                    localeSettings.getCurrency()
+                );
+            });
         },
 
         _onGtmReady: function() {
@@ -127,7 +148,7 @@ define(function(require) {
          * @private
          */
         _getProductDetails: function(product) {
-            var details = this.productDetailsHelper.getDetails(product);
+            var details = productDetailsGtmHelper.getDetails(product);
             if (!details) {
                 return undefined;
             }
@@ -153,6 +174,25 @@ define(function(require) {
          */
         _getListName: function() {
             return this.options.listName;
+        },
+
+        /**
+         * Chunks an array into multiple arrays, each containing size or fewer items.
+         *
+         * @param {Array} array
+         * @param {Number} size
+         * @returns {Array}
+         * @private
+         */
+        _chunk: function(array, size) {
+            return array.reduce(function(res, item, index) {
+                if (index % size === 0) {
+                    res.push([]);
+                }
+                res[res.length - 1].push(item);
+
+                return res;
+            }, []);
         },
 
         /**

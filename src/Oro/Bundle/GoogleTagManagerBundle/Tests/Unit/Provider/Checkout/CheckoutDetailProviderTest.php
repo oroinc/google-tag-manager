@@ -48,9 +48,9 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->productDetailProvider,
             $this->checkoutStepProvider,
             $this->productPriceProvider,
-            $this->priceScopeCriteriaFactory
+            $this->priceScopeCriteriaFactory,
+            1
         );
-        $this->provider->setBatchSize(1);
     }
 
     /**
