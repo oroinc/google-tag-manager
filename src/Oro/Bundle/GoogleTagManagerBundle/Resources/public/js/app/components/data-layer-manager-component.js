@@ -147,6 +147,7 @@ define(function(require) {
          */
         _onProductDetail: function(detailData, currencyCode, listName) {
             var data = {
+                event: 'productDetail',
                 ecommerce: {
                     currencyCode: currencyCode,
                     detail: {
