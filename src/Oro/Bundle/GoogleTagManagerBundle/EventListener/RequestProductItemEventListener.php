@@ -32,6 +32,9 @@ class RequestProductItemEventListener
     /** @var GoogleTagManagerSettingsProviderInterface */
     private $settingsProvider;
 
+    /** @var int */
+    private $batchSize;
+
     /** @var array */
     private $items = [];
 
@@ -41,19 +44,22 @@ class RequestProductItemEventListener
      * @param ProductDetailProvider $productDetailProvider
      * @param ProductPriceDetailProvider $productPriceDetailProvider
      * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
+     * @param int $batchSize
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         DataLayerManager $dataLayerManager,
         ProductDetailProvider $productDetailProvider,
         ProductPriceDetailProvider $productPriceDetailProvider,
-        GoogleTagManagerSettingsProviderInterface $settingsProvider
+        GoogleTagManagerSettingsProviderInterface $settingsProvider,
+        int $batchSize
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->dataLayerManager = $dataLayerManager;
         $this->productDetailProvider = $productDetailProvider;
         $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->settingsProvider = $settingsProvider;
+        $this->batchSize = $batchSize;
     }
 
     /**
@@ -86,17 +92,19 @@ class RequestProductItemEventListener
     public function postFlush(): void
     {
         foreach ($this->items as $currency => $products) {
-            $this->dataLayerManager->add(
-                [
-                    'event' => 'addToCart',
-                    'ecommerce' => [
-                        'currencyCode' => $currency,
-                        'add' => [
-                            'products' => $products
+            foreach (array_chunk($products, $this->batchSize) as $chunk) {
+                $this->dataLayerManager->add(
+                    [
+                        'event' => 'addToCart',
+                        'ecommerce' => [
+                            'currencyCode' => $currency,
+                            'add' => [
+                                'products' => $chunk
+                            ]
                         ]
                     ]
-                ]
-            );
+                );
+            }
         }
 
         $this->onClear();
