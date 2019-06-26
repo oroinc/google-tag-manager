@@ -137,6 +137,7 @@ services:
             - '@oro_google_tag_manager.provider.product_detail'
             - '@oro_google_tag_manager.provider.product_price_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+            - '%oro_google_tag_manager.products.batch_size%'
         tags:
             - { name: doctrine.orm.entity_listener, entity: '%oro_rfp.entity.request_product_item.class%', event: prePersist }
             - { name: doctrine.event_listener, event: postFlush }

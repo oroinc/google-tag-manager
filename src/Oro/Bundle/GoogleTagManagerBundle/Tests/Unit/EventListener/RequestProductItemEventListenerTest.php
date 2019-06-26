@@ -57,7 +57,8 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
             $this->dataLayerManager,
             $this->productDetailProvider,
             $this->productPriceDetailProvider,
-            $this->settingsProvider
+            $this->settingsProvider,
+            1
         );
     }
 
@@ -73,7 +74,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->dataLayerManager->expects($this->never())
             ->method($this->anything());
 
-        $this->listener->prePersist($this->getRequestProductItem());
+        $this->listener->prePersist($this->getRequestProductItem(1001));
     }
 
     public function testPrePersistWithoutCustomerUser(): void
@@ -92,59 +93,88 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->dataLayerManager->expects($this->never())
             ->method($this->anything());
 
-        $this->listener->prePersist($this->getRequestProductItem());
+        $this->listener->prePersist($this->getRequestProductItem(1001));
     }
 
     public function testPrePersist(): void
     {
-        $this->settingsProvider->expects($this->once())
+        $this->settingsProvider->expects($this->any())
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
-        $this->tokenStorage->expects($this->once())
+        $this->tokenStorage->expects($this->any())
             ->method('getToken')
             ->willReturn(new UsernamePasswordToken(new CustomerUser(), '', 'test'));
 
-        $item = $this->getRequestProductItem();
+        $item1 = $this->getRequestProductItem(1001);
+        $item2 = $this->getRequestProductItem(2002, 'set');
 
         $this->productDetailProvider->expects($this->any())
             ->method('getData')
-            ->with($this->isInstanceOf(Product::class))
-            ->willReturn(
+            ->willReturnMap(
                 [
-                    'id' => 'sku123',
-                    'name' => 'Test Product',
-                    'category' => 'Test Category',
-                    'brand' => 'test Brand',
+                    [
+                        $item1->getProduct(),
+                        null,
+                        ['id' => 'sku123', 'name' => 'Product 1', 'category' => 'Category 1', 'brand' => 'Brand 1']
+                    ],
+                    [
+                        $item2->getProduct(),
+                        null,
+                        ['id' => 'sku456', 'name' => 'Product 2', 'category' => 'Category 2', 'brand' => 'Brand 2']
+                    ],
                 ]
             );
 
-        $this->productPriceDetailProvider->expects($this->once())
+        $this->productPriceDetailProvider->expects($this->any())
             ->method('getPrice')
-            ->with(
-                $item->getRequestProduct()->getProduct(),
-                $item->getProductUnit(),
-                $item->getQuantity()
-            )
-            ->willReturn(Price::create(100.5, 'USD'));
-
-        $this->dataLayerManager->expects($this->once())
-            ->method('add')
-            ->with(
+            ->willReturnMap(
                 [
-                    'event' => 'addToCart',
-                    'ecommerce' => [
-                        'currencyCode' => 'USD',
-                        'add' => [
-                            'products' => [
-                                [
-                                    'id' => 'sku123',
-                                    'name' => 'Test Product',
-                                    'category' => 'Test Category',
-                                    'brand' => 'test Brand',
-                                    'variant' => 'item',
-                                    'quantity' => 5.5,
-                                    'price' => 100.5
+                    [$item1->getProduct(), $item1->getProductUnit(), $item1->getQuantity(), Price::create(10.1, 'USD')],
+                    [$item2->getProduct(), $item2->getProductUnit(), $item2->getQuantity(), Price::create(50.5, 'USD')],
+                ]
+            );
+
+        $this->dataLayerManager->expects($this->exactly(2))
+            ->method('add')
+            ->withConsecutive(
+                [
+                    [
+                        'event' => 'addToCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'add' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku123',
+                                        'name' => 'Product 1',
+                                        'category' => 'Category 1',
+                                        'brand' => 'Brand 1',
+                                        'variant' => 'item',
+                                        'quantity' => 5.5,
+                                        'price' => 10.1
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'event' => 'addToCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'add' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku456',
+                                        'name' => 'Product 2',
+                                        'category' => 'Category 2',
+                                        'brand' => 'Brand 2',
+                                        'variant' => 'set',
+                                        'quantity' => 5.5,
+                                        'price' => 50.5
+                                    ]
                                 ]
                             ]
                         ]
@@ -152,20 +182,23 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->listener->prePersist($item);
+        $this->listener->prePersist($item1);
+        $this->listener->prePersist($item2);
         $this->listener->postFlush();
     }
 
     /**
+     * @param int $id
+     * @param string $unitCode
      * @return RequestProductItem
      */
-    private function getRequestProductItem(): RequestProductItem
+    private function getRequestProductItem(int $id, string $unitCode = 'item'): RequestProductItem
     {
         /** @var Product $product */
-        $product = $this->getEntity(Product::class, ['id' => 42]);
+        $product = $this->getEntity(Product::class, ['id' => $id]);
 
         $unit = new ProductUnit();
-        $unit->setCode('item');
+        $unit->setCode($unitCode);
 
         $requestProduct = new RequestProduct();
         $requestProduct->setProduct($product);
