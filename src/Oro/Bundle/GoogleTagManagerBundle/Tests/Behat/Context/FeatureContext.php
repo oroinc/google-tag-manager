@@ -7,6 +7,9 @@ use Behat\Symfony2Extension\Context\KernelDictionary;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\TestFrameworkBundle\Behat\Context\OroFeatureContext;
 
+/**
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ */
 class FeatureContext extends OroFeatureContext implements KernelAwareContext
 {
     use KernelDictionary;

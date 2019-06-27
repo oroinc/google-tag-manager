@@ -1,3 +1,4 @@
+@regression
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:products.yml
 Feature: GTM events on shopping list

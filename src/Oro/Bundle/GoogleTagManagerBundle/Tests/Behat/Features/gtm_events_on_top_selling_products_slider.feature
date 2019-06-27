@@ -1,3 +1,4 @@
+@regression
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:top_selling_products.yml
 Feature: GTM events on top selling products slider
