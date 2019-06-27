@@ -1,0 +1,44 @@
+oro_behat_extension:
+    elements:
+        First Dot On Home Page Slider:
+            selector: 'div[data-page-component-name="home-page-slider"] .slick-dots li:nth-child(1) button'
+
+        Call To Action On First Slide:
+            selector: 'div[data-page-component-name="home-page-slider"] .slick-track div:nth-child(1) a.btn'
+
+        Third Dot On Home Page Slider:
+            selector: 'div[data-page-component-name="home-page-slider"] .slick-dots li:nth-child(3) button'
+
+        Featured Products Next Button:
+            selector: 'div[data-page-component-name="featured-products-list"] button.slick-next'
+
+        Top Selling Products Next Button:
+            selector: 'div[data-page-component-name="top-selling-list"] button.slick-next'
+
+        New Arrivals Next Button:
+            selector: 'div[data-page-component-name="new-arrivals-list"] button.slick-next'
+
+        Edit First Segment Column:
+            selector: '#oro_segment-column-list tr:nth-child(1) [data-collection-action="edit"]'
+
+        Edit Second Segment Column:
+            selector: '#oro_segment-column-list tr:nth-child(2) [data-collection-action="edit"]'
+
+        Save Column Button:
+            selector: '.save-button.column-form-button'
+
+    suites:
+        OroGoogleTagManagerBundle:
+            contexts:
+                - Oro\Bundle\TestFrameworkBundle\Tests\Behat\Context\OroMainContext
+                - OroConfigBundle::FeatureContext
+                - OroGoogleTagManagerBundle::FeatureContext
+                - OroApplicationBundle::CommerceMainContext
+                - OroShoppingListBundle::FeatureContext
+                - OroShoppingListBundle::ShoppingListContext
+                - OroFormBundle::FormContext
+                - OroProductBundle::QuickOrderFormContext
+                - OroDataGridBundle::GridContext
+                - OroWebCatalogBundle::FeatureContext
+            paths:
+                - '@OroGoogleTagManagerBundle/Tests/Behat/Features'

@@ -1,0 +1,17 @@
+parameters:
+    gtm_container_id: 'GTM-TESTCONTAINER'
+    gtm_integration_type: 'oro_google_tag_manager'
+    gtm_integration_name: 'GTM'
+
+Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings:
+    gtmSettings:
+        containerId: '<{gtm_container_id}>'
+
+Oro\Bundle\IntegrationBundle\Entity\Channel:
+    gtmIntegration:
+        enabled: true
+        type: '<{gtm_integration_type}>'
+        name: '<{gtm_integration_name}>'
+        transport: '@gtmSettings'
+        organization: '@organization'
+        defaultUserOwner: '@admin'

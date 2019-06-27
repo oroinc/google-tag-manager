@@ -1,0 +1,38 @@
+Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+    localValueRootNode:
+        string: 'Root Node'
+
+    localValueAllProductsNode:
+        string: 'All Products'
+
+    localValueAllProductsSlug:
+        string: 'all-products'
+
+Oro\Bundle\WebCatalogBundle\Entity\WebCatalog:
+    webCatalog:
+        name: 'Default Web Catalog'
+        description: 'Default Web Catalog description'
+        organization: '@organization'
+        owner: '@business_unit'
+
+Oro\Bundle\WebCatalogBundle\Entity\ContentNode:
+    nodeRoot:
+        addTitle: ['@localValueRootNode']
+        addContentVariant: ['@systemPageVariant']
+        webCatalog: '@webCatalog'
+
+    nodeAllProduct:
+        addTitle: ['@localValueAllProductsNode']
+        addSlugPrototype: ['@localValueAllProductsSlug']
+        parentNode: '@nodeRoot'
+        webCatalog: '@webCatalog'
+        addContentVariant: ['@systemPageVariantAllProducts']
+
+Oro\Bundle\WebCatalogBundle\Entity\ContentVariant:
+    systemPageVariant:
+        type: 'system_page'
+        systemPageRoute: 'oro_frontend_root'
+
+    systemPageVariantAllProducts:
+        type: 'system_page'
+        systemPageRoute: 'oro_catalog_frontend_product_allproducts'
