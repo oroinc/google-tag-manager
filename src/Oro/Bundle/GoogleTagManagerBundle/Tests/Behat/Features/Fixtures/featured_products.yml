@@ -1,0 +1,22 @@
+Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
+    featuredProductUnitPrecision{1..5}:
+        unit: '@item'
+        precision: '1'
+
+Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+    featuredLocalProduct{1..5}Name:
+        string: 'Featured Product <current()>'
+
+Oro\Bundle\ProductBundle\Entity\Product:
+    featuredProduct{1..5}:
+        type: 'simple'
+        sku: 'FEATURED-<current()>'
+        primaryUnitPrecision: '@featuredProductUnitPrecision<current()>'
+        addName: ['@featuredLocalProduct<current()>Name']
+        organization: '@organization'
+        owner: '@business_unit'
+        attributeFamily: '@defaultProductFamily'
+        inventoryStatus: '@enumInventoryStatuses'
+        status: 'enabled'
+        featured: true
+        newArrival: false

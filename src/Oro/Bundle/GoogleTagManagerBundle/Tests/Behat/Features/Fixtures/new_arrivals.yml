@@ -1,0 +1,22 @@
+Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
+    newArrivalsProductUnitPrecision{1..5}:
+        unit: '@item'
+        precision: '1'
+
+Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+    newArrivalsLocalProduct{1..5}Name:
+        string: 'New Arrival Product <current()>'
+
+Oro\Bundle\ProductBundle\Entity\Product:
+    newArrivalsProduct{1..5}:
+        type: 'simple'
+        sku: 'NEW-ARRIVAL-<current()>'
+        primaryUnitPrecision: '@newArrivalsProductUnitPrecision<current()>'
+        addName: ['@newArrivalsLocalProduct<current()>Name']
+        organization: '@organization'
+        owner: '@business_unit'
+        attributeFamily: '@defaultProductFamily'
+        inventoryStatus: '@enumInventoryStatuses'
+        status: 'enabled'
+        featured: false
+        newArrival: true

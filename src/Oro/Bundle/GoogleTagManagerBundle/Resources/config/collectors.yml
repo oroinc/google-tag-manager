@@ -20,6 +20,9 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CatalogDetailCollector'
         public: false
         arguments:
+            - '@oro_config.manager'
+            - '@request_stack'
             - '@oro_web_catalog.layout.data_provider.breadcrumb_data'
+            - '@oro_catalog.layout.data_provider.category_breadcrumb'
         tags:
             - { name: oro_google_tag_manager.data_layer.collector }

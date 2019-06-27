@@ -1,0 +1,52 @@
+include:
+    - '@OroCheckoutBundle:Payment.yml'
+    - '@OroCheckoutBundle:Shipping.yml'
+    - '@OroCheckoutBundle:CheckoutCustomerFixture.yml'
+
+Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
+    precision{1..35}:
+        unit: '@item'
+        precision: '0'
+
+Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+    locValue{1..35}:
+        string: 'Product <current()>'
+
+Oro\Bundle\ProductBundle\Entity\Product:
+    product{1..35}:
+        type: 'simple'
+        sku: 'SKU<current()>'
+        primaryUnitPrecision: '@precision<current()>'
+        addName: ['@locValue<current()>']
+        inventoryStatus: '@enumInventoryStatuses'
+        status: 'enabled'
+        organization: '@organization'
+
+Oro\Bundle\PricingBundle\Entity\ProductPrice:
+    price{1..35}:
+        product: '@product<current()>'
+        priceList: '@defaultPriceList'
+        currency: 'USD'
+        quantity: 1
+        unit: '@item'
+        value: 10
+
+Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
+    priceRelation{1..35}:
+        product: '@product<current()>'
+        priceList: '@defaultPriceList'
+
+Oro\Bundle\PricingBundle\Entity\CombinedPriceListToWebsite:
+    combinedPriceListToWebsite:
+        pricelist: '@combinedPriceList'
+        website: '@website1'
+
+Oro\Bundle\PricingBundle\Entity\CombinedProductPrice:
+    combinedProductPrice{1..35}:
+        pricelist: '@combinedPriceList'
+        product: '@product<current()>'
+        productSku: 'SKU<current()>'
+        quantity: 1
+        unit: '@item'
+        value: '10'
+        currency: 'USD'

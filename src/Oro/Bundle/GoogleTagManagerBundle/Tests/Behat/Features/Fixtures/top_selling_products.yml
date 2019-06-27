@@ -1,0 +1,20 @@
+Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
+    topSellingProductUnitPrecision{1..5}:
+        unit: '@item'
+        precision: '1'
+
+Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+    topSellingLocalProduct{1..5}Name:
+        string: 'Top Selling Product <current()>'
+
+Oro\Bundle\ProductBundle\Entity\Product:
+    TopSellingProduct{1..5}:
+        type: 'simple'
+        sku: 'TopSelling<current()>'
+        primaryUnitPrecision: '@topSellingProductUnitPrecision<current()>'
+        addName: ['@topSellingLocalProduct<current()>Name']
+        organization: '@organization'
+        owner: '@business_unit'
+        attributeFamily: '@defaultProductFamily'
+        inventoryStatus: '@enumInventoryStatuses'
+        status: 'enabled'
