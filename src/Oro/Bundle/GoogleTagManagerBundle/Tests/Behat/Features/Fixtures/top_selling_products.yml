@@ -4,7 +4,7 @@ Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
         precision: '1'
 
 Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
-    topSellingLocalProduct{1..5}Name:
+    topSellingLocalProductName{1..5}:
         string: 'Top Selling Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
@@ -12,7 +12,8 @@ Oro\Bundle\ProductBundle\Entity\Product:
         type: 'simple'
         sku: 'TopSelling<current()>'
         primaryUnitPrecision: '@topSellingProductUnitPrecision<current()>'
-        addName: ['@topSellingLocalProduct<current()>Name']
+        __calls:
+            - addName: ['@topSellingLocalProductName<current()>']
         organization: '@organization'
         owner: '@business_unit'
         attributeFamily: '@defaultProductFamily'

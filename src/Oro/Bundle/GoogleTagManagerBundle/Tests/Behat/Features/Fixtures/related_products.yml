@@ -10,9 +10,9 @@ Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
         precision: '1'
 
 Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
-    relatedLocalProduct{1..3}Name:
+    relatedLocalProductName{1..3}:
         string: 'Related Product <current()>'
-    upsellLocalProduct{1..3}Name:
+    upsellLocalProductName{1..3}:
         string: 'Upsell Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
@@ -20,7 +20,8 @@ Oro\Bundle\ProductBundle\Entity\Product:
         type: 'simple'
         sku: 'RELATED-<current()>'
         primaryUnitPrecision: '@relatedProductUnitPrecision<current()>'
-        addName: ['@relatedLocalProduct<current()>Name']
+        __calls:
+            - addName: ['@relatedLocalProductName<current()>']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'
@@ -29,7 +30,8 @@ Oro\Bundle\ProductBundle\Entity\Product:
         type: 'simple'
         sku: 'UPSELL-<current()>'
         primaryUnitPrecision: '@upsellProductUnitPrecision<current()>'
-        addName: ['@upsellLocalProduct<current()>Name']
+        __calls:
+            - addName: ['@upsellLocalProductName<current()>']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'

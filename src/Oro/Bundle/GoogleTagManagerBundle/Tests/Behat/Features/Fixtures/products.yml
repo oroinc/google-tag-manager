@@ -2,13 +2,13 @@ include:
     - '@OroCustomerBundle/Tests/Behat/Features/Fixtures/CustomerUserAmandaRCole.yml'
 
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    precision1_1:
+    precision1:
         unit: '@item'
         precision: '0'
-    precision2_1:
+    precision2:
         unit: '@item'
         precision: '0'
-    precision2_2:
+    precision3:
         unit: '@set'
         precision: '1'
 
@@ -24,35 +24,47 @@ Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
 
 Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
     productAttributeFamily:
-        entityClass: 'Oro\Bundle\ProductBundle\Entity\Product'
+        entityClass: 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
         code: 'product_attribute_family_code'
-        addLabel: ['@locValueFamily']
+        __calls:
+            - addLabel: ['@locValueFamily']
         organization: '@organization'
         owner: '@admin'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    product{1..2}:
+    product1:
         type: 'simple'
-        sku: 'SKU<current()>'
-        primaryUnitPrecision: '@precision<current()>_1'
-        addName: ['@locValue<current()>']
+        sku: 'SKU1'
+        primaryUnitPrecision: '@precision1'
+        __calls:
+            - addName: ['@locValue1']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'
         attributeFamily: '@productAttributeFamily'
 
     product2:
-        unitPrecisions: ['@precision2_2']
+        type: 'simple'
+        sku: 'SKU2'
+        primaryUnitPrecision: '@precision2'
+        unitPrecisions: ['@precision3']
+        __calls:
+            - addName: ['@locValue2']
+        inventoryStatus: '@enumInventoryStatuses'
+        status: 'enabled'
+        organization: '@organization'
+        attributeFamily: '@productAttributeFamily'
 
-Doctrine\Common\Collections\ArrayCollection(local):
+Doctrine\Common\Collections\ArrayCollection:
     products:
         __construct: [['@product1', '@product2']]
 
 Oro\Bundle\CatalogBundle\Entity\Category:
     categoryLightingProducts:
-        addTitle: ['@localNewCategory']
-        setParentCategory: [1]
-        setProducts: ['@products']
+        __calls:
+            - addTitle: ['@localNewCategory']
+            - setParentCategory: ['@root_category']
+            - setProducts: ['@products']
 
 Oro\Bundle\PricingBundle\Entity\ProductPrice:
     price1:

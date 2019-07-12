@@ -17,7 +17,8 @@ Oro\Bundle\ProductBundle\Entity\Product:
         type: 'simple'
         sku: 'SKU<current()>'
         primaryUnitPrecision: '@precision<current()>'
-        addName: ['@locValue<current()>']
+        __calls:
+            - addName: ['@locValue<current()>']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'
