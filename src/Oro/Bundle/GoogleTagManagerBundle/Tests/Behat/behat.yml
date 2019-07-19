@@ -18,15 +18,6 @@ oro_behat_extension:
         New Arrivals Next Button:
             selector: 'div[data-page-component-name="new-arrivals-list"] button.slick-next'
 
-        Edit First Segment Column:
-            selector: '#oro_segment-column-list tr:nth-child(1) [data-collection-action="edit"]'
-
-        Edit Second Segment Column:
-            selector: '#oro_segment-column-list tr:nth-child(2) [data-collection-action="edit"]'
-
-        Save Column Button:
-            selector: '.save-button.column-form-button'
-
     suites:
         OroGoogleTagManagerBundle:
             contexts:
