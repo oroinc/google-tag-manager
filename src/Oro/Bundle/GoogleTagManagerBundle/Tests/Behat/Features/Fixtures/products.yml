@@ -35,9 +35,10 @@ Oro\Bundle\ProductBundle\Entity\Product:
     product1:
         type: 'simple'
         sku: 'SKU1'
-        primaryUnitPrecision: '@precision1'
         __calls:
             - addName: ['@locValue1']
+            - addUnitPrecision: ['@precision1']
+            - setPrimaryUnitPrecision: ['@precision1']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'
@@ -46,10 +47,11 @@ Oro\Bundle\ProductBundle\Entity\Product:
     product2:
         type: 'simple'
         sku: 'SKU2'
-        primaryUnitPrecision: '@precision2'
-        unitPrecisions: ['@precision3']
         __calls:
             - addName: ['@locValue2']
+            - addUnitPrecision: ['@precision2']
+            - addUnitPrecision: ['@precision3']
+            - setPrimaryUnitPrecision: ['@precision2']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'
