@@ -3,7 +3,7 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\EventListener;
 
 use Oro\Bundle\CurrencyBundle\Entity\Price;
-use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
+use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\RequestProductItemEventListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
@@ -15,15 +15,13 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\RFPBundle\Entity\RequestProduct;
 use Oro\Bundle\RFPBundle\Entity\RequestProductItem;
 use Oro\Component\Testing\Unit\EntityTrait;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
 
-    /** @var TokenStorageInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $tokenStorage;
+    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
+    private $frontendHelper;
 
     /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
     private $dataLayerManager;
@@ -45,7 +43,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->tokenStorage = $this->createMock(TokenStorageInterface::class);
+        $this->frontendHelper = $this->createMock(FrontendHelper::class);
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
         $this->productPriceDetailProvider = $this->createMock(ProductPriceDetailProvider::class);
@@ -53,7 +51,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
 
         $this->listener = new RequestProductItemEventListener(
-            $this->tokenStorage,
+            $this->frontendHelper,
             $this->dataLayerManager,
             $this->productDetailProvider,
             $this->productPriceDetailProvider,
@@ -77,15 +75,15 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->prePersist($this->getRequestProductItem(1001));
     }
 
-    public function testPrePersistWithoutCustomerUser(): void
+    public function testPrePersistForBackend(): void
     {
         $this->settingsProvider->expects($this->once())
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
-        $this->tokenStorage->expects($this->once())
-            ->method('getToken')
-            ->willReturn(null);
+        $this->frontendHelper->expects($this->any())
+            ->method('isFrontendRequest')
+            ->willReturn(false);
 
         $this->productPriceDetailProvider->expects($this->never())
             ->method($this->anything());
@@ -102,9 +100,9 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
-        $this->tokenStorage->expects($this->any())
-            ->method('getToken')
-            ->willReturn(new UsernamePasswordToken(new CustomerUser(), '', 'test'));
+        $this->frontendHelper->expects($this->any())
+            ->method('isFrontendRequest')
+            ->willReturn(true);
 
         $item1 = $this->getRequestProductItem(1001);
         $item2 = $this->getRequestProductItem(2002, 'set');

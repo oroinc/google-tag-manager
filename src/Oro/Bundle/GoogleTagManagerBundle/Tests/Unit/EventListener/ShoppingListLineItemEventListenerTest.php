@@ -5,7 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\EventListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
-use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
+use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\ShoppingListLineItemEventListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
@@ -16,15 +16,13 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Component\Testing\Unit\EntityTrait;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
 
-    /** @var TokenStorageInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $tokenStorage;
+    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
+    private $frontendHelper;
 
     /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
     private $dataLayerManager;
@@ -46,10 +44,10 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->tokenStorage = $this->createMock(TokenStorageInterface::class);
-        $this->tokenStorage->expects($this->any())
-            ->method('getToken')
-            ->willReturn(new UsernamePasswordToken(new CustomerUser(), '', 'test'));
+        $this->frontendHelper = $this->createMock(FrontendHelper::class);
+        $this->frontendHelper->expects($this->any())
+            ->method('isFrontendRequest')
+            ->willReturn(true);
 
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);
 
@@ -71,7 +69,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
 
         $this->listener = new ShoppingListLineItemEventListener(
-            $this->tokenStorage,
+            $this->frontendHelper,
             $this->dataLayerManager,
             $this->productDetailProvider,
             $this->productPriceDetailProvider,

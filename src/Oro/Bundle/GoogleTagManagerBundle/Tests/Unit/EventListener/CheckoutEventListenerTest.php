@@ -5,20 +5,18 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\EventListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
-use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
+use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\CheckoutEventListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class CheckoutEventListenerTest extends TestCase
 {
-    /** @var TokenStorageInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $tokenStorage;
+    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
+    private $frontendHelper;
 
     /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
     private $dataLayerManager;
@@ -37,10 +35,10 @@ class CheckoutEventListenerTest extends TestCase
 
     protected function setUp()
     {
-        $this->tokenStorage = $this->createMock(TokenStorageInterface::class);
-        $this->tokenStorage->expects($this->any())
-            ->method('getToken')
-            ->willReturn(new UsernamePasswordToken(new CustomerUser(), '', 'test'));
+        $this->frontendHelper = $this->createMock(FrontendHelper::class);
+        $this->frontendHelper->expects($this->any())
+            ->method('isFrontendRequest')
+            ->willReturn(true);
 
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);
         $this->purchaseDetailProvider = $this->createMock(PurchaseDetailProvider::class);
@@ -48,7 +46,7 @@ class CheckoutEventListenerTest extends TestCase
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
 
         $this->listener = new CheckoutEventListener(
-            $this->tokenStorage,
+            $this->frontendHelper,
             $this->dataLayerManager,
             $this->purchaseDetailProvider,
             $this->settingsProvider

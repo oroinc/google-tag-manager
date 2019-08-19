@@ -4,20 +4,18 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
-use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
-use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
+use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Handles completed Checkout to generate purchase data.
  */
 class CheckoutEventListener
 {
-    /** @var TokenStorageInterface */
-    private $tokenStorage;
+    /** @var FrontendHelper */
+    private $frontendHelper;
 
     /** @var DataLayerManager */
     private $dataLayerManager;
@@ -32,18 +30,18 @@ class CheckoutEventListener
     private $data = [];
 
     /**
-     * @param TokenStorageInterface $tokenStorage
+     * @param FrontendHelper $frontendHelper
      * @param DataLayerManager $dataLayerManager
      * @param PurchaseDetailProvider $purchaseDetailProvider
      * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
      */
     public function __construct(
-        TokenStorageInterface $tokenStorage,
+        FrontendHelper $frontendHelper,
         DataLayerManager $dataLayerManager,
         PurchaseDetailProvider $purchaseDetailProvider,
         GoogleTagManagerSettingsProviderInterface $settingsProvider
     ) {
-        $this->tokenStorage = $tokenStorage;
+        $this->frontendHelper = $frontendHelper;
         $this->dataLayerManager = $dataLayerManager;
         $this->purchaseDetailProvider = $purchaseDetailProvider;
         $this->settingsProvider = $settingsProvider;
@@ -89,11 +87,6 @@ class CheckoutEventListener
             return false;
         }
 
-        $token = $this->tokenStorage->getToken();
-        if (!$token) {
-            return false;
-        }
-
-        return $token instanceof AnonymousCustomerUserToken || $token->getUser() instanceof CustomerUser;
+        return $this->frontendHelper->isFrontendRequest();
     }
 }

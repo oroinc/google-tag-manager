@@ -4,23 +4,21 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
-use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
-use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
+use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Handles changes of LineItem entities.
  */
 class ShoppingListLineItemEventListener
 {
-    /** @var TokenStorageInterface */
-    private $tokenStorage;
+    /** @var FrontendHelper */
+    private $frontendHelper;
 
     /** @var DataLayerManager */
     private $dataLayerManager;
@@ -44,7 +42,7 @@ class ShoppingListLineItemEventListener
     private $removed = [];
 
     /**
-     * @param TokenStorageInterface $tokenStorage
+     * @param FrontendHelper $frontendHelper
      * @param DataLayerManager $dataLayerManager
      * @param ProductDetailProvider $productDetailProvider
      * @param ProductPriceDetailProvider $productPriceDetailProvider
@@ -52,14 +50,14 @@ class ShoppingListLineItemEventListener
      * @param int $batchSize
      */
     public function __construct(
-        TokenStorageInterface $tokenStorage,
+        FrontendHelper $frontendHelper,
         DataLayerManager $dataLayerManager,
         ProductDetailProvider $productDetailProvider,
         ProductPriceDetailProvider $productPriceDetailProvider,
         GoogleTagManagerSettingsProviderInterface $settingsProvider,
         int $batchSize = 30
     ) {
-        $this->tokenStorage = $tokenStorage;
+        $this->frontendHelper = $frontendHelper;
         $this->dataLayerManager = $dataLayerManager;
         $this->productDetailProvider = $productDetailProvider;
         $this->productPriceDetailProvider = $productPriceDetailProvider;
@@ -208,11 +206,6 @@ class ShoppingListLineItemEventListener
             return false;
         }
 
-        $token = $this->tokenStorage->getToken();
-        if (!$token) {
-            return false;
-        }
-
-        return $token instanceof AnonymousCustomerUserToken || $token->getUser() instanceof CustomerUser;
+        return $this->frontendHelper->isFrontendRequest();
     }
 }

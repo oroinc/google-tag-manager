@@ -105,7 +105,7 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\ShoppingListLineItemEventListener'
         public: false
         arguments:
-            - '@security.token_storage'
+            - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.data_layer.manager'
             - '@oro_google_tag_manager.provider.product_detail'
             - '@oro_google_tag_manager.provider.product_price_detail'
@@ -122,7 +122,7 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\CheckoutEventListener'
         public: false
         arguments:
-            - '@security.token_storage'
+            - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.data_layer.manager'
             - '@oro_google_tag_manager.provider.purchase_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
@@ -135,7 +135,7 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\RequestProductItemEventListener'
         public: false
         arguments:
-            - '@security.token_storage'
+            - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.data_layer.manager'
             - '@oro_google_tag_manager.provider.product_detail'
             - '@oro_google_tag_manager.provider.product_price_detail'
