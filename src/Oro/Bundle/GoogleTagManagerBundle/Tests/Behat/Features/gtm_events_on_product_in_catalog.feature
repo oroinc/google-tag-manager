@@ -53,19 +53,19 @@ Feature: GTM events on product in catalog
             "currencyCode": "USD",
             "impressions": [
               {
-                "id": "SKU2",
-                "name": "Product 2",
+                "id": "SKU1",
+                "name": "Product 1",
                 "category": "All Products / NewCategory",
-                "price": "15.00",
+                "price": "10.00",
                 "position": 0,
                 "viewMode": "list-view",
                 "list": "product-allproducts"
               },
               {
-                "id": "SKU1",
-                "name": "Product 1",
+                "id": "SKU2",
+                "name": "Product 2",
                 "category": "All Products / NewCategory",
-                "price": "10.00",
+                "price": "15.00",
                 "position": 1,
                 "viewMode": "list-view",
                 "list": "product-allproducts"
