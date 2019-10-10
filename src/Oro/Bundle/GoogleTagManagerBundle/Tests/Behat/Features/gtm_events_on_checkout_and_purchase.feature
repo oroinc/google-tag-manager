@@ -169,7 +169,7 @@ Feature: GTM events on checkout and purchase
       """
 
   Scenario: Events success checkout
-    When I click "Submit Order"
+    When I check "Delete this shopping list after submitting order" on the "Order Review" checkout step and press Submit Order
     Then GTM data layer must contain the following message:
       """
       {
@@ -214,6 +214,26 @@ Feature: GTM events on checkout and purchase
           },
           "shippingMethod": "Flat Rate",
           "paymentMethod": "Payment Term"
+        }
+      }
+      """
+    And GTM data layer must not contain the following message:
+      """
+      {
+        "event": "removeFromCart",
+        "ecommerce": {
+          "currencyCode": "USD",
+          "remove": {
+            "products": [
+              {
+                "id": "SKU123",
+                "name": "400-Watt Bulb Work Light",
+                "variant": "item",
+                "quantity": 5,
+                "price": 2
+              }
+            ]
+          }
         }
       }
       """
