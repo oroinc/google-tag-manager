@@ -109,6 +109,7 @@ services:
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
             - '%oro_google_tag_manager.products.batch_size%'
         tags:
+            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: addShoppingListIdToIgnore }
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: prePersist }
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preUpdate }
             - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preRemove }

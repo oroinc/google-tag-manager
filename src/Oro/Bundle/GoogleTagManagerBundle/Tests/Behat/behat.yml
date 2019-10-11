@@ -35,6 +35,7 @@ oro_behat_extension:
                 - OroGoogleTagManagerBundle::FeatureContext
                 - OroApplicationBundle::CommerceMainContext
                 - OroShoppingListBundle::FeatureContext
+                - OroCheckoutBundle::FeatureContext
                 - OroShoppingListBundle::ShoppingListContext
                 - OroFormBundle::FormContext
                 - OroProductBundle::QuickOrderFormContext

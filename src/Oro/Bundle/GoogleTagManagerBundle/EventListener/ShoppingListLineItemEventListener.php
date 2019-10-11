@@ -3,6 +3,7 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
@@ -12,6 +13,7 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
+use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
@@ -42,6 +44,9 @@ class ShoppingListLineItemEventListener
 
     /** @var array */
     private $removed = [];
+
+    /** @var int[] */
+    private $skipRemovingInShoppingListIds = [];
 
     /**
      * @param TokenStorageInterface $tokenStorage
@@ -126,7 +131,31 @@ class ShoppingListLineItemEventListener
             return;
         }
 
+        if (\in_array($item->getShoppingList()->getId(), $this->skipRemovingInShoppingListIds)) {
+            return;
+        }
+
         $this->storeProductData($item, $item->getProductUnit(), $item->getQuantity(), false);
+    }
+
+    /**
+     * @param CheckoutSourceEntityRemoveEvent $event
+     */
+    public function addShoppingListIdToIgnore(CheckoutSourceEntityRemoveEvent $event): void
+    {
+        if (!$this->isApplicable()) {
+            return;
+        }
+
+        /**
+         * @var ShoppingList $checkoutSourceEntity
+         */
+        $checkoutSourceEntity = $event->getCheckoutSourceEntity();
+        if (!$checkoutSourceEntity instanceof ShoppingList) {
+            return;
+        }
+
+        $this->skipRemovingInShoppingListIds[] = $checkoutSourceEntity->getId();
     }
 
     public function postFlush(): void
@@ -170,6 +199,7 @@ class ShoppingListLineItemEventListener
     {
         $this->added = [];
         $this->removed = [];
+        $this->skipRemovingInShoppingListIds = [];
     }
 
     /**

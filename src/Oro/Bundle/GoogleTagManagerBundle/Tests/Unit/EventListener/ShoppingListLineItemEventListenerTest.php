@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
@@ -15,6 +16,7 @@ use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
+use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Oro\Component\Testing\Unit\EntityTrait;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -430,14 +432,42 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
+    public function testPreRemoveAfterCheckoutSourceEntityHasRemoved()
+    {
+        $this->settingsProvider->expects($this->any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $shoppingListId = 2;
+
+        /** @var ShoppingList $shoppingList */
+        $shoppingList = $this->getEntity(ShoppingList::class, ['id' => $shoppingListId]);
+        $event = new CheckoutSourceEntityRemoveEvent($shoppingList);
+        $this->listener->addShoppingListIdToIgnore($event);
+
+        $item = $this->getLineItem(null, $shoppingListId);
+        $this->productPriceDetailProvider->expects($this->never())
+            ->method('getPrice');
+
+        $this->dataLayerManager->expects($this->never())
+            ->method($this->anything());
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
     /**
      * @param ProductUnit|null $unit
+     * @param int $shoppingListId
      * @return LineItem
      */
-    private function getLineItem(?ProductUnit $unit = null): LineItem
+    private function getLineItem(?ProductUnit $unit = null, int $shoppingListId = 1): LineItem
     {
         /** @var Product $product */
         $product = $this->getEntity(Product::class, ['id' => 42]);
+
+        /** @var ShoppingList $shoppingList */
+        $shoppingList = $this->getEntity(ShoppingList::class, ['id' => $shoppingListId]);
 
         if (!$unit) {
             $unit = new ProductUnit();
@@ -448,6 +478,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $item = new LineItem();
         $item->setProduct($product)
+            ->setShoppingList($shoppingList)
             ->setUnit($unit)
             ->setQuantity($qty);
 
