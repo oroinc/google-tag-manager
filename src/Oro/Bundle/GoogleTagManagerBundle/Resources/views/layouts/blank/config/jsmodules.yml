@@ -1,0 +1,10 @@
+dynamic-imports:
+    orogoogletagmanager:
+        - orogoogletagmanager/js/app/components/checkout-gtm-component
+        - orogoogletagmanager/js/app/components/data-layer-manager-component
+        - orogoogletagmanager/js/app/components/home-page-slider-gtm-component
+        - orogoogletagmanager/js/app/components/products-datagrid-gtm-component
+        - orogoogletagmanager/js/app/components/products-embedded-list-gtm-component
+        - orogoogletagmanager/js/app/components/purchase-gtm-component
+        - orogoogletagmanager/js/app/components/shopping-list-gtm-component
+        - orogoogletagmanager/js/app/views/product-gtm-view
