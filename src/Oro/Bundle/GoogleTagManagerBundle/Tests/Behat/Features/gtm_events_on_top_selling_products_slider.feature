@@ -10,36 +10,50 @@ Feature: GTM events on top selling products slider
     And I go to Products / Products
     And I click edit "TopSelling1" in grid
     And I set Images with:
-      | File     | Main  | Listing | Additional |
-      | cat1.jpg | 1     | 1       | 1          |
+      | Main  | Listing | Additional |
+      | 1     | 1       | 1          |
+    And I click on "Digital Asset Choose"
+    And I fill "Digital Asset Dialog Form" with:
+      | File  | cat1.jpg |
+      | Title | cat1.jpg |
+    And I click "Upload"
+    And click on cat1.jpg in grid
     When I save and close form
     Then I should see "Product has been saved" flash message
     And I go to Products / Products
     And I click edit "TopSelling2" in grid
     And I set Images with:
-      | File     | Main  | Listing | Additional |
-      | cat1.jpg | 1     | 1       | 1          |
+      | Main  | Listing | Additional |
+      | 1     | 1       | 1          |
+    And I click on "Digital Asset Choose"
+    And click on cat1.jpg in grid
     When I save and close form
     Then I should see "Product has been saved" flash message
     And I go to Products / Products
     And I click edit "TopSelling3" in grid
     And I set Images with:
-      | File     | Main  | Listing | Additional |
-      | cat1.jpg | 1     | 1       | 1          |
+      | Main  | Listing | Additional |
+      | 1     | 1       | 1          |
+    And I click on "Digital Asset Choose"
+    And click on cat1.jpg in grid
     When I save and close form
     Then I should see "Product has been saved" flash message
     And I go to Products / Products
     And I click edit "TopSelling4" in grid
     And I set Images with:
-      | File     | Main  | Listing | Additional |
-      | cat1.jpg | 1     | 1       | 1          |
+      | Main  | Listing | Additional |
+      | 1     | 1       | 1          |
+    And I click on "Digital Asset Choose"
+    And click on cat1.jpg in grid
     When I save and close form
     Then I should see "Product has been saved" flash message
     And I go to Products / Products
     And I click edit "TopSelling5" in grid
     And I set Images with:
-      | File     | Main  | Listing | Additional |
-      | cat1.jpg | 1     | 1       | 1          |
+      | Main  | Listing | Additional |
+      | 1     | 1       | 1          |
+    And I click on "Digital Asset Choose"
+    And click on cat1.jpg in grid
     When I save and close form
     Then I should see "Product has been saved" flash message
 
