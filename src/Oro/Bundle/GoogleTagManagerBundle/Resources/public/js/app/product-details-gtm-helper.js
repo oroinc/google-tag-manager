@@ -1,11 +1,11 @@
 define(function(require) {
-    var $ = require('jquery');
-    var _ = require('underscore');
+    const $ = require('jquery');
+    const _ = require('underscore');
 
     /**
      * Provides product details ready for GTM events related to products.
      */
-    var productsDetailsGtmHelper = {
+    const productsDetailsGtmHelper = {
         /**
          * @property {String}
          */
@@ -16,7 +16,7 @@ define(function(require) {
          * @returns {Object|undefined}
          */
         getModel: function(element) {
-            var model = $(element).find(productsDetailsGtmHelper.modelAwareSelector).data('gtmModel');
+            const model = $(element).find(productsDetailsGtmHelper.modelAwareSelector).data('gtmModel');
             if (typeof model !== 'undefined' && typeof model.id !== 'undefined' && typeof model.name !== 'undefined') {
                 return model;
             }
@@ -47,7 +47,7 @@ define(function(require) {
          * @returns {Object|undefined} GTM product details
          */
         getDetails: function(element) {
-            var model = this.getModel(element);
+            const model = this.getModel(element);
             if (!model) {
                 return undefined;
             }

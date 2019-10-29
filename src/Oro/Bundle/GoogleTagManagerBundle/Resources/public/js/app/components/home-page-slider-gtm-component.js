@@ -1,13 +1,12 @@
 define(function(require) {
-    var HomePageSliderGtmComponent;
-    var BaseComponent = require('orogoogletagmanager/js/app/components/base-embedded-list-gtm-component');
-    var mediator = require('oroui/js/mediator');
-    var _ = require('underscore');
+    const BaseComponent = require('orogoogletagmanager/js/app/components/base-embedded-list-gtm-component');
+    const mediator = require('oroui/js/mediator');
+    const _ = require('underscore');
 
     /**
      * Listens to oro:embedded-list:* events and invokes promo click, promo impression GTM events,
      */
-    HomePageSliderGtmComponent = BaseComponent.extend({
+    const HomePageSliderGtmComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
@@ -18,8 +17,8 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function HomePageSliderGtmComponent() {
-            HomePageSliderGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function HomePageSliderGtmComponent(options) {
+            HomePageSliderGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**

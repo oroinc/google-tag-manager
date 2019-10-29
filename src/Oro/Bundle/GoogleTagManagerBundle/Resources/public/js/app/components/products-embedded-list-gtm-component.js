@@ -1,27 +1,26 @@
 define(function(require) {
-    var ProductsEmbeddedListGtmComponent;
-    var BaseComponent = require('orogoogletagmanager/js/app/components/base-embedded-list-gtm-component');
-    var mediator = require('oroui/js/mediator');
-    var _ = require('underscore');
-    var localeSettings = require('orolocale/js/locale-settings');
-    var productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
+    const BaseComponent = require('orogoogletagmanager/js/app/components/base-embedded-list-gtm-component');
+    const mediator = require('oroui/js/mediator');
+    const _ = require('underscore');
+    const localeSettings = require('orolocale/js/locale-settings');
+    const productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
 
     /**
      * Listens to oro:embedded-list:* events and invokes product click, product impression GTM events,
      */
-    ProductsEmbeddedListGtmComponent = BaseComponent.extend({
+    const ProductsEmbeddedListGtmComponent = BaseComponent.extend({
         /**
          * @inheritDoc
          */
-        constructor: function ProductsEmbeddedListGtmComponent() {
-            ProductsEmbeddedListGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function ProductsEmbeddedListGtmComponent(options) {
+            ProductsEmbeddedListGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
          * @inheritDoc
          */
         initialize: function(options) {
-            ProductsEmbeddedListGtmComponent.__super__.initialize.apply(this, arguments);
+            ProductsEmbeddedListGtmComponent.__super__.initialize.call(this, options);
         },
 
         /**

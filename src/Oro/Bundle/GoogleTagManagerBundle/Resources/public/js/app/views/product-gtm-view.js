@@ -1,13 +1,12 @@
 define(function(require) {
     'use strict';
 
-    var ProductGtmView;
-    var BaseView = require('oroui/js/app/views/base/view');
-    var _ = require('underscore');
-    var mediator = require('oroui/js/mediator');
-    var localeSettings = require('orolocale/js/locale-settings');
+    const BaseView = require('oroui/js/app/views/base/view');
+    const _ = require('underscore');
+    const mediator = require('oroui/js/mediator');
+    const localeSettings = require('orolocale/js/locale-settings');
 
-    ProductGtmView = BaseView.extend({
+    const ProductGtmView = BaseView.extend({
         /**
          * @property {Object}
          */
@@ -18,15 +17,15 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function ProductGtmView() {
-            ProductGtmView.__super__.constructor.apply(this, arguments);
+        constructor: function ProductGtmView(options) {
+            ProductGtmView.__super__.constructor.call(this, options);
         },
 
         /**
          * @inheritDoc
          */
         initialize: function(options) {
-            ProductGtmView.__super__.initialize.apply(this, arguments);
+            ProductGtmView.__super__.initialize.call(this, options);
 
             this.options = _.defaults(options || {}, this.options);
 

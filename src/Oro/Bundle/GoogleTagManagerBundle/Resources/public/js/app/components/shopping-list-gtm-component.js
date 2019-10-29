@@ -1,12 +1,11 @@
 define(function(require) {
     'use strict';
 
-    var ShoppingListGtmComponent;
-    var BaseComponent = require('oroui/js/app/components/base/component');
-    var mediator = require('oroui/js/mediator');
-    var _ = require('underscore');
+    const BaseComponent = require('oroui/js/app/components/base/component');
+    const mediator = require('oroui/js/mediator');
+    const _ = require('underscore');
 
-    ShoppingListGtmComponent = BaseComponent.extend({
+    const ShoppingListGtmComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
@@ -14,8 +13,8 @@ define(function(require) {
             data: []
         },
 
-        constructor: function ShoppingListGtmComponent() {
-            ShoppingListGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function ShoppingListGtmComponent(options) {
+            ShoppingListGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**

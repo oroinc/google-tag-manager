@@ -1,12 +1,11 @@
 define(function(require) {
     'use strict';
 
-    var PurchaseGtmComponent;
-    var BaseComponent = require('oroui/js/app/components/base/component');
-    var mediator = require('oroui/js/mediator');
-    var _ = require('underscore');
+    const BaseComponent = require('oroui/js/app/components/base/component');
+    const mediator = require('oroui/js/mediator');
+    const _ = require('underscore');
 
-    PurchaseGtmComponent = BaseComponent.extend({
+    const PurchaseGtmComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
@@ -24,8 +23,8 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function PurchaseGtmComponent() {
-            PurchaseGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function PurchaseGtmComponent(options) {
+            PurchaseGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**

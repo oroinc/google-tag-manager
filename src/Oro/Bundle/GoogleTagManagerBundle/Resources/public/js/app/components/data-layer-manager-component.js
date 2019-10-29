@@ -1,13 +1,12 @@
 define(function(require) {
     'use strict';
 
-    var DataLayerManagerComponent;
-    var BaseComponent = require('oroui/js/app/components/base/component');
-    var mediator = require('oroui/js/mediator');
-    var $ = require('jquery');
-    var _ = require('underscore');
+    const BaseComponent = require('oroui/js/app/components/base/component');
+    const mediator = require('oroui/js/mediator');
+    const $ = require('jquery');
+    const _ = require('underscore');
 
-    DataLayerManagerComponent = BaseComponent.extend({
+    const DataLayerManagerComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
@@ -35,15 +34,15 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function DataLayerManagerComponent() {
-            DataLayerManagerComponent.__super__.constructor.apply(this, arguments);
+        constructor: function DataLayerManagerComponent(options) {
+            DataLayerManagerComponent.__super__.constructor.call(this, options);
         },
 
         /**
          * @param {Object} options
          */
         initialize: function(options) {
-            DataLayerManagerComponent.__super__.initialize.apply(this, arguments);
+            DataLayerManagerComponent.__super__.initialize.call(this, options);
 
             this.options = _.defaults(options || {}, this.options);
         },
@@ -52,10 +51,10 @@ define(function(require) {
          * @inheritDoc
          */
         delegateListeners: function() {
-            DataLayerManagerComponent.__super__.delegateListeners.apply(this, arguments);
+            DataLayerManagerComponent.__super__.delegateListeners.call(this);
 
-            var gtmLoaded = $.Deferred();
-            var dataLayer = window[this.options.dataLayerName];
+            const gtmLoaded = $.Deferred();
+            const dataLayer = window[this.options.dataLayerName];
             if (dataLayer instanceof Array && dataLayer.push !== Array.prototype.push) {
                 // Google Tag Manager has been already loaded.
                 gtmLoaded.resolve();
@@ -65,7 +64,7 @@ define(function(require) {
                 }, {once: true});
             }
 
-            var pageLoaded = $.Deferred();
+            const pageLoaded = $.Deferred();
             mediator.once('page:afterChange', function() {
                 pageLoaded.resolve();
             });
@@ -73,7 +72,7 @@ define(function(require) {
             // Wait until GTM is loaded and page is fully ready.
             $.when([gtmLoaded, pageLoaded]).done((function() {
                 // Copy dataLayer contents if we already have something queued to push to data layer.
-                var dataLayerOld = this._dataLayer;
+                const dataLayerOld = this._dataLayer;
 
                 this._dataLayer = window[this.options.dataLayerName];
 
@@ -146,7 +145,7 @@ define(function(require) {
          * @private
          */
         _onProductDetail: function(detailData, currencyCode, listName) {
-            var data = {
+            const data = {
                 event: 'productDetail',
                 ecommerce: {
                     currencyCode: currencyCode,
@@ -170,7 +169,7 @@ define(function(require) {
          * @private
          */
         _onProductClick: function(clicksData, destinationUrl, listName) {
-            var data = {
+            const data = {
                 event: 'productClick',
                 ecommerce: {
                     click: {
@@ -197,7 +196,7 @@ define(function(require) {
          * @private
          */
         _onProductImpressions: function(impressionsData, currencyCode) {
-            var data = {
+            const data = {
                 event: 'productImpression',
                 ecommerce: {
                     currencyCode: currencyCode,

@@ -1,14 +1,13 @@
 define(function(require) {
-    var BaseEmbeddedListGtmComponent;
-    var BaseComponent = require('oroui/js/app/components/base/component');
-    var mediator = require('oroui/js/mediator');
-    var $ = require('jquery');
-    var _ = require('underscore');
+    const BaseComponent = require('oroui/js/app/components/base/component');
+    const mediator = require('oroui/js/mediator');
+    const $ = require('jquery');
+    const _ = require('underscore');
 
     /**
      * Base component for listening to oro:embedded-list:* events and invoking corresponding GTM events.
      */
-    BaseEmbeddedListGtmComponent = BaseComponent.extend({
+    const BaseEmbeddedListGtmComponent = BaseComponent.extend({
         relatedSiblingComponents: {
             // The option must be overridden in 'data-page-component-options' with the name of the related instance
             // of embedded list component.
@@ -30,15 +29,15 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function BaseEmbeddedListGtmComponent() {
-            BaseEmbeddedListGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function BaseEmbeddedListGtmComponent(options) {
+            BaseEmbeddedListGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
          * @inheritDoc
          */
         initialize: function(options) {
-            BaseEmbeddedListGtmComponent.__super__.initialize.apply(this, arguments);
+            BaseEmbeddedListGtmComponent.__super__.initialize.call(this, options);
 
             if (!this.embeddedListComponent) {
                 throw new Error('Sibling component `embeddedListComponent` is required.');
@@ -56,7 +55,7 @@ define(function(require) {
             this.embeddedListComponent.on('oro:embedded-list:shown', this._onImpression.bind(this));
             this.embeddedListComponent.on('oro:embedded-list:clicked', this._onClick.bind(this));
 
-            BaseEmbeddedListGtmComponent.__super__.delegateListeners.apply(this, arguments);
+            BaseEmbeddedListGtmComponent.__super__.delegateListeners.call(this);
         },
 
         _onGtmReady: function() {
@@ -68,11 +67,11 @@ define(function(require) {
          * @private
          */
         _onImpression: function($shownItems) {
-            var impressionsData = [];
+            const impressionsData = [];
 
             $shownItems.each((function(i, item) {
-                var $item = $(item);
-                var model = this._getModel($item);
+                const $item = $(item);
+                const model = this._getModel($item);
                 if (model) {
                     impressionsData.push(this._getImpressionData(model, this._getPosition($item)));
                 }
@@ -143,12 +142,12 @@ define(function(require) {
                 return;
             }
 
-            var model = this._getModel($clickedItem);
+            const model = this._getModel($clickedItem);
             if (!model) {
                 return;
             }
 
-            var destinationUrl = event.currentTarget.href;
+            let destinationUrl = event.currentTarget.href;
             if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
                 destinationUrl = null;
             } else if (this._gtmReady) {
@@ -156,8 +155,8 @@ define(function(require) {
                 event.preventDefault();
             }
 
-            var position = this._getPosition($clickedItem);
-            var clicksData = [this._getClickData(model, position)];
+            const position = this._getPosition($clickedItem);
+            const clicksData = [this._getClickData(model, position)];
 
             this._invokeEventClick(clicksData, destinationUrl);
         },
@@ -198,7 +197,7 @@ define(function(require) {
             this.embeddedListComponent.off('oro:embedded-list:shown', this._onImpression.bind(this));
             this.embeddedListComponent.off('oro:embedded-list:clicked', this._onClick.bind(this));
 
-            BaseEmbeddedListGtmComponent.__super__.dispose.apply(this, arguments);
+            BaseEmbeddedListGtmComponent.__super__.dispose.call(this);
         }
     });
 

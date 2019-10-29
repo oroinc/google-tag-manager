@@ -1,18 +1,17 @@
 define(function(require) {
     'use strict';
 
-    var ProductsDatagridGtmComponent;
-    var mediator = require('oroui/js/mediator');
-    var BaseComponent = require('oroui/js/app/components/base/component');
-    var $ = require('jquery');
-    var _ = require('underscore');
-    var productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
-    var localeSettings = require('orolocale/js/locale-settings');
+    const mediator = require('oroui/js/mediator');
+    const BaseComponent = require('oroui/js/app/components/base/component');
+    const $ = require('jquery');
+    const _ = require('underscore');
+    const productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
+    const localeSettings = require('orolocale/js/locale-settings');
 
     /**
      * Handles clicks on products datagrid to invoke GTM productClick events.
      */
-    ProductsDatagridGtmComponent = BaseComponent.extend({
+    const ProductsDatagridGtmComponent = BaseComponent.extend({
         relatedSiblingComponents: {
             // The option must be overridden in 'data-page-component-options' with the name of the related instance
             // of products datagrid component.
@@ -41,15 +40,15 @@ define(function(require) {
         /**
          * @inheritDoc
          */
-        constructor: function ProductsDatagridGtmComponent() {
-            ProductsDatagridGtmComponent.__super__.constructor.apply(this, arguments);
+        constructor: function ProductsDatagridGtmComponent(options) {
+            ProductsDatagridGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
          * @inheritDoc
          */
         initialize: function(options) {
-            ProductsDatagridGtmComponent.__super__.initialize.apply(this, arguments);
+            ProductsDatagridGtmComponent.__super__.initialize.call(this, options);
 
             if (!this.productsDatagridComponent) {
                 throw new Error('Sibling component `productsDatagridComponent` is required.');
@@ -66,7 +65,7 @@ define(function(require) {
          * @inheritDoc
          */
         delegateListeners: function() {
-            ProductsDatagridGtmComponent.__super__.delegateListeners.apply(this, arguments);
+            ProductsDatagridGtmComponent.__super__.delegateListeners.call(this);
 
             mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
 
@@ -80,11 +79,11 @@ define(function(require) {
          * @private
          */
         _onView: function() {
-            var productsDetails = [];
-            var listName = this._getListName();
+            const productsDetails = [];
+            const listName = this._getListName();
 
             this.$datagridEl.find(this.options.productSelector).each((function(i, product) {
-                var details = this._getProductDetails(product);
+                const details = this._getProductDetails(product);
                 if (details) {
                     productsDetails.push(_.extend(details, {list: listName}));
                 }
@@ -118,20 +117,20 @@ define(function(require) {
             }
 
             // Skips links without new url ("javascript:void(null)", "#" and equal)
-            var link = event.currentTarget;
+            const link = event.currentTarget;
             if (link.protocol !== window.location.protocol ||
                 (link.pathname === window.location.pathname && link.search === window.location.search)
             ) {
                 return;
             }
 
-            var product = $(event.currentTarget).parents(this.options.productSelector)[0];
-            var productDetails = this._getProductDetails(product);
+            const product = $(event.currentTarget).parents(this.options.productSelector)[0];
+            const productDetails = this._getProductDetails(product);
             if (!productDetails) {
                 return;
             }
 
-            var destinationUrl = link.href;
+            let destinationUrl = link.href;
             if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
                 destinationUrl = null;
             } else if (this._gtmReady) {
@@ -148,7 +147,7 @@ define(function(require) {
          * @private
          */
         _getProductDetails: function(product) {
-            var details = productDetailsGtmHelper.getDetails(product);
+            const details = productDetailsGtmHelper.getDetails(product);
             if (!details) {
                 return undefined;
             }
@@ -207,7 +206,7 @@ define(function(require) {
 
             this.$datagridEl.off('click mouseup', this.options.productSelector, this._onClick.bind(this));
 
-            ProductsDatagridGtmComponent.__super__.dispose.apply(this, arguments);
+            ProductsDatagridGtmComponent.__super__.dispose.call(this);
         }
     });
 
