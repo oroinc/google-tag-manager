@@ -27,17 +27,6 @@ class LayoutBuilderDecorator extends LayoutBuilder
             if ($childView->getId() === 'google_tag_manager_head') {
                 unset($blockView->children[$key]);
             }
-
-            // Stop home page slider: random messages in data layer was break test logic
-            if ($childView->getId() === 'hero_promo') {
-                $childView->vars['attr']['data-page-component-options'] = [
-                    'slidesToShow' => 1,
-                    'autoplay' => false,
-                    'arrows' => false,
-                    'dots' => true,
-                    'itemSelector' => '.promo-slider__item',
-                ];
-            }
         }
 
         parent::processBlockViewData($blockView, $context, $data, $deferred, $encoding);

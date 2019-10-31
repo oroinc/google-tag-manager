@@ -7,6 +7,12 @@ Feature: GTM events on homepage
   Scenario: Feature background
     Given I enable GTM integration
     And I login as administrator
+    And go to Marketing/Content Widgets
+    And I click edit "home-page-slider" in grid
+    And fill "Content Widget Form" with:
+      | Enable Autoplay | false |
+    And I save and close form
+    And I should see "Content widget has been saved" flash message
 
     # Change Featured Products order
     And I go to Reports & Segments / Manage Segments
