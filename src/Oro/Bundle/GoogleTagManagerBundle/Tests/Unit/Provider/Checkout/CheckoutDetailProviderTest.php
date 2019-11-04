@@ -162,6 +162,28 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                         ],
                         'currencyCode' => 'USD',
                     ],
+                ],
+                [
+                    'event' => 'checkout',
+                    'ecommerce' => [
+                        'checkout' => [
+                            'actionField' => [
+                                'step' => 3,
+                                'option' => 'enter_shipping_method',
+                            ],
+                            'products' => [
+                                [
+                                    'id' => 'free-form-sku',
+                                    'name' => 'Free Form Product',
+                                    'price' => 4.2,
+                                    'quantity' => 3.14,
+                                    'position' => 4,
+                                    'variant' => 'set',
+                                ],
+                            ],
+                        ],
+                        'currencyCode' => 'USD',
+                    ],
                 ]
             ],
             $this->provider->getData($checkout)
@@ -205,13 +227,23 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setPrice(Price::create(100.1, 'USD'))
             ->preSave();
 
+        $lineItem4 = new CheckoutLineItem();
+        $lineItem4->setProductSku('free-form-sku')
+            ->setFreeFormProduct('Free Form Product')
+            ->setProductUnit($productUnit3)
+            ->setQuantity(3.14)
+            ->setPriceFixed(true)
+            ->setPrice(Price::create(4.2, 'USD'))
+            ->preSave();
+
         $checkout = new Checkout();
         $checkout->setCurrency('USD')
             ->addLineItem($lineItem1)
             ->addLineItem($lineItem2)
-            ->addLineItem($lineItem3);
+            ->addLineItem($lineItem3)
+            ->addLineItem($lineItem4);
 
-        return [$checkout, $lineItem1, $lineItem2, $lineItem3];
+        return [$checkout, $lineItem1, $lineItem2, $lineItem3, $lineItem4];
     }
 
     /**

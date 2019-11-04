@@ -70,15 +70,22 @@ class RequestProductItemEventListener
         if (!$this->isApplicable()) {
             return;
         }
+        if ($item === null) {
+            return;
+        }
+        $product = $item->getProduct();
+        if ($product === null) {
+            return;
+        }
 
-        $data = $this->productDetailProvider->getData($item->getRequestProduct()->getProduct());
+        $data = $this->productDetailProvider->getData($product);
 
         $unit = $item->getProductUnit();
 
         $data['variant'] = $unit->getCode();
         $data['quantity'] = $item->getQuantity();
 
-        $price = $this->productPriceDetailProvider->getPrice($item->getProduct(), $unit, $item->getQuantity());
+        $price = $this->productPriceDetailProvider->getPrice($product, $unit, $item->getQuantity());
 
         $currency = null;
         if ($price instanceof Price) {

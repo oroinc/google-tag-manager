@@ -77,6 +77,36 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->prePersist($this->getRequestProductItem(1001));
     }
 
+    public function testPrePersistWithoutItem(): void
+    {
+        $this->settingsProvider->expects($this->any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->productPriceDetailProvider->expects($this->never())
+            ->method($this->anything());
+
+        $this->dataLayerManager->expects($this->never())
+            ->method($this->anything());
+
+        $this->listener->prePersist(null);
+    }
+
+    public function testPrePersistWithoutProduct(): void
+    {
+        $this->settingsProvider->expects($this->any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->productPriceDetailProvider->expects($this->never())
+            ->method($this->anything());
+
+        $this->dataLayerManager->expects($this->never())
+            ->method($this->anything());
+
+        $this->listener->prePersist(new RequestProductItem());
+    }
+
     public function testPrePersistWithoutCustomerUser(): void
     {
         $this->settingsProvider->expects($this->once())

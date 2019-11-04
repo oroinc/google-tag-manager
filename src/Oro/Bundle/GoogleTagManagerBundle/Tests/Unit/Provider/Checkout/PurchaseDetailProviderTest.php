@@ -139,6 +139,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         OrderLineItem $lineItem1,
         OrderLineItem $lineItem2,
         OrderLineItem $lineItem3,
+        OrderLineItem $lineItem4,
         ?float $taxAmount,
         array $coupons,
         ?string $paymentMethod,
@@ -205,7 +206,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
     public function getPurchaseDataProvider(): array
     {
         /** @var Order $order1 */
-        [$order1, $lineItem11, $lineItem12, $lineItem13] = $this->prepareOrder();
+        [$order1, $lineItem11, $lineItem12, $lineItem13, $lineItem14] = $this->prepareOrder();
 
         $website = new Website();
         $website->setName('Test Website');
@@ -215,7 +216,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setShippingMethodType('shipping_type')
             ->setWebsite($website);
 
-        [$order2, $lineItem21, $lineItem22, $lineItem23] = $this->prepareOrder();
+        [$order2, $lineItem21, $lineItem22, $lineItem23, $lineItem24] = $this->prepareOrder();
 
         return [
             'full data' => [
@@ -223,6 +224,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                 'lineItem1' => $lineItem11,
                 'lineItem2' => $lineItem12,
                 'lineItem3' => $lineItem13,
+                'lineItem4' => $lineItem14,
                 'tax' => 11.8,
                 'coupons' => ['CODE1', 'CODE2'],
                 'paymentMethod' => 'payment_method',
@@ -281,6 +283,29 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                             'shippingMethod' => 'shipping_method, shipping_type_formatted',
                             'paymentMethod' => 'payment_method_formatted',
                         ]
+                    ],
+                    [
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'purchase' => [
+                                'actionField' => [
+                                    'id' => 42,
+                                ],
+                                'products' => [
+                                    [
+                                        'id' => 'FREE-FORM-SKU',
+                                        'name' => 'Free Form Product',
+                                        'price' => 22.0,
+                                        'quantity' => 11,
+                                        'position' => 4,
+                                        'variant' => 'set'
+                                    ]
+                                ],
+                            ],
+                            'currencyCode' => 'USD',
+                            'shippingMethod' => 'shipping_method, shipping_type_formatted',
+                            'paymentMethod' => 'payment_method_formatted',
+                        ]
                     ]
                 ]
             ],
@@ -289,6 +314,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                 'lineItem1' => $lineItem21,
                 'lineItem2' => $lineItem22,
                 'lineItem3' => $lineItem23,
+                'lineItem4' => $lineItem24,
                 'tax' => null,
                 'coupons' => [],
                 'paymentMethod' => null,
@@ -338,6 +364,27 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                                 ],
                             ],
                             'currencyCode' => 'USD',
+                        ]
+                    ],
+                    [
+                        'event' => 'purchase',
+                        'ecommerce' => [
+                            'purchase' => [
+                                'actionField' => [
+                                    'id' => 42,
+                                ],
+                                'products' => [
+                                    [
+                                        'id' => 'FREE-FORM-SKU',
+                                        'name' => 'Free Form Product',
+                                        'price' => 22.0,
+                                        'quantity' => 11,
+                                        'position' => 4,
+                                        'variant' => 'set'
+                                    ]
+                                ],
+                            ],
+                            'currencyCode' => 'USD'
                         ]
                     ]
                 ]
@@ -432,14 +479,24 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setPrice(Price::create(5.5, 'USD'))
             ->preSave();
 
+        $lineItem4 = new OrderLineItem();
+        $lineItem4
+            ->setFreeFormProduct('Free Form Product')
+            ->setProductSku('FREE-FORM-SKU')
+            ->setProductUnit($productUnit3)
+            ->setQuantity(11)
+            ->setPrice(Price::create(22, 'USD'))
+            ->preSave();
+
         /** @var Order $order */
         $order = $this->getEntity(Order::class, ['id' => 42]);
         $order->setTotal(1500.15)
             ->setCurrency('USD')
             ->addLineItem($lineItem1)
             ->addLineItem($lineItem2)
-            ->addLineItem($lineItem3);
+            ->addLineItem($lineItem3)
+            ->addLineItem($lineItem4);
 
-        return [$order, $lineItem1, $lineItem2, $lineItem3];
+        return [$order, $lineItem1, $lineItem2, $lineItem3, $lineItem4];
     }
 }
