@@ -78,7 +78,15 @@ class CheckoutDetailProvider
 
         $products = [];
         foreach ($checkout->getLineItems() as $key => $lineItem) {
-            $productData = $this->productDetailProvider->getData($lineItem->getProduct());
+            if ($lineItem->getProduct()) {
+                $productData = $this->productDetailProvider->getData($lineItem->getProduct());
+            } else {
+                $productData = array_filter([
+                    'id' => $lineItem->getProductSku(),
+                    'name' => $lineItem->getFreeFormProduct()
+                ]);
+            }
+
             if (!$productData) {
                 continue;
             }
