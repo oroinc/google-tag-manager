@@ -113,7 +113,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects($this->once())
             ->method('add')
             ->with(
                 [
@@ -401,7 +401,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects($this->once())
             ->method('add')
             ->with(
                 [
@@ -427,6 +427,74 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $this->listener->preRemove($item);
         $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveForDifferentUnits(): void
+    {
+        $this->settingsProvider->expects($this->any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $item = $this->getLineItem();
+        $item1 = $this->getLineItem();
+        $unit = new ProductUnit();
+        $unit->setCode('box');
+        $item1->setUnit($unit);
+
+        $this->productPriceDetailProvider->expects($this->exactly(2))
+            ->method('getPrice')
+            ->willReturn(Price::create(100.1, 'USD'));
+
+        $this->dataLayerManager->expects($this->at(0))
+            ->method('add')
+            ->with(
+                [
+                    'event' => 'removeFromCart',
+                    'ecommerce' => [
+                        'currencyCode' => 'USD',
+                        'remove' => [
+                            'products' => [
+                                [
+                                    'id' => 'sku123',
+                                    'name' => 'Test Product',
+                                    'category' => 'Test Category',
+                                    'brand' => 'test Brand',
+                                    'variant' => 'item',
+                                    'quantity' => 5.5,
+                                    'price' => 100.1
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            );
+        $this->dataLayerManager->expects($this->at(1))
+            ->method('add')
+            ->with(
+                [
+                    'event' => 'removeFromCart',
+                    'ecommerce' => [
+                        'currencyCode' => 'USD',
+                        'remove' => [
+                            'products' => [
+                                [
+                                    'id' => 'sku123',
+                                    'name' => 'Test Product',
+                                    'category' => 'Test Category',
+                                    'brand' => 'test Brand',
+                                    'variant' => 'box',
+                                    'quantity' => 5.5,
+                                    'price' => 100.1
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            );
+
+        $this->listener->preRemove($item);
+        $this->listener->preRemove($item1);
         $this->listener->postFlush();
     }
 
