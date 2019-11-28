@@ -11,7 +11,7 @@ define(function(require) {
          * @property {Object}
          */
         options: _.extend({}, BaseComponent.prototype.options, {
-            nameSelector: '.promo-slider__title'
+            nameSelector: '[data-role="slide-content"] h2'
         }),
 
         /**
