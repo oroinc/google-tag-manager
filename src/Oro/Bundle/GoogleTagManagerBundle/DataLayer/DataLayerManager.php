@@ -95,4 +95,15 @@ class DataLayerManager
     {
         $this->session->remove(self::KEY);
     }
+
+    /**
+     * @param iterable $collectors
+     * @return DataLayerManager
+     */
+    public function setCollectors(iterable $collectors): self
+    {
+        $this->collectors = $collectors;
+
+        return $this;
+    }
 }

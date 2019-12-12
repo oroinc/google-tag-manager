@@ -4,7 +4,9 @@ services:
         public: false
         arguments:
             - '@session'
-            - ~ # collectors
+            - [] # collectors
+        calls:
+            - [setCollectors, [!tagged oro_google_tag_manager.data_layer.collector]]
 
     oro_google_tag_manager.provider.google_tag_manager_settings:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider'
