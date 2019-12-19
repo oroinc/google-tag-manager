@@ -184,6 +184,33 @@ Feature: GTM events on shopping list
         }
       """
 
+  Scenario: Change notes
+    Given I click "Add a Note to This Item"
+    And I fill in "Shopping List Product Note" with "My notes"
+    When I click on empty space
+    And I should see "Record has been successfully updated" flash message
+    Then last message in the GTM data layer should be:
+      """
+        {
+          "event": "removeFromCart",
+          "ecommerce": {
+            "currencyCode": "USD",
+            "remove": {
+              "products": [
+                {
+                  "id": "SKU2",
+                  "name": "Product 2",
+                  "category": "All Products / NewCategory",
+                  "variant": "item",
+                  "quantity": 1,
+                  "price": 15
+                }
+              ]
+            }
+          }
+        }
+      """
+
   Scenario: Clone shopping list
     When I click "Duplicate List"
     Then GTM data layer must contain the following message:
