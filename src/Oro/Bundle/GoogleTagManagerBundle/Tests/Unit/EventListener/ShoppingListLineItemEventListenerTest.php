@@ -366,6 +366,10 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                         ]
                     ],
                 ]
+            ],
+            [
+                'changeSet' => ['notes' => ['old note', 'new note']],
+                'expected' => []
             ]
         ];
     }

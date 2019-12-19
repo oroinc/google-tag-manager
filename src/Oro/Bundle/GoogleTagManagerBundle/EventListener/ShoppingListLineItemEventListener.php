@@ -114,7 +114,7 @@ class ShoppingListLineItemEventListener
             return;
         }
 
-        $deltaQuantity = $args->getNewValue('quantity') - $args->getOldValue('quantity');
+        $deltaQuantity = $newQuantity - $oldQuantity;
         if (!$deltaQuantity) {
             return;
         }
