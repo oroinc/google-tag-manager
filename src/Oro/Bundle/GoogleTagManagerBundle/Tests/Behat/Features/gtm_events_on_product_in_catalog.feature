@@ -45,35 +45,6 @@ Feature: GTM events on product in catalog
           "localizationId": "1"
         }
       """
-    Then GTM data layer must contain the following message:
-      """
-        {
-          "event": "productImpression",
-          "ecommerce": {
-            "currencyCode": "USD",
-            "impressions": [
-              {
-                "id": "SKU1",
-                "name": "Product 1",
-                "category": "All Products / NewCategory",
-                "price": "10.00",
-                "position": 0,
-                "viewMode": "list-view",
-                "list": "product-allproducts"
-              },
-              {
-                "id": "SKU2",
-                "name": "Product 2",
-                "category": "All Products / NewCategory",
-                "price": "15.00",
-                "position": 1,
-                "viewMode": "list-view",
-                "list": "product-allproducts"
-              }
-            ]
-          }
-        }
-      """
 
     When I filter "Any Text" as contains "SKU1"
     Then last message in the GTM data layer should be:

@@ -10,6 +10,7 @@ Feature: GTM events on product search
     When I go to homepage
     And I type "" in "search"
     And I click "Search Button"
+    And I sort frontend grid "Product Frontend Grid" by "Price (Low to High)"
     Then GTM data layer must contain the following message:
       """
         {
