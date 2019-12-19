@@ -1,13 +1,13 @@
 oro_behat_extension:
     elements:
         First Dot On Home Page Slider:
-            selector: 'div[data-page-component-name="home-page-slider"] .slick-dots li:nth-child(1) button'
+            selector: 'div[data-type="image_slider"] .slick-dots li:nth-child(1) button'
 
         Call To Action On First Slide:
-            selector: 'div[data-page-component-name="home-page-slider"] [data-role="slide-item"]:nth-child(1) [data-role="slide-content"] a'
+            selector: 'div[data-type="image_slider"] [data-role="slide-item"]:nth-child(1) [data-role="slide-content"] a'
 
         Third Dot On Home Page Slider:
-            selector: 'div[data-page-component-name="home-page-slider"] .slick-dots li:nth-child(3) button'
+            selector: 'div[data-type="image_slider"] .slick-dots li:nth-child(3) button'
 
         Featured Products Next Button:
             selector: 'div[data-page-component-name="featured-products-list"] button.slick-next'
