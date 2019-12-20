@@ -32,5 +32,6 @@ oro_behat_extension:
                 - OroProductBundle::QuickOrderFormContext
                 - OroDataGridBundle::GridContext
                 - OroWebCatalogBundle::FeatureContext
+                - OroCustomerBundle::FrontendGridContext
             paths:
                 - '@OroGoogleTagManagerBundle/Tests/Behat/Features'

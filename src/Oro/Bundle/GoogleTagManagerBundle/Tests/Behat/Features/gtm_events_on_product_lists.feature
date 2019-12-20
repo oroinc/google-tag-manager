@@ -14,7 +14,8 @@ Feature: GTM events on product lists
           "catalogPath": "All Products"
         }
       """
-    When I click "NewCategory"
+    And I click "NewCategory"
+    When I sort frontend grid "Product Frontend Grid" by "Price (Low to High)"
     Then GTM data layer must contain the following message:
       """
         {
@@ -149,6 +150,7 @@ Feature: GTM events on product lists
     Given I reload the page
     And I click "All Products"
     And I click "List View"
+    And I sort frontend grid "Product Frontend Grid" by "Price (Low to High)"
     Then GTM data layer must contain the following message:
       """
         {
