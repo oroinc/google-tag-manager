@@ -9,15 +9,13 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserInterface
  */
 class PageTypeProvider
 {
-    /**
-     * @var array|PageTypeGuesserInterface[]
-     */
+    /** @var iterable|PageTypeGuesserInterface[] */
     private $guessers;
 
     /**
-     * @param array|PageTypeGuesserInterface[] $guessers
+     * @param iterable|PageTypeGuesserInterface[] $guessers
      */
-    public function __construct(array $guessers = [])
+    public function __construct(iterable $guessers)
     {
         $this->guessers = $guessers;
     }

@@ -4,7 +4,7 @@ services:
         public: false
         arguments:
             - '@session'
-            - ~ # collectors
+            - !tagged oro_google_tag_manager.data_layer.collector
 
     oro_google_tag_manager.provider.google_tag_manager_settings:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider'
@@ -55,7 +55,7 @@ services:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider'
         public: false
         arguments:
-            - ~ # page type guessers
+            - !tagged oro_google_tag_manager.page_type_guesser
 
     oro_google_tag_manager.page_type_guesser.by_request_route:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserByRequestRoute'

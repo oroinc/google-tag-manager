@@ -13,21 +13,17 @@ class DataLayerManager
 {
     private const KEY = 'oro_google_tag_manager.data_layer';
 
-    /**
-     * @var SessionInterface
-     */
-    protected $session;
+    /** @var SessionInterface */
+    private $session;
 
-    /**
-     * @var array|CollectorInterface[]
-     */
-    protected $collectors;
+    /** @var iterable|CollectorInterface[] */
+    private $collectors;
 
     /**
      * @param SessionInterface $session
-     * @param array|CollectorInterface[] $collectors
+     * @param iterable|CollectorInterface[] $collectors
      */
-    public function __construct(SessionInterface $session, array $collectors = [])
+    public function __construct(SessionInterface $session, iterable $collectors)
     {
         $this->session = $session;
         $this->collectors = $collectors;
