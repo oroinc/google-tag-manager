@@ -216,3 +216,9 @@ mediator.trigger('gtm:event:push', {
     anyEventKeys: 'Any event data'
 });
 ```
+
+Resources
+---------
+
+  * [OroCommerce Documentation](https://doc.oroinc.com)
+  * [Contributing](https://doc.oroinc.com/community/contribute/)
