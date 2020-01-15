@@ -223,8 +223,10 @@ class ShoppingListLineItemEventListener
         }
 
         if ($add) {
-            $this->added[$currency][] = $data;
-        } else {
+            if (empty($this->added[$currency]) || !in_array($data, $this->added[$currency], true)) {
+                $this->added[$currency][] = $data;
+            }
+        } elseif (empty($this->removed[$currency]) || !in_array($data, $this->removed[$currency], true)) {
             $this->removed[$currency][] = $data;
         }
     }

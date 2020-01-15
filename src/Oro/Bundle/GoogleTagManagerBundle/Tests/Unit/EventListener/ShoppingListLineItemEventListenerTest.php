@@ -115,7 +115,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects($this->once())
             ->method('add')
             ->with(
                 [
@@ -407,7 +407,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects($this->once())
             ->method('add')
             ->with(
                 [
