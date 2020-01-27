@@ -113,9 +113,9 @@ services:
             - '%oro_google_tag_manager.products.batch_size%'
         tags:
             - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: addShoppingListIdToIgnore }
-            - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: prePersist }
-            - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preUpdate }
-            - { name: doctrine.orm.entity_listener, entity: '%oro_shopping_list.entity.line_item.class%', event: preRemove }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: prePersist }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preUpdate }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preRemove }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 
@@ -128,7 +128,7 @@ services:
             - '@oro_google_tag_manager.provider.purchase_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
         tags:
-            - { name: doctrine.orm.entity_listener, entity: '%oro_checkout.entity.checkout.class%', event: preUpdate }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\CheckoutBundle\Entity\Checkout', event: preUpdate }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 
@@ -143,6 +143,6 @@ services:
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
             - '%oro_google_tag_manager.products.batch_size%'
         tags:
-            - { name: doctrine.orm.entity_listener, entity: '%oro_rfp.entity.request_product_item.class%', event: prePersist }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\RFPBundle\Entity\RequestProductItem', event: prePersist }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
