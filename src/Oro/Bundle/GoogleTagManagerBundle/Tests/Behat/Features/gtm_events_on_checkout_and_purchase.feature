@@ -239,7 +239,7 @@ Feature: GTM events on checkout and purchase
       """
 
   Scenario: Events on previously purchased list
-    When I click "Account"
+    When I follow "Account"
     And I click "Previously Purchased"
     And GTM data layer must contain the following message:
       """
