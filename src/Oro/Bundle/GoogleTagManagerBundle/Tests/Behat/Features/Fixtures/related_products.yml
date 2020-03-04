@@ -9,7 +9,7 @@ Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
         unit: '@item'
         precision: '1'
 
-Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+Oro\Bundle\ProductBundle\Entity\ProductName:
     relatedLocalProductName{1..3}:
         string: 'Related Product <current()>'
     upsellLocalProductName{1..3}:

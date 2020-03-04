@@ -4,12 +4,15 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Oro\Bundle\CatalogBundle\Entity\Category;
+use Oro\Bundle\CatalogBundle\Entity\CategoryTitle;
 use Oro\Bundle\CatalogBundle\Entity\Repository\CategoryRepository;
 use Oro\Bundle\CatalogBundle\Tests\Unit\Entity\Stub\Category as CategoryStub;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
+use Oro\Bundle\LocaleBundle\Entity\AbstractLocalizedFallbackValue;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
 use Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue;
+use Oro\Bundle\ProductBundle\Entity\ProductName;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Brand as BrandStub;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Product as ProductStub;
 use Oro\Component\Testing\Unit\EntityTrait;
@@ -146,13 +149,15 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
     /**
      * @param string $translate
      * @param Localization|null $localization
-     * @return LocalizedFallbackValue
+     * @param string $className
+     * @return AbstractLocalizedFallbackValue
      */
     private function createLocalizedFallbackValue(
         string $translate,
-        ?Localization $localization
-    ): LocalizedFallbackValue {
-        $fallbackValue = new LocalizedFallbackValue();
+        ?Localization $localization,
+        string $className = LocalizedFallbackValue::class
+    ): AbstractLocalizedFallbackValue {
+        $fallbackValue = new $className();
         $fallbackValue->setString($translate);
         $fallbackValue->setLocalization($localization);
 
@@ -183,7 +188,11 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         if ($name) {
             $product->addName(
-                $this->createLocalizedFallbackValue($name, $isLocalized ? $this->getLocalization() : null)
+                $this->createLocalizedFallbackValue(
+                    $name,
+                    $isLocalized ? $this->getLocalization() : null,
+                    ProductName::class
+                )
             );
         }
 
@@ -223,7 +232,11 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
                 'id' => $id,
                 'titles' => new ArrayCollection(
                     [
-                        $this->createLocalizedFallbackValue($title, $isLocalized ? $this->getLocalization() : null)
+                        $this->createLocalizedFallbackValue(
+                            $title,
+                            $isLocalized ? $this->getLocalization() : null,
+                            CategoryTitle::class
+                        )
                     ]
                 ),
             ]
