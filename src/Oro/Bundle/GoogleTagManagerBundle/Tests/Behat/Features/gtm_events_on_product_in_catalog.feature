@@ -1,4 +1,5 @@
 @regression
+@gtm
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:products.yml
 @fixture-OroGoogleTagManagerBundle:web_catalog.yml
