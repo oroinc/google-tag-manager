@@ -1,5 +1,5 @@
 @regression
-@gtm
+@random-failed
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:featured_products.yml
 @fixture-OroGoogleTagManagerBundle:new_arrivals.yml
