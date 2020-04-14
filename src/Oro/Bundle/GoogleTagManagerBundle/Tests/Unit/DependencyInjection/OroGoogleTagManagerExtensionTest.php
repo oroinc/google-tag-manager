@@ -14,7 +14,7 @@ class OroGoogleTagManagerExtensionTest extends ExtensionTestCase
     /** @var OroGoogleTagManagerExtension */
     private $extension;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->container = $this->createMock(ContainerBuilder::class);
 

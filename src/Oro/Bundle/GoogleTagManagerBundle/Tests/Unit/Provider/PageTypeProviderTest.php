@@ -16,7 +16,7 @@ class PageTypeProviderTest extends \PHPUnit\Framework\TestCase
     /** @var PageTypeProvider */
     private $provider;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->guesser1 = $this->createMock(PageTypeGuesserInterface::class);
         $this->guesser2 = $this->createMock(PageTypeGuesserInterface::class);

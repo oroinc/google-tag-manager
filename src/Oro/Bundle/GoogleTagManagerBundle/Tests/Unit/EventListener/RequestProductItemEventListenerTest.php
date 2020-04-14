@@ -41,7 +41,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
     /** @var RequestProductItemEventListener */
     private $listener;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);

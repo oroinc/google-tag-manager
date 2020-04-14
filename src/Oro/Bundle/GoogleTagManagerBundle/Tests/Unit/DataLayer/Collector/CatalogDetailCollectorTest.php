@@ -35,7 +35,7 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
     /** @var CatalogDetailCollector */
     private $collector;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->configManager = $this->createMock(ConfigManager::class);
 

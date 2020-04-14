@@ -22,7 +22,7 @@ class FrontendProductDatagridListenerTest extends \PHPUnit\Framework\TestCase
     /** @var FrontendProductDatagridListener */
     private $listener;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->transport = $this->createMock(Transport::class);
 

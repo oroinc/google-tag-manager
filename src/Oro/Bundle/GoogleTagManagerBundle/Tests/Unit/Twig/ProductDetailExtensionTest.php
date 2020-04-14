@@ -18,7 +18,7 @@ class ProductDetailExtensionTest extends \PHPUnit\Framework\TestCase
     /** @var ProductDetailExtension */
     private $extension;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
 

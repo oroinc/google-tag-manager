@@ -9,7 +9,7 @@ class GoogleTagManagerChannelTest extends \PHPUnit\Framework\TestCase
     /** @var GoogleTagManagerChannel */
     private $channel;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->channel = new GoogleTagManagerChannel();
     }

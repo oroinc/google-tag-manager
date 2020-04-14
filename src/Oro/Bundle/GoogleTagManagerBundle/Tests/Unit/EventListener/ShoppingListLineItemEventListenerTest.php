@@ -44,7 +44,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
     /** @var ShoppingListLineItemEventListener */
     private $listener;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);
         $this->frontendHelper->expects($this->any())

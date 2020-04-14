@@ -44,7 +44,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
     /** @var ProductPriceDetailProvider */
     private $provider;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->tokenStorage = $this->createMock(TokenStorageInterface::class);
         $this->websiteManager = $this->createMock(WebsiteManager::class);

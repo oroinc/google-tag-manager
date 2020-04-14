@@ -22,7 +22,7 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
     /** @var WebsiteSearchIndexerListener */
     private $listener;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->websiteContextManger = $this->createMock(WebsiteContextManager::class);
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);

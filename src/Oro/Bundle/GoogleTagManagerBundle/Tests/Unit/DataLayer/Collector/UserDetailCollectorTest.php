@@ -26,7 +26,7 @@ class UserDetailCollectorTest extends \PHPUnit\Framework\TestCase
      */
     private $collector;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->tokenAccessor = $this->createMock(TokenAccessorInterface::class);
 
