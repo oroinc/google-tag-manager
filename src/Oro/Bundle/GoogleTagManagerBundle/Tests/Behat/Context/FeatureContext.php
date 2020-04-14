@@ -27,13 +27,13 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     public function enableGTMIntegration(): void
     {
         $container = $this->getContainer();
-        
+
         /** @var Channel $channel */
         $channel = $container->get('oro_entity.doctrine_helper')
             ->getEntityManagerForClass(Channel::class)
             ->getRepository(Channel::class)
             ->findOneBy(['type' => self::CHANNEL_TYPE]);
-        
+
         $configManager = $container->get('oro_config.global');
         $configManager->set('oro_google_tag_manager.integration', $channel->getId());
         $configManager->flush();
@@ -378,7 +378,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
             $message = \json_decode($message, true);
         }
 
-        self::assertInternalType('array', $message, 'GTM data layer message must be a correct json or array');
+        self::assertIsArray($message, 'GTM data layer message must be a correct json or array');
 
         return $message;
     }
@@ -394,7 +394,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
             'return typeof window.dataLayer != "undefined" && window.dataLayer;'
         );
 
-        self::assertInternalType('array', $currentDataLayer, 'GTM integration is not enabled');
+        self::assertIsArray($currentDataLayer, 'GTM integration is not enabled');
         return $currentDataLayer;
     }
 
