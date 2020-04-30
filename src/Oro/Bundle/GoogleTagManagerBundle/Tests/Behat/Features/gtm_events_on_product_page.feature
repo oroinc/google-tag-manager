@@ -1,4 +1,5 @@
 @regression
+@random-failed
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:related_products.yml
 Feature: GTM events on product page
