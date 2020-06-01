@@ -66,7 +66,7 @@ class CustomCollector implements CollectorInterface
 ```yaml
 services:
     acme_bundle.data_layer.collector.user_detail:
-        class: 'Acme\Bundle\AcmeBundle\DataLayer\Collector\CustomCollector'
+        class: Acme\Bundle\AcmeBundle\DataLayer\Collector\CustomCollector
         tags:
             - { name: oro_google_tag_manager.data_layer.collector }
 
@@ -159,7 +159,7 @@ Register this listener as a service:
 services:
     oro_google_tag_manager.event_listener.checkout:
     acme_bundle.event_listener.example:
-        class: 'Acme\Bundle\AcmeBundle\EventListener\ExampleEventListener'
+        class: Acme\Bundle\AcmeBundle\EventListener\ExampleEventListener
         public: false
         arguments:
             - '@oro_google_tag_manager.data_layer.manager'

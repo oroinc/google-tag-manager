@@ -11,7 +11,7 @@ Feature: GTM events on shopping list
   Scenario: Add product to shopping list
     Given I type "SKU1" in "search"
     And I click "Search Button"
-    And I click "Add to Shopping List"
+    And I click on "Add to Shopping List"
     And I should see "Product has been added to" flash message
     Then last message in the GTM data layer should be:
       """
@@ -59,7 +59,7 @@ Feature: GTM events on shopping list
           }
         }
       """
-    And I click "Add to Shopping List"
+    And I click on "Add to Shopping List"
 
   Scenario: Update product quantity in shopping list
     When I type "3" in "Product Quantity"
@@ -116,7 +116,7 @@ Feature: GTM events on shopping list
   Scenario: Change product unit
     When type "SKU2" in "search"
     And I click "Search Button"
-    And I click "Add to Shopping List"
+    And I click on "Add to Shopping List"
     And I should see "Product has been added to" flash message
     Then last message in the GTM data layer should be:
       """
@@ -246,7 +246,7 @@ Feature: GTM events on shopping list
 
   Scenario: Remove item in shopping list
     When I delete line item 1 in "Shopping List Line Items Table"
-    And I click "Yes, Delete"
+    And I click "Yes, Delete" in modal window
     Then last message in the GTM data layer should be:
       """
         {
@@ -272,7 +272,7 @@ Feature: GTM events on shopping list
   Scenario: Remove shopping list
     When I open page with shopping list Shopping List
     And I click "Delete"
-    And I click "Yes, Delete"
+    And I click "Yes, Delete" in modal window
     Then GTM data layer must contain the following message:
       """
         {
