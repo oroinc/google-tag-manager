@@ -1,5 +1,5 @@
 dynamic-imports:
-    orogoogletagmanager:
+    commons:
         - orogoogletagmanager/js/app/components/checkout-gtm-component
         - orogoogletagmanager/js/app/components/data-layer-manager-component
         - orogoogletagmanager/js/app/components/home-page-slider-gtm-component
