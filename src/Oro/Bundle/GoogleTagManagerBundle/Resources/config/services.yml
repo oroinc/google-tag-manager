@@ -67,6 +67,8 @@ services:
                 oro_product_frontend_product_index: 'category'
                 oro_product_frontend_product_view: 'product'
                 oro_shopping_list_frontend_view: 'basket'
+                oro_shopping_list_frontend_my_view: 'basket'
+                oro_shopping_list_frontend_update: 'basket'
                 oro_sale_quote_frontend_view: 'basket'
                 oro_checkout_frontend_checkout: 'checkout'
                 oro_product_frontend_product_search: 'search'
