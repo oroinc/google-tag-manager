@@ -140,8 +140,11 @@ Feature: GTM events on shopping list
         }
       """
     When I open page with shopping list Shopping List
-    And I fill "Shopping List Line Item 2 Form" with:
-      | Unit | set |
+    And I click on "Shopping List Line Item 2 Quantity"
+    And I fill "Shopping List Line Item Form" with:
+      | Quantity | 2   |
+      | Unit     | set |
+    And I click on "Shopping List Line Item 2 Save Changes Button"
     Then GTM data layer must contain the following message:
       """
         {
@@ -155,7 +158,7 @@ Feature: GTM events on shopping list
                   "name": "Product 2",
                   "category": "All Products / NewCategory",
                   "variant": "set",
-                  "quantity": 1,
+                  "quantity": 2,
                   "price": 50
                 }
               ]
@@ -186,10 +189,10 @@ Feature: GTM events on shopping list
       """
 
   Scenario: Change notes
-    Given I click "Add a Note to This Item"
+    When I click "Add Shopping List item Note" on row "SKU2" in grid
     And I fill in "Shopping List Product Note" with "My notes"
-    When I click on empty space
-    And I should see "Record has been successfully updated" flash message
+    And I click "Add"
+    Then I should see "Line item note has been successfully updated" flash message
     Then last message in the GTM data layer should be:
       """
         {
@@ -213,8 +216,11 @@ Feature: GTM events on shopping list
       """
 
   Scenario: Clone shopping list
-    When I click "Duplicate List"
-    Then GTM data layer must contain the following message:
+    When I click "Shopping List Actions"
+    And I click "Duplicate"
+    And I click "Yes, duplicate"
+    Then I should see "The shopping list has been duplicated" flash message
+    And GTM data layer must contain the following message:
       """
         {
           "event": "addToCart",
@@ -235,7 +241,7 @@ Feature: GTM events on shopping list
                   "name": "Product 2",
                   "category": "All Products / NewCategory",
                   "variant": "set",
-                  "quantity": 1,
+                  "quantity": 2,
                   "price": 50
                 }
               ]
@@ -245,7 +251,7 @@ Feature: GTM events on shopping list
       """
 
   Scenario: Remove item in shopping list
-    When I delete line item 1 in "Shopping List Line Items Table"
+    When I click Delete SKU1 in grid
     And I click "Yes, Delete" in modal window
     Then last message in the GTM data layer should be:
       """
@@ -271,8 +277,9 @@ Feature: GTM events on shopping list
 
   Scenario: Remove shopping list
     When I open page with shopping list Shopping List
+    And I click "Shopping List Actions"
     And I click "Delete"
-    And I click "Yes, Delete" in modal window
+    And I click "Yes, delete" in modal window
     Then GTM data layer must contain the following message:
       """
         {
@@ -294,7 +301,7 @@ Feature: GTM events on shopping list
                   "name": "Product 2",
                   "category": "All Products / NewCategory",
                   "variant": "set",
-                  "quantity": 1,
+                  "quantity": 2,
                   "price": 50
                 }
               ]

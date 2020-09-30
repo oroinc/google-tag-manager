@@ -23,14 +23,16 @@ Feature: GTM events for large product lists
 
   Scenario: Batch events on request for quote
     When I open page with shopping list Shopping List
+    And I click "More Actions"
     And I click "Request Quote"
     And I click "Submit Request"
     Then GTM data layer must contain addToCart events with 35 products
 
   Scenario: Batch events on delete shopping list
     When I open page with shopping list Shopping List
+    And I click "Shopping List Actions"
     And I click "Delete"
-    And I click "Yes, Delete"
+    And I click "Yes, delete"
     Then GTM data layer must contain removeFromCart events with 35 products
 
   Scenario: Batch events on quick order
