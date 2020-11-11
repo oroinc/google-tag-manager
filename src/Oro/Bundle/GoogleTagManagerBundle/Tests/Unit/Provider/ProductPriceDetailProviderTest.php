@@ -104,7 +104,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(
                 [
                     'no_data' => null,
-                    $priceCriteria->getIdentifier() => Price::create(1.1, 'USD'),
+                    '42-unit-5.5-USD' => Price::create(1.1, 'USD'),
                     'price1' => Price::create(2.2, 'USD')
                 ]
             );

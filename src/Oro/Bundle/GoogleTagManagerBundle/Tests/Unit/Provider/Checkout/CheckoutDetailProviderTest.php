@@ -108,7 +108,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->with([$priceCriteria], $scopeCriteria)
             ->willReturn(
                 [
-                    $priceCriteria->getIdentifier() => Price::create(10.10, 'USD'),
+                    '2002-item-5.5-USD' => Price::create(10.10, 'USD'),
                     'test' => Price::create(11.11, 'USD')
                 ]
             );
