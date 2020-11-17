@@ -98,34 +98,3 @@ Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
     priceRelation{1..2}:
         product: '@product<current()>'
         priceList: '@defaultPriceList'
-
-Oro\Bundle\PricingBundle\Entity\CombinedPriceListToWebsite:
-    combinedPriceListToWebsite:
-        pricelist: '@combinedPriceList'
-        website: '@website1'
-
-Oro\Bundle\PricingBundle\Entity\CombinedProductPrice:
-    combinedProductPrice1:
-        pricelist: '@combinedPriceList'
-        product: '@product1'
-        productSku: 'SKU1'
-        quantity: 1
-        unit: '@item'
-        value: '10'
-        currency: 'USD'
-    combinedProductPrice2_1:
-        pricelist: '@combinedPriceList'
-        product: '@product2'
-        productSku: 'SKU2'
-        quantity: 1
-        unit: '@item'
-        value: '15'
-        currency: 'USD'
-    combinedProductPrice2_2:
-        pricelist: '@combinedPriceList'
-        product: '@product2'
-        productSku: 'SKU2'
-        quantity: 1
-        unit: '@set'
-        value: '50'
-        currency: 'USD'
