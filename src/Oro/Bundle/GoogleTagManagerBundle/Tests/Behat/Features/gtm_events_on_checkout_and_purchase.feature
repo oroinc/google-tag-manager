@@ -5,6 +5,9 @@
 @fixture-OroCheckoutBundle:Checkout.yml
 @fixture-OroGoogleTagManagerBundle:integration.yml
 Feature: GTM events on checkout and purchase
+  In order to ...
+  As an ...
+  I should be able to ...
 
   Scenario: Feature background
     Given I enable GTM integration
