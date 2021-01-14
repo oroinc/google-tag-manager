@@ -2,8 +2,8 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use Oro\Bundle\ConfigBundle\Config\ConfigManager;
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider;

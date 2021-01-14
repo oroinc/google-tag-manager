@@ -2,7 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Provider;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\ConfigBundle\Config\ConfigManager;
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
