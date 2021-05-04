@@ -25,11 +25,10 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
     /** @var ParameterBag|\PHPUnit\Framework\MockObject\MockObject */
     private $requestAttributes;
 
-
     /** @var WebCatalogBreadcrumbProvider|\PHPUnit\Framework\MockObject\MockObject */
     private $webCatalogBreadcrumbProvider;
 
-    /** @var CategoryBreadcrumbProvider|\PHPUnit\Framework\MockObject\MockObject  */
+    /** @var CategoryBreadcrumbProvider|\PHPUnit\Framework\MockObject\MockObject */
     private $categoryBreadcrumbProvider;
 
     /** @var CatalogDetailCollector */
