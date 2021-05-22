@@ -17,20 +17,12 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
-use Oro\Component\Testing\Unit\EntityTrait;
+use Oro\Component\Testing\ReflectionUtil;
 
 class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 {
-    use EntityTrait;
-
-    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
-    private $frontendHelper;
-
     /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
     private $dataLayerManager;
-
-    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $productDetailProvider;
 
     /** @var ProductPriceDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
     private $productPriceDetailProvider;
@@ -46,15 +38,18 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->frontendHelper = $this->createMock(FrontendHelper::class);
-        $this->frontendHelper->expects($this->any())
+        $this->dataLayerManager = $this->createMock(DataLayerManager::class);
+        $this->productPriceDetailProvider = $this->createMock(ProductPriceDetailProvider::class);
+        $this->transport = $this->createMock(Transport::class);
+        $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
+
+        $frontendHelper = $this->createMock(FrontendHelper::class);
+        $frontendHelper->expects($this->any())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->dataLayerManager = $this->createMock(DataLayerManager::class);
-
-        $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
-        $this->productDetailProvider->expects($this->any())
+        $productDetailProvider = $this->createMock(ProductDetailProvider::class);
+        $productDetailProvider->expects($this->any())
             ->method('getData')
             ->with($this->isInstanceOf(Product::class))
             ->willReturn(
@@ -66,14 +61,10 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->productPriceDetailProvider = $this->createMock(ProductPriceDetailProvider::class);
-        $this->transport = $this->createMock(Transport::class);
-        $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
-
         $this->listener = new ShoppingListLineItemEventListener(
-            $this->frontendHelper,
+            $frontendHelper,
             $this->dataLayerManager,
-            $this->productDetailProvider,
+            $productDetailProvider,
             $this->productPriceDetailProvider,
             $this->settingsProvider,
             1
@@ -144,8 +135,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider preUpdateDataProvider
-     *
-     * @param array $changeSet
      */
     public function testPreUpdateNotApplicable(array $changeSet): void
     {
@@ -161,7 +150,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->dataLayerManager->expects($this->never())
             ->method($this->anything());
 
-        /** @var EntityManagerInterface $objectManager */
         $objectManager = $this->createMock(EntityManagerInterface::class);
 
         $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
@@ -170,9 +158,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider preUpdateDataProvider
-     *
-     * @param array $changeSet
-     * @param array $expected
      */
     public function testPreUpdate(array $changeSet, array $expected): void
     {
@@ -187,30 +172,35 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $this->productPriceDetailProvider->expects($this->any())
             ->method('getPrice')
-            ->willReturnMap(
+            ->willReturnMap([
                 [
-                    [
-                        $item->getProduct(),
-                        $item->getProductUnit(),
-                        $item->getQuantity(),
-                        Price::create(100.1, 'USD')
-                    ],
-                    [
-                        $item->getProduct(),
-                        $changeSet['unit'][0] ?? $setUnit,
-                        $item->getQuantity(),
-                        Price::create(200.2, 'USD')
-                    ]
+                    $item->getProduct(),
+                    $item->getProductUnit(),
+                    $item->getQuantity(),
+                    Price::create(100.1, 'USD')
+                ],
+                [
+                    $item->getProduct(),
+                    $changeSet['unit'][0] ?? $setUnit,
+                    $item->getQuantity(),
+                    Price::create(200.2, 'USD')
                 ]
-            );
+            ]);
 
-        foreach ($expected as $key => $expectedItem) {
-            $this->dataLayerManager->expects($this->at($key))
+        if ($expected) {
+            $this->dataLayerManager->expects($this->exactly(count($expected)))
                 ->method('add')
-                ->with($expectedItem);
+                ->withConsecutive(...array_map(
+                    function ($item) {
+                        return [$item];
+                    },
+                    $expected
+                ));
+        } else {
+            $this->dataLayerManager->expects($this->never())
+                ->method('add');
         }
 
-        /** @var EntityManagerInterface $objectManager */
         $objectManager = $this->createMock(EntityManagerInterface::class);
 
         $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
@@ -218,8 +208,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return array
-     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function preUpdateDataProvider(): array
@@ -450,46 +438,46 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             ->method('getPrice')
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->at(0))
+        $this->dataLayerManager->expects($this->exactly(2))
             ->method('add')
-            ->with(
+            ->withConsecutive(
                 [
-                    'event' => 'removeFromCart',
-                    'ecommerce' => [
-                        'currencyCode' => 'USD',
-                        'remove' => [
-                            'products' => [
-                                [
-                                    'id' => 'sku123',
-                                    'name' => 'Test Product',
-                                    'category' => 'Test Category',
-                                    'brand' => 'test Brand',
-                                    'variant' => 'item',
-                                    'quantity' => 5.5,
-                                    'price' => 100.1
+                    [
+                        'event' => 'removeFromCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'remove' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku123',
+                                        'name' => 'Test Product',
+                                        'category' => 'Test Category',
+                                        'brand' => 'test Brand',
+                                        'variant' => 'item',
+                                        'quantity' => 5.5,
+                                        'price' => 100.1
+                                    ]
                                 ]
                             ]
                         ]
                     ]
-                ]
-            );
-        $this->dataLayerManager->expects($this->at(1))
-            ->method('add')
-            ->with(
+                ],
                 [
-                    'event' => 'removeFromCart',
-                    'ecommerce' => [
-                        'currencyCode' => 'USD',
-                        'remove' => [
-                            'products' => [
-                                [
-                                    'id' => 'sku123',
-                                    'name' => 'Test Product',
-                                    'category' => 'Test Category',
-                                    'brand' => 'test Brand',
-                                    'variant' => 'box',
-                                    'quantity' => 5.5,
-                                    'price' => 100.1
+                    [
+                        'event' => 'removeFromCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'remove' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku123',
+                                        'name' => 'Test Product',
+                                        'category' => 'Test Category',
+                                        'brand' => 'test Brand',
+                                        'variant' => 'box',
+                                        'quantity' => 5.5,
+                                        'price' => 100.1
+                                    ]
                                 ]
                             ]
                         ]
@@ -510,8 +498,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $shoppingListId = 2;
 
-        /** @var ShoppingList $shoppingList */
-        $shoppingList = $this->getEntity(ShoppingList::class, ['id' => $shoppingListId]);
+        $shoppingList = $this->getShoppingList($shoppingListId);
         $event = new CheckoutSourceEntityRemoveEvent($shoppingList);
         $this->listener->addShoppingListIdToIgnore($event);
 
@@ -526,18 +513,27 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
-    /**
-     * @param ProductUnit|null $unit
-     * @param int $shoppingListId
-     * @return LineItem
-     */
+    private function getProduct(int $id): Product
+    {
+        $product = new Product();
+        ReflectionUtil::setId($product, $id);
+
+        return $product;
+    }
+
+    private function getShoppingList(int $id): ShoppingList
+    {
+        $shoppingList = new ShoppingList();
+        ReflectionUtil::setId($shoppingList, $id);
+
+        return $shoppingList;
+    }
+
     private function getLineItem(?ProductUnit $unit = null, int $shoppingListId = 1): LineItem
     {
-        /** @var Product $product */
-        $product = $this->getEntity(Product::class, ['id' => 42]);
+        $product = $this->getProduct(42);
 
-        /** @var ShoppingList $shoppingList */
-        $shoppingList = $this->getEntity(ShoppingList::class, ['id' => $shoppingListId]);
+        $shoppingList = $this->getShoppingList($shoppingListId);
 
         if (!$unit) {
             $unit = new ProductUnit();
