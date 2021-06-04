@@ -1,5 +1,5 @@
 {% block _google_tag_manager_product_view_detail_widget %}
-    {% import 'OroGoogleTagManagerBundle::macros.html.twig' as macros %}
+    {% import '@OroGoogleTagManager/macros.html.twig' as macros %}
 
     {% set productDetail = oro_google_tag_manager_product_detail(product) %}
     {% if productDetail is not empty %}
