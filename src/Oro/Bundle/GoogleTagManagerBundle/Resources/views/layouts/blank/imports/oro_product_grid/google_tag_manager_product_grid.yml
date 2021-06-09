@@ -1,7 +1,7 @@
 layout:
     actions:
         - '@setBlockTheme':
-            themes: 'OroGoogleTagManagerBundle:layouts:blank/imports/oro_product_grid/google_tag_manager_product_grid.html.twig'
+            themes: '@OroGoogleTagManager/layouts/blank/imports/oro_product_grid/google_tag_manager_product_grid.html.twig'
         - '@add':
             id: __google_tag_manager_product_grid
             parentId: product_grid_container
