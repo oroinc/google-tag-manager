@@ -1,7 +1,7 @@
 layout:
     actions:
         - '@setBlockTheme':
-            themes: 'layout.html.twig'
+            themes: '@OroGoogleTagManager/layouts/blank/oro_product_frontend_product_view/layout.html.twig'
         - '@add':
             id: google_tag_manager_product_view_detail
             parentId: product_view_primary_wrapper
