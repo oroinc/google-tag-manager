@@ -38,14 +38,14 @@ define(function(require) {
         $datagridEl: null,
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         constructor: function ProductsDatagridGtmComponent(options) {
             ProductsDatagridGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         initialize: function(options) {
             ProductsDatagridGtmComponent.__super__.initialize.call(this, options);
@@ -62,7 +62,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         delegateListeners: function() {
             ProductsDatagridGtmComponent.__super__.delegateListeners.call(this);
@@ -195,7 +195,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         dispose: function() {
             if (this.disposed) {
