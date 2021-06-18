@@ -27,14 +27,14 @@ define(function(require) {
         _gtmReady: false,
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         constructor: function BaseEmbeddedListGtmComponent(options) {
             BaseEmbeddedListGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         initialize: function(options) {
             BaseEmbeddedListGtmComponent.__super__.initialize.call(this, options);
@@ -47,7 +47,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         delegateListeners: function() {
             mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
@@ -185,7 +185,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         dispose: function() {
             if (this.disposed) {

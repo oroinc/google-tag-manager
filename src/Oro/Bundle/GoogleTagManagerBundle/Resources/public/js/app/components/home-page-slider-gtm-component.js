@@ -15,21 +15,21 @@ define(function(require) {
         }),
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         constructor: function HomePageSliderGtmComponent(options) {
             HomePageSliderGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _invokeEventImpression: function(impressionsData) {
             mediator.trigger('gtm:event:promotionImpressions', impressionsData);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _getModel: function($item) {
             return {
@@ -38,7 +38,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _getImpressionData: function(model, position) {
             return {
@@ -49,14 +49,14 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _invokeEventClick: function(clicksData, destinationUrl) {
             mediator.trigger('gtm:event:promotionClick', clicksData, destinationUrl);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _getClickData: function(model, position) {
             return this._getImpressionData(model, position);

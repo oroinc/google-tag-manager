@@ -10,35 +10,35 @@ define(function(require) {
      */
     const ProductsEmbeddedListGtmComponent = BaseComponent.extend({
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         constructor: function ProductsEmbeddedListGtmComponent(options) {
             ProductsEmbeddedListGtmComponent.__super__.constructor.call(this, options);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         initialize: function(options) {
             ProductsEmbeddedListGtmComponent.__super__.initialize.call(this, options);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _invokeEventImpression: function(impressionsData) {
             mediator.trigger('gtm:event:productImpressions', impressionsData, localeSettings.getCurrency());
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _getModel: function($item) {
             return productDetailsGtmHelper.getModel($item);
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _getImpressionData: function(model, position) {
             return _.extend({}, productDetailsGtmHelper.getDetailsFromModel(model), {
@@ -48,14 +48,14 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _invokeEventClick: function(clicksData, destinationUrl) {
             mediator.trigger('gtm:event:productClick', clicksData, destinationUrl, this._getBlockName());
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         _getClickData: function(model, position) {
             return _.extend({}, productDetailsGtmHelper.getDetailsFromModel(model), {

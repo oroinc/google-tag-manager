@@ -32,7 +32,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         constructor: function DataLayerManagerComponent(options) {
             DataLayerManagerComponent.__super__.constructor.call(this, options);
@@ -48,7 +48,7 @@ define(function(require) {
         },
 
         /**
-         * @inheritDoc
+         * @inheritdoc
          */
         delegateListeners: function() {
             DataLayerManagerComponent.__super__.delegateListeners.call(this);
