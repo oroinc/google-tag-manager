@@ -1,7 +1,7 @@
 layout:
     actions:
         - '@setBlockTheme':
-            themes: '@OroGoogleTagManager/layouts/blank/page/layout.html.twig'
+            themes: 'layout.html.twig'
         - '@add':
             id: google_tag_manager_head
             blockType: container

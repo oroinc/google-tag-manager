@@ -1,7 +1,7 @@
 layout:
     actions:
         - '@setBlockTheme':
-            themes: '@OroGoogleTagManager/layouts/blank/oro_checkout_frontend_checkout/templates/purchase_handler.html.twig'
+            themes: '../templates/purchase_handler.html.twig'
 
         - '@add':
               id: google_tag_manager_purchase_handler
