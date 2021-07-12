@@ -1,5 +1,5 @@
 {% block __oro_product_list_item__google_tag_manager_product_model_expose_widget %}
-    {% import 'OroGoogleTagManagerBundle::macros.html.twig' as macros %}
+    {% import '@OroGoogleTagManager/macros.html.twig' as macros %}
 
     {% if product is defined %}
         {% if product is iterable and product.product_detail is defined %}

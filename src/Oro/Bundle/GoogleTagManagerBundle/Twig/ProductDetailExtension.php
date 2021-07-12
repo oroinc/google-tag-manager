@@ -6,12 +6,13 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
+use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
  * Provide twig functions to work with product details for GTM data layer
  */
-class ProductDetailExtension extends \Twig_Extension implements ServiceSubscriberInterface
+class ProductDetailExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
     /** @var ContainerInterface */
     private $container;
@@ -30,7 +31,7 @@ class ProductDetailExtension extends \Twig_Extension implements ServiceSubscribe
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('oro_google_tag_manager_product_detail', [$this, 'getProductDetail']),
+            new TwigFunction('oro_google_tag_manager_product_detail', [$this, 'getProductDetail']),
         ];
     }
 

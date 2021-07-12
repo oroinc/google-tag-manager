@@ -1,7 +1,7 @@
 layout:
     actions:
         - '@setBlockTheme':
-            themes: 'OroGoogleTagManagerBundle:layouts:blank/page/shopping_list.html.twig'
+            themes: '@OroGoogleTagManager/layouts/blank/page/shopping_list.html.twig'
         - '@add':
             id: google_tag_manager_shopping_list
             parentId: main_menu_shopping_lists_wrapper
