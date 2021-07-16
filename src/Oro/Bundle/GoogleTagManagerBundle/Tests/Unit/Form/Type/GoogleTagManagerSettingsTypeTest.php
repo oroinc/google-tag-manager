@@ -38,10 +38,6 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
 
     /**
      * @dataProvider submitDataProvider
-     *
-     * @param array|null $defaultData
-     * @param array $submittedData
-     * @param array $expectedData
      */
     public function testSubmit(?array $defaultData, array $submittedData, array $expectedData): void
     {
@@ -61,9 +57,6 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
         $this->assertEquals($this->getEntity(GoogleTagManagerSettings::class, $expectedData), $form->getData());
     }
 
-    /**
-     * @return array
-     */
     public function submitDataProvider(): array
     {
         return [

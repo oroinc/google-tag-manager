@@ -24,11 +24,6 @@ class DataLayerProvider
      */
     private $batchSize;
 
-    /**
-     * @param DataLayerManager $dataLayerManager
-     * @param string $variableName
-     * @param int $batchSize
-     */
     public function __construct(DataLayerManager $dataLayerManager, string $variableName, int $batchSize)
     {
         $this->dataLayerManager = $dataLayerManager;
@@ -36,26 +31,16 @@ class DataLayerProvider
         $this->batchSize = $batchSize;
     }
 
-    /**
-     * @return string
-     */
     public function getVariableName(): string
     {
         return $this->variableName;
     }
 
-    /**
-     * @return int
-     */
     public function getBatchSize(): int
     {
         return $this->batchSize;
     }
 
-    /**
-     * @param array $events
-     * @return array
-     */
     public function getData(array $events = []): array
     {
         if ($events) {
@@ -70,9 +55,6 @@ class DataLayerProvider
 
     /**
      * Filters nullable attributes. Skip whole config item if all elements are null.
-     *
-     * @param array $config
-     * @return array
      */
     private function filterEmptyData(array $config): array
     {

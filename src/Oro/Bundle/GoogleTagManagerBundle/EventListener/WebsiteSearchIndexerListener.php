@@ -20,10 +20,6 @@ class WebsiteSearchIndexerListener
     /** @var ProductDetailProvider */
     private $productDetailProvider;
 
-    /**
-     * @param WebsiteContextManager $websiteContextManager
-     * @param ProductDetailProvider $productDetailProvider
-     */
     public function __construct(
         WebsiteContextManager $websiteContextManager,
         ProductDetailProvider $productDetailProvider
@@ -32,9 +28,6 @@ class WebsiteSearchIndexerListener
         $this->productDetailProvider = $productDetailProvider;
     }
 
-    /**
-     * @param IndexEntityEvent $event
-     */
     public function onWebsiteSearchIndex(IndexEntityEvent $event): void
     {
         $websiteId = $this->websiteContextManager->getWebsiteId($event->getContext());

@@ -23,9 +23,6 @@ class IntegrationSettingsProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getContainerIdDataProvider
-     *
-     * @param GoogleTagManagerSettings|null $settings
-     * @param string|null $expected
      */
     public function testGetContainerId(?GoogleTagManagerSettings $settings, ?string $expected): void
     {
@@ -41,9 +38,6 @@ class IntegrationSettingsProviderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @return array
-     */
     public function getContainerIdDataProvider(): array
     {
         $containerId = 'test-container-id';
@@ -69,9 +63,6 @@ class IntegrationSettingsProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider isReadyDataProvider
-     *
-     * @param GoogleTagManagerSettings|null $settings
-     * @param bool $expected
      */
     public function testIsReady(?GoogleTagManagerSettings $settings, bool $expected): void
     {
@@ -87,9 +78,6 @@ class IntegrationSettingsProviderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @return array
-     */
     public function isReadyDataProvider(): array
     {
         $settings = new GoogleTagManagerSettings();

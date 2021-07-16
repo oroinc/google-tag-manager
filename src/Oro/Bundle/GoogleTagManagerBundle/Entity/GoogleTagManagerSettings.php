@@ -25,19 +25,11 @@ class GoogleTagManagerSettings extends Transport
      */
     private $settings;
 
-    /**
-     * @return string|null
-     */
     public function getContainerId(): ?string
     {
         return $this->containerId;
     }
 
-    /**
-     * @param string|null $containerId
-     *
-     * @return GoogleTagManagerSettings
-     */
     public function setContainerId(?string $containerId): GoogleTagManagerSettings
     {
         $this->containerId = $containerId;

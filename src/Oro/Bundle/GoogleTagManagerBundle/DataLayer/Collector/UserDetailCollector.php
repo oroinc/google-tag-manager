@@ -17,9 +17,6 @@ class UserDetailCollector implements CollectorInterface
      */
     private $tokenAccessor;
 
-    /**
-     * @param TokenAccessorInterface $tokenAccessor
-     */
     public function __construct(TokenAccessorInterface $tokenAccessor)
     {
         $this->tokenAccessor = $tokenAccessor;
@@ -35,10 +32,6 @@ class UserDetailCollector implements CollectorInterface
         $data->add($user instanceof CustomerUser ? $this->getDataForCustomer($user) : $this->getDataForVisitor());
     }
 
-    /**
-     * @param CustomerUser $customerUser
-     * @return array
-     */
     private function getDataForCustomer(CustomerUser $customerUser): array
     {
         $data = [
@@ -58,9 +51,6 @@ class UserDetailCollector implements CollectorInterface
         return $data;
     }
 
-    /**
-     * @return array
-     */
     private function getDataForVisitor(): array
     {
         return [

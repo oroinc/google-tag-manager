@@ -9,9 +9,5 @@ use Doctrine\Common\Collections\Collection;
  */
 interface CollectorInterface
 {
-    /**
-     * @param Collection $data
-     * @return void
-     */
     public function handle(Collection $data): void;
 }

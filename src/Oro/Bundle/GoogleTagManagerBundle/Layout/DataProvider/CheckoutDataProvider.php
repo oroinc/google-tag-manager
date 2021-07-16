@@ -15,18 +15,11 @@ class CheckoutDataProvider
      */
     private $checkoutDetailProvider;
 
-    /**
-     * @param CheckoutDetailProvider $checkoutDetailProvider
-     */
     public function __construct(CheckoutDetailProvider $checkoutDetailProvider)
     {
         $this->checkoutDetailProvider = $checkoutDetailProvider;
     }
 
-    /**
-     * @param Checkout $checkout
-     * @return array
-     */
     public function getData(Checkout $checkout): array
     {
         return $this->checkoutDetailProvider->getData($checkout);
