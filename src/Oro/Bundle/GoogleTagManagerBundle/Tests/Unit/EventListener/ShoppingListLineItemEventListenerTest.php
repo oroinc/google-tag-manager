@@ -144,8 +144,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider preUpdateDataProvider
-     *
-     * @param array $changeSet
      */
     public function testPreUpdateNotApplicable(array $changeSet): void
     {
@@ -170,9 +168,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider preUpdateDataProvider
-     *
-     * @param array $changeSet
-     * @param array $expected
      */
     public function testPreUpdate(array $changeSet, array $expected): void
     {
@@ -218,8 +213,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return array
-     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function preUpdateDataProvider(): array
@@ -526,11 +519,6 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
-    /**
-     * @param ProductUnit|null $unit
-     * @param int $shoppingListId
-     * @return LineItem
-     */
     private function getLineItem(?ProductUnit $unit = null, int $shoppingListId = 1): LineItem
     {
         /** @var Product $product */

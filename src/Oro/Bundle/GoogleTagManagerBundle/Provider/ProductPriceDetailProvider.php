@@ -35,13 +35,6 @@ class ProductPriceDetailProvider
     /** @var ProductPriceScopeCriteriaFactoryInterface */
     private $priceScopeCriteriaFactory;
 
-    /**
-     * @param TokenStorageInterface $tokenStorage
-     * @param WebsiteManager $websiteManager
-     * @param UserCurrencyManager $userCurrencyManager
-     * @param ProductPriceProviderInterface $productPriceProvider
-     * @param ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
-     */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         WebsiteManager $websiteManager,
@@ -56,12 +49,6 @@ class ProductPriceDetailProvider
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
     }
 
-    /**
-     * @param Product $product
-     * @param ProductUnit $productUnit
-     * @param float $qty
-     * @return Price|null
-     */
     public function getPrice(Product $product, ProductUnit $productUnit, float $qty): ?Price
     {
         $website = $this->websiteManager->getCurrentWebsite();
@@ -75,9 +62,6 @@ class ProductPriceDetailProvider
         return $prices[$priceCriteria->getIdentifier()] ?? null;
     }
 
-    /**
-     * @return Customer|null
-     */
     private function getCustomer(): ?Customer
     {
         $token = $this->tokenStorage->getToken();

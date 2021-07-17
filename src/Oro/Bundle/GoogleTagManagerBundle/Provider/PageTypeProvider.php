@@ -20,9 +20,6 @@ class PageTypeProvider
         $this->guessers = $guessers;
     }
 
-    /**
-     * @return string|null
-     */
     public function getType(): ?string
     {
         foreach ($this->guessers as $guesser) {

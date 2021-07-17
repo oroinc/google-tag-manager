@@ -22,10 +22,6 @@ class PageVariablesCollector implements CollectorInterface
      */
     private $localizationHelper;
 
-    /**
-     * @param PageTypeProvider $pageTypeProvider
-     * @param LocalizationHelper $localizationHelper
-     */
     public function __construct(PageTypeProvider $pageTypeProvider, LocalizationHelper $localizationHelper)
     {
         $this->pageTypeProvider = $pageTypeProvider;

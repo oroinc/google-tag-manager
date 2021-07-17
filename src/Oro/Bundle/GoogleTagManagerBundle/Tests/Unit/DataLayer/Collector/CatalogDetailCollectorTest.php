@@ -25,7 +25,6 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
     /** @var ParameterBag|\PHPUnit\Framework\MockObject\MockObject */
     private $requestAttributes;
 
-
     /** @var WebCatalogBreadcrumbProvider|\PHPUnit\Framework\MockObject\MockObject */
     private $webCatalogBreadcrumbProvider;
 
@@ -65,12 +64,6 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider handleDataProvider
-     *
-     * @param array|null $webCatalogItems
-     * @param string|null $requestRoute
-     * @param int|null $requestCategoryId
-     * @param array|null $categoryItems
-     * @param array $excepted
      */
     public function testWitEnabledWebCatalog(
         ?array $webCatalogItems,
@@ -114,9 +107,6 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($excepted, $data->toArray());
     }
 
-    /**
-     * @return array
-     */
     public function handleDataProvider(): array
     {
         return [

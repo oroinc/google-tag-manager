@@ -35,9 +35,6 @@ class UserDetailCollectorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider handleDataProvider
-     *
-     * @param CustomerUser|null $user
-     * @param array $expected
      */
     public function testHandleForNotCustomer(?CustomerUser $user, array $expected): void
     {
@@ -52,9 +49,6 @@ class UserDetailCollectorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $data->toArray());
     }
 
-    /**
-     * @return array
-     */
     public function handleDataProvider(): array
     {
         $customerGroup = new CustomerGroup();

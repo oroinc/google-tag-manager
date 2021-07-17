@@ -21,10 +21,6 @@ class CheckoutStepProvider
      */
     private $excludedSteps;
 
-    /**
-     * @param WorkflowManager $workflowManager
-     * @param array $excludedSteps
-     */
     public function __construct(WorkflowManager $workflowManager, array $excludedSteps = [])
     {
         $this->workflowManager = $workflowManager;
@@ -45,10 +41,6 @@ class CheckoutStepProvider
         return [$currentStep, $position === false ? 0 : $position + 1];
     }
 
-    /**
-     * @param WorkflowItem $workflowItem
-     * @return array
-     */
     private function getSteps(WorkflowItem $workflowItem): array
     {
         $workflow = $this->workflowManager->getWorkflow($workflowItem);

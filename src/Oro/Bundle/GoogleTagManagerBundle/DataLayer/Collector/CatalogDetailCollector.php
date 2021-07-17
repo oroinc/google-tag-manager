@@ -26,12 +26,6 @@ class CatalogDetailCollector implements CollectorInterface
     /** @var CategoryBreadcrumbProvider */
     private $categoryBreadcrumbProvider;
 
-    /**
-     * @param ConfigManager $configManager
-     * @param RequestStack $requestStack
-     * @param WebCatalogBreadcrumbProvider $webCatalogBreadcrumbProvider
-     * @param CategoryBreadcrumbProvider $categoryBreadcrumbProvider
-     */
     public function __construct(
         ConfigManager $configManager,
         RequestStack $requestStack,
@@ -58,9 +52,6 @@ class CatalogDetailCollector implements CollectorInterface
         }
     }
 
-    /**
-     * @return array|null
-     */
     private function getWebCatalogBreadcrumbs(): ?array
     {
         return $this->configManager->get('oro_web_catalog.web_catalog') !== null
@@ -68,9 +59,6 @@ class CatalogDetailCollector implements CollectorInterface
             : null;
     }
 
-    /**
-     * @return array|null
-     */
     private function getCategoryBreadcrumbs(): ?array
     {
         $request = $this->requestStack->getCurrentRequest();

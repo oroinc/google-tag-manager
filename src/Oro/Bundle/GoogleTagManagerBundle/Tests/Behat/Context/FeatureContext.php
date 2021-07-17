@@ -63,7 +63,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
      *            """
      *
      * @Then /^GTM data layer must contain the following message:$/
-     * @param string $expected
      */
     public function gtmDataLayerMustContainTheFollowingMessage(string $expected): void
     {
@@ -90,7 +89,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
      *            """
      *
      * @Then /^GTM data layer must not contain the following message:$/
-     * @param string $expected
      */
     public function gtmDataLayerMustNotContainTheFollowingMessage(string $expected): void
     {
@@ -115,7 +113,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
      *            """
      *
      * @Then /^last message in the GTM data layer should be:$/
-     * @param string $expected
      */
     public function lastMessageInDataLayerShouldBe(string $expected): void
     {
@@ -151,9 +148,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
      * @Then /^GTM data layer must contain checkout events for step "(?P<step>(?:[^"]|\\")*)" with (?P<quantity>\d+) products$/
      *
      * @codingStandardsIgnoreEnd
-     *
-     * @param string $step
-     * @param int $productQuantity
      */
     public function gtmDataLayerMustContainCheckoutEvents(string $step, int $productQuantity): void
     {
@@ -172,7 +166,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
 
     /**
      * @Then /^GTM data layer must contain purchase events with (?P<quantity>\d+) products$/
-     * @param int $productQuantity
      */
     public function gtmDataLayerMustContainPurchaseEvents(int $productQuantity): void
     {
@@ -214,8 +207,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
 
     /**
      * @Then /^GTM data layer must contain (?P<event>addToCart|removeFromCart) events with (?P<quantity>\d+) products$/
-     * @param string $event
-     * @param int $productQuantity
      */
     public function gtmDataLayerMustContainShoppingListEvents(string $event, int $productQuantity): void
     {
@@ -253,11 +244,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
         );
     }
 
-    /**
-     * @param array $message
-     * @param string $key
-     * @param array $foundProducts
-     */
     private function assertFoundProducts(array $message, string $key, array &$foundProducts): void
     {
         self::assertTrue(
@@ -275,11 +261,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
         }
     }
 
-    /**
-     * @param array $expected
-     * @param array $actual
-     * @return bool
-     */
     private function compareMessages(array $expected, array $actual): bool
     {
         if (\count($expected) !== \count($actual)) {
@@ -302,9 +283,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
 
     /**
      * Choose a comparison strategy for arrays based on the type of expected array: associative or indexed
-     *
-     * @param array $expected
-     * @return callable
      */
     private function getComparisonStrategy(array $expected): callable
     {
@@ -385,7 +363,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
 
     /**
      * Get current data layer events list
-     * @return array
      */
     private function getDataLayer(): array
     {
@@ -398,9 +375,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
         return $currentDataLayer;
     }
 
-    /**
-     * @return int
-     */
     private function getBatchSize(): int
     {
         if (!$this->batchSize) {

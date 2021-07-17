@@ -41,15 +41,6 @@ class PurchaseDetailProvider
     /** @var int */
     private $batchSize;
 
-    /**
-     * @param DoctrineHelper $doctrineHelper
-     * @param ProductDetailProvider $productDataProvider
-     * @param TaxProviderRegistry $taxProviderRegistry
-     * @param EntityCouponsProviderInterface $entityCouponsProvider
-     * @param ShippingMethodLabelFormatter $shippingMethodLabelFormatter
-     * @param PaymentMethodLabelFormatter $paymentMethodLabelFormatter
-     * @param int $batchSize
-     */
     public function __construct(
         DoctrineHelper $doctrineHelper,
         ProductDetailProvider $productDataProvider,
@@ -68,10 +59,6 @@ class PurchaseDetailProvider
         $this->batchSize = $batchSize;
     }
 
-    /**
-     * @param Checkout $checkout
-     * @return array
-     */
     public function getData(Checkout $checkout): array
     {
         $order = $this->getOrder($checkout);
@@ -135,11 +122,6 @@ class PurchaseDetailProvider
         return $result;
     }
 
-    /**
-     * @param Order $order
-     * @param array $data
-     * @return array
-     */
     private function addAdditionalData(Order $order, array $data): array
     {
         $actionField = &$data['ecommerce']['purchase']['actionField'];
@@ -187,10 +169,6 @@ class PurchaseDetailProvider
         return $data;
     }
 
-    /**
-     * @param Order $order
-     * @return array
-     */
     private function getPromotions(Order $order): array
     {
         /** @var Coupon[] $coupons */
@@ -220,10 +198,6 @@ class PurchaseDetailProvider
         return $promotions;
     }
 
-    /**
-     * @param Checkout $checkout
-     * @return Order|null
-     */
     private function getOrder(Checkout $checkout): ?Order
     {
         $orderData = $checkout->getCompletedData()->getOrderData();
@@ -233,19 +207,11 @@ class PurchaseDetailProvider
             ->findOneBy($orderData['entityId']);
     }
 
-    /**
-     * @param Price|null $price
-     * @return float
-     */
     private function formatPrice(?Price $price): float
     {
         return $price ? (float) $price->getValue() : 0.0;
     }
 
-    /**
-     * @param Order $order
-     * @return string|null
-     */
     private function getPaymentMethod(Order $order): ?string
     {
         $repository = $this->doctrineHelper->getEntityRepositoryForClass(PaymentTransaction::class);
