@@ -33,10 +33,6 @@ class PageVariablesCollectorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider handleDataProvider
-     *
-     * @param string|null $type
-     * @param Localization|null $localization
-     * @param array $expected
      */
     public function testHandle(?string $type, ?Localization $localization, array $expected): void
     {
@@ -55,9 +51,6 @@ class PageVariablesCollectorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $data->toArray());
     }
 
-    /**
-     * @return array
-     */
     public function handleDataProvider(): array
     {
         $localization = $this->getEntity(Localization::class, ['id' => 42]);

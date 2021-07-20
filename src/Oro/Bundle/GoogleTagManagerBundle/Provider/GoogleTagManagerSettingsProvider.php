@@ -25,10 +25,6 @@ class GoogleTagManagerSettingsProvider implements GoogleTagManagerSettingsProvid
      */
     private $configManager;
 
-    /**
-     * @param ManagerRegistry $registry
-     * @param ConfigManager $configManager
-     */
     public function __construct(ManagerRegistry $registry, ConfigManager $configManager)
     {
         $this->registry = $registry;
@@ -51,9 +47,6 @@ class GoogleTagManagerSettingsProvider implements GoogleTagManagerSettingsProvid
         return $channel && $channel->isEnabled() ? $channel->getTransport() : null;
     }
 
-    /**
-     * @return ChannelRepository
-     */
     private function getChannelRepository(): ChannelRepository
     {
         return $this->registry->getManagerForClass(Channel::class)

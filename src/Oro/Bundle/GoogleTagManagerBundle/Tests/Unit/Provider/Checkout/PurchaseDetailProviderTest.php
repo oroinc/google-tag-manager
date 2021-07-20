@@ -124,15 +124,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getPurchaseDataProvider
-     *
-     * @param Order $order
-     * @param OrderLineItem $lineItem1
-     * @param OrderLineItem $lineItem2
-     * @param OrderLineItem $lineItem3
-     * @param float|null $taxAmount
-     * @param array $coupons
-     * @param string|null $paymentMethod
-     * @param array $expected
      */
     public function testGetPurchaseData(
         Order $order,
@@ -200,7 +191,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return array
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function getPurchaseDataProvider(): array
@@ -392,10 +382,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @param Order $order
-     * @param float|null $amount
-     */
     private function assertTaxProviderCalled(Order $order, ?float $amount): void
     {
         $total = new ResultElement();
@@ -417,10 +403,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @param Order $order
-     * @param array $codes
-     */
     private function assertCouponsProviderCalled(Order $order, array $codes): void
     {
         $coupons = new ArrayCollection();
@@ -443,9 +425,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn($coupons);
     }
 
-    /**
-     * @return array
-     */
     private function prepareOrder(): array
     {
         /** @var Product $product1 */

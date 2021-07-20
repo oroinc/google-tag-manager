@@ -46,14 +46,6 @@ class ShoppingListLineItemEventListener
     /** @var int[] */
     private $skipRemovingInShoppingListIds = [];
 
-    /**
-     * @param FrontendHelper $frontendHelper
-     * @param DataLayerManager $dataLayerManager
-     * @param ProductDetailProvider $productDetailProvider
-     * @param ProductPriceDetailProvider $productPriceDetailProvider
-     * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
-     * @param int $batchSize
-     */
     public function __construct(
         FrontendHelper $frontendHelper,
         DataLayerManager $dataLayerManager,
@@ -70,9 +62,6 @@ class ShoppingListLineItemEventListener
         $this->batchSize = $batchSize;
     }
 
-    /**
-     * @param LineItem $item
-     */
     public function prePersist(LineItem $item): void
     {
         if (!$this->isApplicable()) {
@@ -82,10 +71,6 @@ class ShoppingListLineItemEventListener
         $this->storeProductData($item, $item->getProductUnit(), $item->getQuantity());
     }
 
-    /**
-     * @param LineItem $item
-     * @param PreUpdateEventArgs $args
-     */
     public function preUpdate(LineItem $item, PreUpdateEventArgs $args): void
     {
         if (!$this->isApplicable()) {
@@ -120,9 +105,6 @@ class ShoppingListLineItemEventListener
         $this->storeProductData($item, $item->getProductUnit(), abs($deltaQuantity), $deltaQuantity > 0);
     }
 
-    /**
-     * @param LineItem $item
-     */
     public function preRemove(LineItem $item): void
     {
         if (!$this->isApplicable()) {
@@ -136,9 +118,6 @@ class ShoppingListLineItemEventListener
         $this->storeProductData($item, $item->getProductUnit(), $item->getQuantity(), false);
     }
 
-    /**
-     * @param CheckoutSourceEntityRemoveEvent $event
-     */
     public function addShoppingListIdToIgnore(CheckoutSourceEntityRemoveEvent $event): void
     {
         if (!$this->isApplicable()) {
@@ -200,12 +179,6 @@ class ShoppingListLineItemEventListener
         $this->skipRemovingInShoppingListIds = [];
     }
 
-    /**
-     * @param LineItem $item
-     * @param ProductUnit $unit
-     * @param float $qty
-     * @param bool $add
-     */
     private function storeProductData(LineItem $item, ProductUnit $unit, float $qty, bool $add = true): void
     {
         $data = $this->productDetailProvider->getData($item->getProduct());
@@ -229,9 +202,6 @@ class ShoppingListLineItemEventListener
         }
     }
 
-    /**
-     * @return bool
-     */
     private function isApplicable(): bool
     {
         return $this->frontendHelper->isFrontendRequest() && $this->settingsProvider->getGoogleTagManagerSettings();

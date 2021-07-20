@@ -18,9 +18,6 @@ class GoogleTagManagerSettingsType extends AbstractType
      */
     private $transport;
 
-    /**
-     * @param TransportInterface $transport
-     */
     public function __construct(TransportInterface $transport)
     {
         $this->transport = $transport;

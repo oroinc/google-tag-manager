@@ -52,18 +52,12 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getDataDataProvider
-     *
-     * @param ProductStub $product
-     * @param array $excepted
      */
     public function testGetData(ProductStub $product, array $excepted): void
     {
         $this->assertSame($excepted, $this->provider->getData($product));
     }
 
-    /**
-     * @return array
-     */
     public function getDataDataProvider(): array
     {
         $product = $this->getProduct('SKU-1', 'Product name');
@@ -100,18 +94,12 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getDataForLocalizationProvider
-     *
-     * @param ProductStub $product
-     * @param array $excepted
      */
     public function testGetDataForLocalization(ProductStub $product, array $excepted): void
     {
         $this->assertSame($excepted, $this->provider->getData($product, $this->getLocalization()));
     }
 
-    /**
-     * @return array
-     */
     public function getDataForLocalizationProvider(): array
     {
         $product = $this->getProduct('SKU-1', 'Product name', true);
@@ -146,12 +134,6 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @param string $translate
-     * @param Localization|null $localization
-     * @param string $className
-     * @return AbstractLocalizedFallbackValue
-     */
     private function createLocalizedFallbackValue(
         string $translate,
         ?Localization $localization,
@@ -164,9 +146,6 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
         return $fallbackValue;
     }
 
-    /**
-     * @return Localization
-     */
     private function getLocalization(): Localization
     {
         if (!$this->localization) {
@@ -176,12 +155,6 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
         return $this->localization;
     }
 
-    /**
-     * @param string|null $sku
-     * @param string|null $name
-     * @param bool $isLocalized
-     * @return ProductStub
-     */
     private function getProduct(?string $sku, ?string $name, bool $isLocalized = false): ProductStub
     {
         $product = $this->getEntity(ProductStub::class, ['sku' => $sku]);
@@ -199,11 +172,6 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
         return $product;
     }
 
-    /**
-     * @param string $name
-     * @param bool $isLocalized
-     * @return BrandStub
-     */
     private function getBrand(string $name, bool $isLocalized = false): BrandStub
     {
         return $this->getEntity(
@@ -218,12 +186,6 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @param string $title
-     * @param int|null $id
-     * @param bool $isLocalized
-     * @return CategoryStub
-     */
     private function getCategory(string $title, ?int$id = null, bool $isLocalized = false): CategoryStub
     {
         return $this->getEntity(

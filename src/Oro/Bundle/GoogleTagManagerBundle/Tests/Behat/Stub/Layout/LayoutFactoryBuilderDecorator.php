@@ -26,12 +26,6 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
     /** @var BlockViewCache */
     private $blockViewCache;
 
-    /**
-     * @param LayoutFactoryBuilderInterface $inner
-     * @param IntegrationSettingsProvider $gtmSettingsProvider
-     * @param ExpressionProcessor $expressionProcessor
-     * @param BlockViewCache|null $blockViewCache
-     */
     public function __construct(
         LayoutFactoryBuilderInterface $inner,
         IntegrationSettingsProvider $gtmSettingsProvider,

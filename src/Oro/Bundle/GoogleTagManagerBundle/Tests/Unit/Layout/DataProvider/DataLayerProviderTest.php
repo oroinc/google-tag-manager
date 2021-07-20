@@ -59,9 +59,6 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getConfigDataProvider
-     *
-     * @param array $config
-     * @param array $expected
      */
     public function testGetConfig(array $config, array $expected): void
     {
@@ -75,9 +72,6 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $this->provider->getData());
     }
 
-    /**
-     * @return array
-     */
     public function getConfigDataProvider(): array
     {
         return [

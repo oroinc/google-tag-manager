@@ -20,17 +20,11 @@ class IntegrationSettingsProvider
      */
     private $settings;
 
-    /**
-     * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
-     */
     public function __construct(GoogleTagManagerSettingsProviderInterface $settingsProvider)
     {
         $this->settingsProvider = $settingsProvider;
     }
 
-    /**
-     * @return null|string
-     */
     public function getContainerId(): ?string
     {
         if (!$this->settings) {
@@ -42,9 +36,6 @@ class IntegrationSettingsProvider
             : null;
     }
 
-    /**
-     * @return bool
-     */
     public function isReady(): bool
     {
         return $this->getContainerId() !== null;
