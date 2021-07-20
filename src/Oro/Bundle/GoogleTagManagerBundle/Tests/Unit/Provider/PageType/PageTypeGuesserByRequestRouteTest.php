@@ -26,9 +26,6 @@ class PageTypeGuesserByRequestRouteTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getTypeDataProvider
-     *
-     * @param string|null $testRoute
-     * @param string|null $expected
      */
     public function testGetType(?string $testRoute, ?string $expected): void
     {
@@ -37,9 +34,6 @@ class PageTypeGuesserByRequestRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $this->guesser->getType());
     }
 
-    /**
-     * @return array
-     */
     public function getTypeDataProvider(): array
     {
         return [

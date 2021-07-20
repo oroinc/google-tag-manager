@@ -20,9 +20,6 @@ class ProductDetailProvider
     /** @var Category[][] */
     private $categoryPaths = [];
 
-    /**
-     * @param DoctrineHelper $doctrineHelper
-     */
     public function __construct(DoctrineHelper $doctrineHelper)
     {
         $this->doctrineHelper = $doctrineHelper;
@@ -30,10 +27,6 @@ class ProductDetailProvider
 
     /**
      * Get product detail for single Product entity
-     *
-     * @param Product $product
-     * @param Localization|null $localization
-     * @return array
      */
     public function getData(Product $product, Localization $localization = null): array
     {
@@ -63,11 +56,6 @@ class ProductDetailProvider
         return array_filter($data);
     }
 
-    /**
-     * @param Category $category
-     * @param null|Localization $localization
-     * @return string
-     */
     private function getCategoryPath(Category $category, ?Localization $localization): string
     {
         if (!isset($this->categoryPaths[$category->getId()])) {

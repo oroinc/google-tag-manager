@@ -36,14 +36,6 @@ class RequestProductItemEventListener
     /** @var array */
     private $items = [];
 
-    /**
-     * @param FrontendHelper $frontendHelper
-     * @param DataLayerManager $dataLayerManager
-     * @param ProductDetailProvider $productDetailProvider
-     * @param ProductPriceDetailProvider $productPriceDetailProvider
-     * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
-     * @param int $batchSize
-     */
     public function __construct(
         FrontendHelper $frontendHelper,
         DataLayerManager $dataLayerManager,
@@ -120,9 +112,6 @@ class RequestProductItemEventListener
         $this->items = [];
     }
 
-    /**
-     * @return bool
-     */
     private function isApplicable(): bool
     {
         if (!$this->settingsProvider->getGoogleTagManagerSettings()) {

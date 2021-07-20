@@ -29,12 +29,6 @@ class CheckoutEventListener
     /** @var array */
     private $data = [];
 
-    /**
-     * @param FrontendHelper $frontendHelper
-     * @param DataLayerManager $dataLayerManager
-     * @param PurchaseDetailProvider $purchaseDetailProvider
-     * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
-     */
     public function __construct(
         FrontendHelper $frontendHelper,
         DataLayerManager $dataLayerManager,
@@ -47,10 +41,6 @@ class CheckoutEventListener
         $this->settingsProvider = $settingsProvider;
     }
 
-    /**
-     * @param Checkout $checkout
-     * @param PreUpdateEventArgs $args
-     */
     public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
     {
         if (!$this->isApplicable()) {
@@ -78,9 +68,6 @@ class CheckoutEventListener
         $this->data = [];
     }
 
-    /**
-     * @return bool
-     */
     private function isApplicable(): bool
     {
         if (!$this->settingsProvider->getGoogleTagManagerSettings()) {

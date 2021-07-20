@@ -41,13 +41,6 @@ class CheckoutDetailProvider
      */
     private $batchSize;
 
-    /**
-     * @param ProductDetailProvider $productDataProvider
-     * @param CheckoutStepProvider $checkoutStepProvider
-     * @param ProductPriceProviderInterface $productPriceProvider
-     * @param ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
-     * @param int $batchSize
-     */
     public function __construct(
         ProductDetailProvider $productDataProvider,
         CheckoutStepProvider $checkoutStepProvider,
@@ -62,10 +55,6 @@ class CheckoutDetailProvider
         $this->batchSize = $batchSize;
     }
 
-    /**
-     * @param Checkout $checkout
-     * @return array
-     */
     public function getData(Checkout $checkout): array
     {
         /** @var WorkflowStep $step */
@@ -125,12 +114,6 @@ class CheckoutDetailProvider
         );
     }
 
-    /**
-     * @param CheckoutLineItem $item
-     * @param ProductPriceScopeCriteriaInterface $scope
-     * @param string $currency
-     * @return float
-     */
     private function getItemPrice(
         CheckoutLineItem $item,
         ProductPriceScopeCriteriaInterface $scope,

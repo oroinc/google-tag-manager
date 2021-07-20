@@ -223,11 +223,6 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
-    /**
-     * @param int $id
-     * @param string $unitCode
-     * @return RequestProductItem
-     */
     private function getRequestProductItem(int $id, string $unitCode = 'item'): RequestProductItem
     {
         /** @var Product $product */

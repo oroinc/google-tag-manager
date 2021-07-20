@@ -21,17 +21,11 @@ class FrontendProductDatagridListener
     /** @var bool */
     private $applicable;
 
-    /**
-     * @param GoogleTagManagerSettingsProviderInterface $settingsProvider
-     */
     public function __construct(GoogleTagManagerSettingsProviderInterface $settingsProvider)
     {
         $this->settingsProvider = $settingsProvider;
     }
 
-    /**
-     * @param PreBuild $event
-     */
     public function onPreBuild(PreBuild $event): void
     {
         if (!$this->isApplicable()) {
@@ -59,9 +53,6 @@ class FrontendProductDatagridListener
         );
     }
 
-    /**
-     * @param SearchResultAfter $event
-     */
     public function onResultAfter(SearchResultAfter $event): void
     {
         if (!$this->isApplicable()) {
@@ -77,9 +68,6 @@ class FrontendProductDatagridListener
         }
     }
 
-    /**
-     * @return bool
-     */
     private function isApplicable(): bool
     {
         if ($this->applicable === null) {

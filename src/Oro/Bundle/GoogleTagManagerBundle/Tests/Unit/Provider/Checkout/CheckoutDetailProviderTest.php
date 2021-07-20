@@ -190,9 +190,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @return array
-     */
     private function prepareCheckout(): array
     {
         /** @var Product $product1 */
@@ -246,9 +243,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         return [$checkout, $lineItem1, $lineItem2, $lineItem3, $lineItem4];
     }
 
-    /**
-     * @return array
-     */
     private function prepareWorkflowStep(): array
     {
         $definition = new WorkflowDefinition();
