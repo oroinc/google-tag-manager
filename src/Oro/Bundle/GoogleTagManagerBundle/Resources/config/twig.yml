@@ -1,9 +1,7 @@
 services:
     oro_google_tag_manager.twig.product_detail_extension:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Twig\ProductDetailExtension'
-        public: false
+        class: Oro\Bundle\GoogleTagManagerBundle\Twig\ProductDetailExtension
         arguments:
-            - '@Psr\Container\ContainerInterface'
+            - '@oro_platform.twig.service_locator'
         tags:
             - { name: twig.extension }
-            - { name: container.service_subscriber }

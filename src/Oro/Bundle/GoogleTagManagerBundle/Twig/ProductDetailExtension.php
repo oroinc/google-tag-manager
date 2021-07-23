@@ -10,12 +10,12 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * Provide twig functions to work with product details for GTM data layer
+ * Provide twig functions to work with product details for GTM data layer:
+ *   - oro_google_tag_manager_product_detail
  */
 class ProductDetailExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
-    /** @var ContainerInterface */
-    private $container;
+    private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {
@@ -23,7 +23,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
     }
 
     /**
-     * @return array|TwigFunction[]
+     * {@inheritdoc}
      */
     public function getFunctions()
     {
@@ -39,7 +39,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
     public function getProductDetail($product): array
     {
         return $product instanceof Product
-            ? $this->container->get(ProductDetailProvider::class)->getData($product)
+            ? $this->getProductDetailProvider()->getData($product)
             : [];
     }
 
@@ -49,7 +49,12 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
     public static function getSubscribedServices()
     {
         return [
-            ProductDetailProvider::class
+            'oro_google_tag_manager.provider.product_detail' => ProductDetailProvider::class
         ];
+    }
+
+    private function getProductDetailProvider(): ProductDetailProvider
+    {
+        return $this->container->get('oro_google_tag_manager.provider.product_detail');
     }
 }
