@@ -7,3 +7,10 @@ services:
             - '@oro_google_tag_manager.layout.data_provider.google_tag_manager_settings'
             - '@oro_layout.processor.expression'
             - '@oro_layout.cache.block_view_cache'
+
+    Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Context\FeatureContext:
+        public: true
+        arguments:
+            - '@oro_entity.doctrine_helper'
+            - '@oro_config.global'
+            - '%oro_google_tag_manager.products.batch_size%'
