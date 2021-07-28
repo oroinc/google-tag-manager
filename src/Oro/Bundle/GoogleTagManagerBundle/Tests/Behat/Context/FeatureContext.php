@@ -2,22 +2,33 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Context;
 
-use Behat\Symfony2Extension\Context\KernelAwareContext;
-use Behat\Symfony2Extension\Context\KernelDictionary;
+use Oro\Bundle\ConfigBundle\Config\ConfigManager;
+use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\TestFrameworkBundle\Behat\Context\OroFeatureContext;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
-class FeatureContext extends OroFeatureContext implements KernelAwareContext
+class FeatureContext extends OroFeatureContext
 {
-    use KernelDictionary;
-
     private const CHANNEL_TYPE = 'oro_google_tag_manager';
 
-    /** @var int */
-    private $batchSize;
+    private int $batchSize;
+
+    private DoctrineHelper $doctrineHelper;
+
+    private ConfigManager $configManager;
+
+    public function __construct(
+        DoctrineHelper $doctrineHelper,
+        ConfigManager $configManager,
+        int|string $batchSize
+    ) {
+        $this->doctrineHelper = $doctrineHelper;
+        $this->configManager = $configManager;
+        $this->batchSize = (int) $batchSize;
+    }
 
     /**
      * Example: Given I enable GTM integration
@@ -26,17 +37,14 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
      */
     public function enableGTMIntegration(): void
     {
-        $container = $this->getContainer();
-
         /** @var Channel $channel */
-        $channel = $container->get('oro_entity.doctrine_helper')
+        $channel = $this->doctrineHelper
             ->getEntityManagerForClass(Channel::class)
             ->getRepository(Channel::class)
             ->findOneBy(['type' => self::CHANNEL_TYPE]);
 
-        $configManager = $container->get('oro_config.global');
-        $configManager->set('oro_google_tag_manager.integration', $channel->getId());
-        $configManager->flush();
+        $this->configManager->set('oro_google_tag_manager.integration', $channel->getId());
+        $this->configManager->flush();
     }
 
     /**
@@ -238,7 +246,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
         }
 
         self::assertSame(
-            (int)ceil($productQuantity / $this->getBatchSize()),
+            (int)ceil($productQuantity / $this->batchSize),
             $foundMessages,
             'Invalid batching: found not excepted message quantity'
         );
@@ -250,7 +258,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
             isset($message['ecommerce'][$key]['products'])
             && \is_array($message['ecommerce'][$key]['products'])
             && count($message['ecommerce'][$key]['products'])
-            && count($message['ecommerce'][$key]['products']) <= $this->getBatchSize()
+            && count($message['ecommerce'][$key]['products']) <= $this->batchSize
         );
 
         foreach ($message['ecommerce'][$key]['products'] as $product) {
@@ -372,15 +380,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
         );
 
         self::assertIsArray($currentDataLayer, 'GTM integration is not enabled');
+
         return $currentDataLayer;
-    }
-
-    private function getBatchSize(): int
-    {
-        if (!$this->batchSize) {
-            $this->batchSize = (int) $this->getContainer()->getParameter('oro_google_tag_manager.products.batch_size');
-        }
-
-        return $this->batchSize;
     }
 }
