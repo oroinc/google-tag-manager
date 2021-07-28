@@ -7,6 +7,7 @@ services:
             - '@oro_google_tag_manager.layout.data_provider.google_tag_manager_settings'
             - '@oro_layout.processor.expression'
             - '@oro_layout.cache.block_view_cache'
+            - '%installed%'
 
     Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Context\FeatureContext:
         public: true

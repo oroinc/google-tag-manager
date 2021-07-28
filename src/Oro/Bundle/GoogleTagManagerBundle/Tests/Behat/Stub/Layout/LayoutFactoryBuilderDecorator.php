@@ -14,28 +14,28 @@ use Oro\Component\Layout\LayoutUpdateInterface;
 
 class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
 {
-    /** @var LayoutFactoryBuilderInterface */
-    private $inner;
+    private LayoutFactoryBuilderInterface $inner;
 
-    /** @var IntegrationSettingsProvider */
-    private $gtmSettingsProvider;
+    private IntegrationSettingsProvider $gtmSettingsProvider;
 
-    /** @var ExpressionProcessor */
-    private $expressionProcessor;
+    private ExpressionProcessor $expressionProcessor;
 
-    /** @var BlockViewCache */
-    private $blockViewCache;
+    private ?BlockViewCache $blockViewCache;
+
+    private bool $installed;
 
     public function __construct(
         LayoutFactoryBuilderInterface $inner,
         IntegrationSettingsProvider $gtmSettingsProvider,
         ExpressionProcessor $expressionProcessor,
-        BlockViewCache $blockViewCache = null
+        BlockViewCache $blockViewCache = null,
+        $installed = false
     ) {
         $this->inner = $inner;
         $this->gtmSettingsProvider = $gtmSettingsProvider;
         $this->expressionProcessor = $expressionProcessor;
         $this->blockViewCache = $blockViewCache;
+        $this->installed = (bool) $installed;
     }
 
     /**
@@ -91,7 +91,7 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
      */
     public function getLayoutFactory()
     {
-        if ($this->gtmSettingsProvider->isReady()) {
+        if ($this->installed && $this->gtmSettingsProvider->isReady()) {
             return new LayoutFactoryDecorator(
                 $this->inner->getLayoutFactory(),
                 $this->expressionProcessor,
