@@ -2,8 +2,6 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Context;
 
-use Oro\Bundle\ConfigBundle\Config\ConfigManager;
-use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\TestFrameworkBundle\Behat\Context\OroFeatureContext;
 
@@ -14,21 +12,7 @@ class FeatureContext extends OroFeatureContext
 {
     private const CHANNEL_TYPE = 'oro_google_tag_manager';
 
-    private int $batchSize;
-
-    private DoctrineHelper $doctrineHelper;
-
-    private ConfigManager $configManager;
-
-    public function __construct(
-        DoctrineHelper $doctrineHelper,
-        ConfigManager $configManager,
-        int|string $batchSize
-    ) {
-        $this->doctrineHelper = $doctrineHelper;
-        $this->configManager = $configManager;
-        $this->batchSize = (int) $batchSize;
-    }
+    private ?int $batchSize = null;
 
     /**
      * Example: Given I enable GTM integration
@@ -37,14 +21,17 @@ class FeatureContext extends OroFeatureContext
      */
     public function enableGTMIntegration(): void
     {
+        $container = $this->getAppContainer();
+
         /** @var Channel $channel */
-        $channel = $this->doctrineHelper
+        $channel = $container->get('oro_entity.doctrine_helper')
             ->getEntityManagerForClass(Channel::class)
             ->getRepository(Channel::class)
             ->findOneBy(['type' => self::CHANNEL_TYPE]);
 
-        $this->configManager->set('oro_google_tag_manager.integration', $channel->getId());
-        $this->configManager->flush();
+        $configManager = $container->get('oro_config.global');
+        $configManager->set('oro_google_tag_manager.integration', $channel->getId());
+        $configManager->flush();
     }
 
     /**
@@ -246,7 +233,7 @@ class FeatureContext extends OroFeatureContext
         }
 
         self::assertSame(
-            (int)ceil($productQuantity / $this->batchSize),
+            (int)ceil($productQuantity / $this->getBatchSize()),
             $foundMessages,
             'Invalid batching: found not excepted message quantity'
         );
@@ -258,7 +245,7 @@ class FeatureContext extends OroFeatureContext
             isset($message['ecommerce'][$key]['products'])
             && \is_array($message['ecommerce'][$key]['products'])
             && count($message['ecommerce'][$key]['products'])
-            && count($message['ecommerce'][$key]['products']) <= $this->batchSize
+            && count($message['ecommerce'][$key]['products']) <= $this->getBatchSize()
         );
 
         foreach ($message['ecommerce'][$key]['products'] as $product) {
@@ -380,7 +367,16 @@ class FeatureContext extends OroFeatureContext
         );
 
         self::assertIsArray($currentDataLayer, 'GTM integration is not enabled');
-
         return $currentDataLayer;
+    }
+
+    private function getBatchSize(): int
+    {
+        if (!$this->batchSize) {
+            $this->batchSize = (int) $this->getAppContainer()
+                ->getParameter('oro_google_tag_manager.products.batch_size');
+        }
+
+        return $this->batchSize;
     }
 }
