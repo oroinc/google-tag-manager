@@ -60,7 +60,7 @@ services:
         arguments:
             - '@request_stack'
             -
-                oro_frontend_root': 'home'
+                oro_frontend_root: 'home'
                 oro_product_frontend_product_index: 'category'
                 oro_product_frontend_product_view: 'product'
                 oro_shopping_list_frontend_view: 'basket'
