@@ -2,6 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Stub\Layout;
 
+use Oro\Bundle\DistributionBundle\Handler\ApplicationState;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\IntegrationSettingsProvider;
 use Oro\Component\Layout\BlockTypeExtensionInterface;
 use Oro\Component\Layout\BlockTypeInterface;
@@ -22,20 +23,20 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
 
     private ?BlockViewCache $blockViewCache;
 
-    private bool $installed;
+    private ApplicationState $applicationState;
 
     public function __construct(
         LayoutFactoryBuilderInterface $inner,
-        IntegrationSettingsProvider $gtmSettingsProvider,
-        ExpressionProcessor $expressionProcessor,
-        BlockViewCache $blockViewCache = null,
-        $installed = false
+        IntegrationSettingsProvider   $gtmSettingsProvider,
+        ExpressionProcessor           $expressionProcessor,
+        ApplicationState              $applicationState,
+        BlockViewCache                $blockViewCache = null
     ) {
         $this->inner = $inner;
         $this->gtmSettingsProvider = $gtmSettingsProvider;
         $this->expressionProcessor = $expressionProcessor;
+        $this->applicationState = $applicationState;
         $this->blockViewCache = $blockViewCache;
-        $this->installed = (bool) $installed;
     }
 
     /**
@@ -91,7 +92,7 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
      */
     public function getLayoutFactory()
     {
-        if ($this->installed && $this->gtmSettingsProvider->isReady()) {
+        if ($this->applicationState->isInstalled() && $this->gtmSettingsProvider->isReady()) {
             return new LayoutFactoryDecorator(
                 $this->inner->getLayoutFactory(),
                 $this->expressionProcessor,
