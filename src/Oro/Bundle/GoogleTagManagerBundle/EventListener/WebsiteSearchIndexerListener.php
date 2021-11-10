@@ -8,17 +8,12 @@ use Oro\Bundle\WebsiteSearchBundle\Event\IndexEntityEvent;
 use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
 
 /**
- * Add product details to search index for using in frontend product datagrid
+ * Adds product details for using in GTM data layer to search index.
  */
 class WebsiteSearchIndexerListener
 {
-    public const PRODUCT_DETAIL_FIELD = 'product_detail';
-
-    /** @var WebsiteContextManager */
-    private $websiteContextManager;
-
-    /** @var ProductDetailProvider */
-    private $productDetailProvider;
+    private WebsiteContextManager $websiteContextManager;
+    private ProductDetailProvider $productDetailProvider;
 
     public function __construct(
         WebsiteContextManager $websiteContextManager,
@@ -40,11 +35,7 @@ class WebsiteSearchIndexerListener
         foreach ($event->getEntities() as $product) {
             $data = $this->productDetailProvider->getData($product);
             if ($data) {
-                $event->addField(
-                    $product->getId(),
-                    static::PRODUCT_DETAIL_FIELD,
-                    \json_encode($data)
-                );
+                $event->addField($product->getId(), 'product_detail', json_encode($data, JSON_THROW_ON_ERROR));
             }
         }
     }

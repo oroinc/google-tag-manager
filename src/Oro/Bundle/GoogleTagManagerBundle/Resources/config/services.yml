@@ -80,14 +80,21 @@ services:
         tags:
             - { name: kernel.event_listener, event: oro_website_search.event.index_entity.product, method: onWebsiteSearchIndex }
 
-    oro_google_tag_manager.event_listener.frontend_product_datagrid:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\FrontendProductDatagridListener'
-        public: false
+    oro_google_tag_manager.event_listener.frontend_product_datagrid_product_detail:
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\ProductDatagridProductDetailListener
         arguments:
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
         tags:
             - { name: kernel.event_listener, event: oro_datagrid.datagrid.build.pre.frontend-product-search-grid, method: onPreBuild }
             - { name: kernel.event_listener, event: oro_datagrid.search_datasource.result.after.frontend-product-search-grid, method: onResultAfter }
+
+    oro_google_tag_manager.event_listener.product_list.product_detail:
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\ProductListProductDetailListener
+        arguments:
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        tags:
+            - { name: kernel.event_listener, event: oro_product.product_list.build_query, method: onBuildQuery }
+            - { name: kernel.event_listener, event: oro_product.product_list.build_result, method: onBuildResult }
 
     oro_google_tag_manager.provider.product_price_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider'

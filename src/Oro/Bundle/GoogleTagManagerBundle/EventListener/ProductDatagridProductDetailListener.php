@@ -2,24 +2,20 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 
-use Oro\Bundle\DataGridBundle\Datasource\ResultRecord;
 use Oro\Bundle\DataGridBundle\Event\PreBuild;
 use Oro\Bundle\DataGridBundle\Extension\Formatter\Property\PropertyInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\SearchBundle\Datagrid\Event\SearchResultAfter;
 
 /**
- * Added product details to frontend product datagrind for using in GTM data layer
+ * Adds product details for using in GTM data layer to storefront product grid.
  */
-class FrontendProductDatagridListener
+class ProductDatagridProductDetailListener
 {
     private const COLUMN_PRODUCT_DETAIL = 'product_detail';
 
-    /** @var GoogleTagManagerSettingsProviderInterface */
-    private $settingsProvider;
-
-    /** @var bool */
-    private $applicable;
+    private GoogleTagManagerSettingsProviderInterface $settingsProvider;
+    private ?bool $applicable = null;
 
     public function __construct(GoogleTagManagerSettingsProviderInterface $settingsProvider)
     {
@@ -34,13 +30,10 @@ class FrontendProductDatagridListener
 
         $config = $event->getConfig();
 
-        $config->offsetAddToArrayByPath('[source][query][select]', [
-            sprintf(
-                'text.%s as %s',
-                WebsiteSearchIndexerListener::PRODUCT_DETAIL_FIELD,
-                self::COLUMN_PRODUCT_DETAIL
-            ),
-        ]);
+        $config->offsetAddToArrayByPath(
+            '[source][query][select]',
+            ['text.product_detail as product_detail']
+        );
 
         $config->offsetAddToArrayByPath(
             '[properties]',
@@ -59,18 +52,20 @@ class FrontendProductDatagridListener
             return;
         }
 
-        /** @var ResultRecord $record */
         foreach ($event->getRecords() as $record) {
-            $productDetail = $record->getValue(self::COLUMN_PRODUCT_DETAIL);
+            $productDetail = $record->getValue('product_detail');
             if ($productDetail) {
-                $record->setValue(self::COLUMN_PRODUCT_DETAIL, \json_decode($productDetail, true));
+                $record->setValue(
+                    self::COLUMN_PRODUCT_DETAIL,
+                    json_decode($productDetail, true, 512, JSON_THROW_ON_ERROR)
+                );
             }
         }
     }
 
     private function isApplicable(): bool
     {
-        if ($this->applicable === null) {
+        if (null === $this->applicable) {
             $this->applicable = $this->settingsProvider->getGoogleTagManagerSettings() !== null;
         }
 
