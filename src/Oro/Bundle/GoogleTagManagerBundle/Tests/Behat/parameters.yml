@@ -3,7 +3,7 @@ services:
         class: Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Stub\Layout\LayoutFactoryBuilderDecorator
         decorates: oro_layout.layout_factory_builder
         arguments:
-            - '@oro_layout.layout_factory_builder.decorator.inner'
+            - '@.inner'
             - '@oro_google_tag_manager.layout.data_provider.google_tag_manager_settings'
             - '@oro_layout.processor.expression'
             - '@oro_distribution.handler.application_status'
