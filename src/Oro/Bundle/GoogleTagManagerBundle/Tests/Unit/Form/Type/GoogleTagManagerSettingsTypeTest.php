@@ -2,12 +2,10 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Form\Type;
 
-use Oro\Bundle\EntityConfigBundle\Provider\ConfigProvider;
-use Oro\Bundle\FormBundle\Form\Extension\TooltipFormExtension;
+use Oro\Bundle\FormBundle\Tests\Unit\Stub\TooltipFormExtensionStub;
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\GoogleTagManagerBundle\Form\Type\GoogleTagManagerSettingsType;
 use Oro\Bundle\IntegrationBundle\Provider\TransportInterface;
-use Oro\Bundle\TranslationBundle\Translation\Translator;
 use Oro\Component\Testing\Unit\EntityTrait;
 use Oro\Component\Testing\Unit\FormIntegrationTestCase;
 use Oro\Component\Testing\Unit\PreloadedExtension;
@@ -18,20 +16,17 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
 {
     use EntityTrait;
 
-    /** @var TransportInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $transport;
-
     /** @var GoogleTagManagerSettingsType */
     private $formType;
 
     protected function setUp(): void
     {
-        $this->transport = $this->createMock(TransportInterface::class);
-        $this->transport->expects($this->any())
+        $transport = $this->createMock(TransportInterface::class);
+        $transport->expects($this->any())
             ->method('getSettingsEntityFQCN')
             ->willReturn(GoogleTagManagerSettings::class);
 
-        $this->formType = new GoogleTagManagerSettingsType($this->transport);
+        $this->formType = new GoogleTagManagerSettingsType($transport);
 
         parent::setUp();
     }
@@ -41,13 +36,13 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
      */
     public function testSubmit(?array $defaultData, array $submittedData, array $expectedData): void
     {
-        /** @var GoogleTagManagerSettings $defaultData */
-        $defaultData = $defaultData ? $this->getEntity(GoogleTagManagerSettings::class, $defaultData) : null;
+        /** @var GoogleTagManagerSettings|null $defaultEntity */
+        $defaultEntity = $defaultData ? $this->getEntity(GoogleTagManagerSettings::class, $defaultData) : null;
 
-        $form = $this->factory->create(GoogleTagManagerSettingsType::class, $defaultData);
+        $form = $this->factory->create(GoogleTagManagerSettingsType::class, $defaultEntity);
 
         $this->assertFormContainsField('containerId', $form);
-        $this->assertEquals($defaultData, $form->getData());
+        $this->assertEquals($defaultEntity, $form->getData());
 
         $form->submit($submittedData);
 
@@ -75,7 +70,6 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
 
     public function testConfigureOptions(): void
     {
-        /** @var OptionsResolver|\PHPUnit\Framework\MockObject\MockObject $optionResolver */
         $optionResolver = $this->createMock(OptionsResolver::class);
         $optionResolver->expects($this->once())
             ->method('setDefaults')
@@ -89,21 +83,13 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
      */
     protected function getExtensions(): array
     {
-        /** @var ConfigProvider $entityConfigProvider */
-        $entityConfigProvider = $this->createMock(ConfigProvider::class);
-
-        /** @var Translator $translator */
-        $translator = $this->createMock(Translator::class);
-
         return [
             new PreloadedExtension(
                 [
-                    GoogleTagManagerSettingsType::class => $this->formType,
+                    $this->formType,
                 ],
                 [
-                    FormType::class => [
-                        new TooltipFormExtension($entityConfigProvider, $translator),
-                    ],
+                    FormType::class => [new TooltipFormExtensionStub($this)]
                 ]
             ),
             $this->getValidatorExtension(true)
