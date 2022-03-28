@@ -56,6 +56,7 @@ Feature: GTM events on homepage
     And GTM data layer must contain the following message:
       """
         {
+            "pageCategory":"home",
             "localizationId": "1"
         }
       """
