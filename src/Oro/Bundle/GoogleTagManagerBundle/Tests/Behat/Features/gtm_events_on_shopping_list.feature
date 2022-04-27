@@ -3,9 +3,6 @@
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:products.yml
 Feature: GTM events on shopping list
-  In order to ...
-  As an ...
-  I should be able to ...
 
   Scenario: Feature background
     Given I enable GTM integration
