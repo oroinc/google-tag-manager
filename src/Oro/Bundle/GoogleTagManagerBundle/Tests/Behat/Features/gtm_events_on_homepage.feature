@@ -4,9 +4,6 @@
 @fixture-OroGoogleTagManagerBundle:featured_products.yml
 @fixture-OroGoogleTagManagerBundle:new_arrivals.yml
 Feature: GTM events on homepage
-  In order to ...
-  As an ...
-  I should be able to ...
 
   Scenario: Feature background
     Given I enable GTM integration
