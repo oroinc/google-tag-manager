@@ -4,9 +4,6 @@
 @fixture-OroGoogleTagManagerBundle:products.yml
 @fixture-OroGoogleTagManagerBundle:web_catalog.yml
 Feature: GTM events on product in catalog
-  In order to ...
-  As an ...
-  I should be able to ...
 
   Scenario: Feature background
     Given I enable GTM integration
