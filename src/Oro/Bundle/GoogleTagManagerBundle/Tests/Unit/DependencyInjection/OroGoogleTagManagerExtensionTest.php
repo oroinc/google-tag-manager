@@ -21,11 +21,6 @@ class OroGoogleTagManagerExtensionTest extends ExtensionTestCase
         $this->extension = new OroGoogleTagManagerExtension();
     }
 
-    public function testGetAlias(): void
-    {
-        $this->assertEquals('oro_google_tag_manager', $this->extension->getAlias());
-    }
-
     public function testLoad(): void
     {
         $this->container->expects($this->once())
