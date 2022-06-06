@@ -5,6 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\EventListener;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\WebsiteSearchIndexerListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\Product;
+use Oro\Bundle\WebsiteSearchBundle\Engine\AbstractIndexer;
 use Oro\Bundle\WebsiteSearchBundle\Event\IndexEntityEvent;
 use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
 use Oro\Component\Testing\Unit\EntityTrait;
@@ -46,7 +47,11 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->onWebsiteSearchIndex($event);
     }
 
-    public function testOnWebsiteSearchIndex(): void
+
+    /**
+     * @dataProvider validContextDataProvider
+     */
+    public function testOnWebsiteSearchIndex(array $context): void
     {
         $products = [
             $this->getEntity(Product::class, ['id' => 1001, 'sku' => 'SKU-1']),
@@ -54,7 +59,7 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
             $this->getEntity(Product::class, ['id' => 1003, 'sku' => 'SKU-3']),
         ];
 
-        $event = $this->createIndexEntityEvent();
+        $event = $this->createIndexEntityEvent($context);
         $event->expects($this->never())->method('stopPropagation');
         $event->expects($this->once())
             ->method('getEntities')
@@ -88,6 +93,25 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->onWebsiteSearchIndex($event);
     }
 
+    public function validContextDataProvider(): \Generator
+    {
+        yield [[]];
+        yield [[AbstractIndexer::CONTEXT_FIELD_GROUPS => ['main']]];
+    }
+
+    public function testOnWebsiteSearchIndexWithUnsupportedFieldGroup(): void
+    {
+        $event = $this->createIndexEntityEvent([AbstractIndexer::CONTEXT_FIELD_GROUPS => ['image']]);
+
+        $this->websiteContextManger->expects($this->never())
+            ->method($this->anything());
+
+        $this->productDetailProvider->expects($this->never())
+            ->method($this->anything());
+
+        $this->listener->onWebsiteSearchIndex($event);
+    }
+
     /**
      * @param array $context
      * @return \PHPUnit\Framework\MockObject\MockObject|IndexEntityEvent
@@ -95,7 +119,7 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
     private function createIndexEntityEvent(array $context = []): IndexEntityEvent
     {
         $event = $this->createMock(IndexEntityEvent::class);
-        $event->expects($this->once())
+        $event->expects($this->any())
             ->method('getContext')
             ->willReturn($context);
 
