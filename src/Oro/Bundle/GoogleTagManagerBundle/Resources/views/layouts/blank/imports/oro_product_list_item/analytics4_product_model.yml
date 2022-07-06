@@ -1,0 +1,10 @@
+layout:
+    actions:
+        - '@setBlockTheme':
+            themes: 'analytics4_product_model.html.twig'
+        - '@add':
+            id: __google_tag_manager_analytics4_product_model
+            parentId: __product
+            blockType: block
+            options:
+                visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'

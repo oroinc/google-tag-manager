@@ -1,5 +1,6 @@
 Oro\Bundle\ProductBundle\Entity\Product:
     fields:
-        -   name: product_detail
+        # Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\WebsiteSearchIndexerListener::PRODUCT_DETAIL_FIELD
+        -   name: gtm_analytics4_product_detail
             type: text
             fulltext: false

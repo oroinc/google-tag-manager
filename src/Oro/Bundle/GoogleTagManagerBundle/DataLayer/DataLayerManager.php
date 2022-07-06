@@ -30,14 +30,27 @@ class DataLayerManager
     }
 
     /**
-     * Adds data to the data layer in the current session.
+     * Appends data to the data layer in the current session.
      *
-     * @param array $data ['data_name' => 'data_value']
+     * @param array ...$data ['data_name' => 'data_value']
      */
-    public function add(array $data): void
+    public function append(array ...$data): void
     {
         $current = $this->session->get(self::KEY, []);
-        $current[] = $data;
+        array_push($current, ...$data);
+
+        $this->session->set(self::KEY, $current);
+    }
+
+    /**
+     * Prepends data to the data layer in the current session.
+     *
+     * @param array ...$data ['data_name' => 'data_value']
+     */
+    public function prepend(array ...$data): void
+    {
+        $current = $this->session->get(self::KEY, []);
+        array_unshift($current, ...$data);
 
         $this->session->set(self::KEY, $current);
     }

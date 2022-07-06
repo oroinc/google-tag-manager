@@ -23,12 +23,7 @@ define(function(require) {
          * @property {Object}
          */
         listen: {
-            'gtm:event:push mediator': '_onPush',
-            'gtm:event:promotionClick mediator': '_onPromotionClick',
-            'gtm:event:promotionImpressions mediator': '_onPromotionImpressions',
-            'gtm:event:productClick mediator': '_onProductClick',
-            'gtm:event:productDetail mediator': '_onProductDetail',
-            'gtm:event:productImpressions mediator': '_onProductImpressions'
+            'gtm:event:push mediator': '_onPush'
         },
 
         /**
@@ -96,119 +91,15 @@ define(function(require) {
 
         /**
          * @param {Object} data
+         * @param {Boolean} [clear] Clear ecommerce object before pushing data. True by default.
          * @private
          */
-        _onPush: function(data) {
+        _onPush: function(data, clear = true) {
+            if (clear) {
+                this.getDataLayer().push({ecommerce: null});
+            }
+
             this.getDataLayer().push(data);
-        },
-
-        /**
-         * @param {Object} clicksData
-         * @param {String} destinationUrl
-         * @private
-         */
-        _onPromotionClick: function(clicksData, destinationUrl) {
-            this._onPush({
-                event: 'promotionClick',
-                ecommerce: {
-                    promoClick: {
-                        promotions: clicksData
-                    }
-                },
-                eventCallback: function() {
-                    if (destinationUrl) {
-                        document.location = destinationUrl;
-                    }
-                }
-            });
-        },
-
-        /**
-         * @param {Object} impressionsData
-         * @private
-         */
-        _onPromotionImpressions: function(impressionsData) {
-            this._onPush({
-                event: 'promotionImpression',
-                ecommerce: {
-                    promoView: {
-                        promotions: impressionsData
-                    }
-                }
-            });
-        },
-
-        /**
-         * @param {Object} detailData
-         * @param {String} [currencyCode]
-         * @param {String} [listName]
-         * @private
-         */
-        _onProductDetail: function(detailData, currencyCode, listName) {
-            const data = {
-                event: 'productDetail',
-                ecommerce: {
-                    currencyCode: currencyCode,
-                    detail: {
-                        products: detailData
-                    }
-                }
-            };
-
-            if (listName) {
-                data['ecommerce']['detail']['actionField'] = {list: listName};
-            }
-
-            this._onPush(data);
-        },
-
-        /**
-         * @param {Object} clicksData
-         * @param {String} destinationUrl
-         * @param {String} [listName]
-         * @private
-         */
-        _onProductClick: function(clicksData, destinationUrl, listName) {
-            const data = {
-                event: 'productClick',
-                ecommerce: {
-                    click: {
-                        products: clicksData
-                    }
-                },
-                eventCallback: function() {
-                    if (destinationUrl) {
-                        document.location = destinationUrl;
-                    }
-                }
-            };
-
-            if (listName) {
-                data['ecommerce']['click']['actionField'] = {list: listName};
-            }
-
-            this._onPush(data);
-        },
-
-        /**
-         * @param {Object} impressionsData
-         * @param {String} [currencyCode]
-         * @private
-         */
-        _onProductImpressions: function(impressionsData, currencyCode) {
-            const data = {
-                event: 'productImpression',
-                ecommerce: {
-                    currencyCode: currencyCode,
-                    impressions: impressionsData
-                }
-            };
-
-            if (currencyCode) {
-                data['ecommerce']['currencyCode'] = currencyCode;
-            }
-
-            this._onPush(data);
         }
     });
 

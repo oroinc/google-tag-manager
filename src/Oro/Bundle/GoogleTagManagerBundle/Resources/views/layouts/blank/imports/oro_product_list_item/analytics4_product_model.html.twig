@@ -1,0 +1,29 @@
+{% block __oro_product_list_item__google_tag_manager_analytics4_product_model_widget %}
+    {% if product is defined %}
+        {# @see \Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ProductListProductDetailListener #}
+        {% if product is iterable and product.gtm_analytics4_product_detail is defined %}
+            {% set productDetail = product.gtm_analytics4_product_detail %}
+        {% else %}
+            {% set productDetail = oro_google_tag_manager_analytics4_product_detail(product) %}
+        {% endif %}
+
+        {% if productDetail is not empty %}
+            {% if not is_configurable_product_type(product.type) or matrixFormType == 'none' %}
+                {% if product.prices is defined %}
+                    {% set productPrice = product.prices|first %}
+                {% elseif productPrices is defined %}
+                    {% set productPrice = productPrices|first %}
+                {% endif %}
+
+                {% set productPrice = productPrice.price|default(null) %}
+
+                {% if productPrice is not empty %}
+                    {% set productDetail = productDetail|merge({price: productPrice}) %}
+                {% endif %}
+            {% endif %}
+
+            {% set attr = layout_attr_defaults(attr, {'~class': ' hidden', 'data-gtm-analytics4-model': productDetail}) %}
+            <div {{ block('block_attributes') }}></div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

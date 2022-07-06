@@ -2,7 +2,7 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Twig;
 
-use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
@@ -11,7 +11,7 @@ use Twig\TwigFunction;
 
 /**
  * Provide twig functions to work with product details for GTM data layer:
- *   - oro_google_tag_manager_product_detail
+ *   - oro_google_tag_manager_analytics4_product_detail
  */
 class ProductDetailExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
@@ -28,7 +28,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
     public function getFunctions()
     {
         return [
-            new TwigFunction('oro_google_tag_manager_product_detail', [$this, 'getProductDetail']),
+            new TwigFunction('oro_google_tag_manager_analytics4_product_detail', [$this, 'getAnalytics4ProductDetail']),
         ];
     }
 
@@ -36,25 +36,22 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
      * @param mixed $product
      * @return array
      */
-    public function getProductDetail($product): array
+    public function getAnalytics4ProductDetail($product): array
     {
         return $product instanceof Product
             ? $this->getProductDetailProvider()->getData($product)
             : [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return [
-            'oro_google_tag_manager.provider.product_detail' => ProductDetailProvider::class
+            'oro_google_tag_manager.provider.analytics4.product_detail' => ProductDetailProvider::class
         ];
     }
 
     private function getProductDetailProvider(): ProductDetailProvider
     {
-        return $this->container->get('oro_google_tag_manager.provider.product_detail');
+        return $this->container->get('oro_google_tag_manager.provider.analytics4.product_detail');
     }
 }

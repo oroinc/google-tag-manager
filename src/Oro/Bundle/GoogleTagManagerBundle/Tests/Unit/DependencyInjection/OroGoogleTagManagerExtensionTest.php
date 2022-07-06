@@ -8,36 +8,40 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class OroGoogleTagManagerExtensionTest extends ExtensionTestCase
 {
-    /** @var ContainerBuilder|\PHPUnit\Framework\MockObject\MockObject */
-    private $container;
+    private ContainerBuilder $container;
 
-    /** @var OroGoogleTagManagerExtension */
-    private $extension;
+    private OroGoogleTagManagerExtension $extension;
 
     protected function setUp(): void
     {
-        $this->container = $this->createMock(ContainerBuilder::class);
+        $this->container = new ContainerBuilder();
 
         $this->extension = new OroGoogleTagManagerExtension();
     }
 
+    public function testGetAlias(): void
+    {
+        self::assertEquals('oro_google_tag_manager', $this->extension->getAlias());
+    }
+
     public function testLoad(): void
     {
-        $this->container->expects($this->once())
-            ->method('prependExtensionConfig')
-            ->with(
-                'oro_google_tag_manager',
-                [
-                    'settings' => [
-                        'resolved' => true,
-                        'integration' => [
-                            'value' => null,
-                            'scope' => 'app',
-                        ],
-                    ]
-                ]
-            );
-
         $this->extension->load([], $this->container);
+
+        self::assertEquals([
+            [
+                'settings' => [
+                    'resolved' => true,
+                    'integration' => [
+                        'value' => null,
+                        'scope' => 'app',
+                    ],
+                    'enabled_data_collection_types' => [
+                        'value' => ['google_analytics4'],
+                        'scope' => 'app',
+                    ],
+                ],
+            ],
+        ], $this->container->getExtensionConfig('oro_google_tag_manager'));
     }
 }

@@ -52,7 +52,7 @@ define(function(require) {
         delegateListeners: function() {
             mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
 
-            this.embeddedListComponent.on('oro:embedded-list:shown', this._onImpression.bind(this));
+            this.embeddedListComponent.on('oro:embedded-list:shown', this._onView.bind(this));
             this.embeddedListComponent.on('oro:embedded-list:clicked', this._onClick.bind(this));
 
             BaseEmbeddedListGtmComponent.__super__.delegateListeners.call(this);
@@ -66,41 +66,41 @@ define(function(require) {
          * @param {jQuery} $shownItems
          * @private
          */
-        _onImpression: function($shownItems) {
-            const impressionsData = [];
+        _onView: function($shownItems) {
+            const viewData = [];
 
             $shownItems.each((function(i, item) {
                 const $item = $(item);
                 const model = this._getModel($item);
                 if (model) {
-                    impressionsData.push(this._getImpressionData(model, this._getPosition($item)));
+                    viewData.push(this._getViewData(model, this._getPosition($item)));
                 }
             }).bind(this));
 
-            if (impressionsData.length) {
-                this._invokeEventImpression(impressionsData);
+            if (viewData.length) {
+                this._invokeEventView(viewData);
             }
         },
 
         /**
-         * Implement this method to invoke gtm:event:push event for impression.
+         * Implement this method to invoke gtm:event:push event for view item list.
          *
-         * @param {Array} impressionsData
+         * @param {Array} viewData
          * @private
          */
-        _invokeEventImpression: function(impressionsData) {
+        _invokeEventView: function(viewData) {
             throw new Error('This method should be implemented in descendant');
         },
 
         /**
-         * Implement this method to get impression data of the viewed item.
+         * Implement this method to provide the data for the viewed item.
          *
          * @param {Object} model Model of the viewed item
-         * @param {Number} position Position in the list
+         * @param {Number} index Position in the list
          * @returns {Object}
          * @private
          */
-        _getImpressionData: function(model, position) {
+        _getViewData: function(model, index) {
             throw new Error('This method should be implemented in descendant');
         },
 
@@ -147,18 +147,26 @@ define(function(require) {
                 return;
             }
 
-            let destinationUrl = event.currentTarget.href;
-            if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
+            const link = event.currentTarget;
+            let destinationUrl = link.href;
+            if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey || link.target === '_blank') {
                 destinationUrl = null;
-            } else if (this._gtmReady) {
-                // Prevent going by the link destination URL. We will get there in GTM eventCallback.
-                event.preventDefault();
             }
 
-            const position = this._getPosition($clickedItem);
-            const clicksData = [this._getClickData(model, position)];
+            const index = this._getPosition($clickedItem);
+            const clicksData = [this._getClickData(model, index)];
 
             this._invokeEventClick(clicksData, destinationUrl);
+
+            if (destinationUrl !== null && clicksData.eventCallback) {
+                // Prevent going by the link destination URL. We will get there in GTM eventCallback.
+                event.preventDefault();
+
+                if (!this._gtmReady) {
+                    // Calls data layer eventCallback manually because GTM is not initialized yet.
+                    clicksData.eventCallback();
+                }
+            }
         },
 
         /**
@@ -173,14 +181,14 @@ define(function(require) {
         },
 
         /**
-         * Implement this method to get impression data of the clicked item.
+         * Implement this method to provide the data for the clicked item.
          *
          * @param {Object} model Model of the clicked item
-         * @param {Number} position Position in the list
+         * @param {Number} index Position in the list
          * @returns {Object}
          * @private
          */
-        _getClickData: function(model, position) {
+        _getClickData: function(model, index) {
             throw new Error('This method should be implemented in descendant');
         },
 
@@ -194,7 +202,7 @@ define(function(require) {
 
             mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
 
-            this.embeddedListComponent.off('oro:embedded-list:shown', this._onImpression.bind(this));
+            this.embeddedListComponent.off('oro:embedded-list:shown', this._onView.bind(this));
             this.embeddedListComponent.off('oro:embedded-list:clicked', this._onClick.bind(this));
 
             BaseEmbeddedListGtmComponent.__super__.dispose.call(this);

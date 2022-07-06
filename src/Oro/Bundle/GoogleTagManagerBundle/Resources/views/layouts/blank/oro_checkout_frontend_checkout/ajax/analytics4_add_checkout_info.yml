@@ -1,0 +1,15 @@
+layout:
+    actions:
+        - '@setBlockTheme':
+              themes: '../templates/analytics4/add_checkout_info.html.twig'
+
+        - '@add':
+              id: google_tag_manager_analytics4_add_checkout_info
+              blockType: google_tag_manager_data_layer_push
+              parentId: checkout_content
+              prepend: true
+              options:
+                  visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'
+                  data_layer_data: '=data["oro_google_tag_manager_data_layer"].getData(["begin_checkout", "add_shipping_info", "add_payment_info"])'
+
+    conditions: 'context["workflowStepName"]!="order_created" && context["workflowStepName"]!="checkout" && context["widget_container"]'

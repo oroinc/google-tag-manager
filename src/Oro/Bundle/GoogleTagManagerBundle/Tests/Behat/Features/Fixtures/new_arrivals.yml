@@ -10,7 +10,7 @@ Oro\Bundle\ProductBundle\Entity\ProductName:
 Oro\Bundle\ProductBundle\Entity\Product:
     newArrivalsProduct{1..5}:
         type: 'simple'
-        sku: 'NEW-ARRIVAL-<current()>'
+        sku: 'NEWARRIVAL<current()>'
         primaryUnitPrecision: '@newArrivalsProductUnitPrecision<current()>'
         __calls:
             - addName: ['@newArrivalsLocalProductName<current()>']
@@ -21,3 +21,17 @@ Oro\Bundle\ProductBundle\Entity\Product:
         status: 'enabled'
         featured: false
         newArrival: true
+
+Oro\Bundle\PricingBundle\Entity\ProductPrice:
+    price{1..5}:
+        product: '@newArrivalsProduct<current()>'
+        priceList: '@defaultPriceList'
+        currency: 'USD'
+        quantity: 1
+        unit: '@item'
+        value: '<(1.6789 * $current)>'
+
+Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
+    priceRelation{1..5}:
+        product: '@newArrivalsProduct<current()>'
+        priceList: '@defaultPriceList'

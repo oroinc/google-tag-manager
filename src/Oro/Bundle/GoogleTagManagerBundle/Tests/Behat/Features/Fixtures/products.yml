@@ -78,21 +78,21 @@ Oro\Bundle\PricingBundle\Entity\ProductPrice:
         currency: 'USD'
         quantity: 1
         unit: '@item'
-        value: 10
+        value: 10.4555
     price2_1:
         product: '@product2'
         priceList: '@defaultPriceList'
         currency: 'USD'
         quantity: 1
         unit: '@item'
-        value: 15
+        value: 15.1234
     price2_2:
         product: '@product2'
         priceList: '@defaultPriceList'
         currency: 'USD'
         quantity: 1
         unit: '@set'
-        value: 50
+        value: 50.6789
 
 Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
     priceRelation{1..2}:
