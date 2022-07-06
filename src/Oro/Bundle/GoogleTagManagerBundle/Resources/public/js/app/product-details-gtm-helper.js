@@ -4,6 +4,8 @@ define(function(require) {
 
     /**
      * Provides product details ready for GTM events related to products.
+     *
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
      */
     const productsDetailsGtmHelper = {
         /**

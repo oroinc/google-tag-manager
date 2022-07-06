@@ -7,6 +7,7 @@ use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\CustomerBundle\Entity\CustomerVisitor;
 use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
+use Oro\Bundle\GoogleTagManagerBundle\Formatter\NumberFormatter;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
@@ -44,6 +45,9 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
     /** @var ProductPriceDetailProvider */
     private $provider;
 
+    /** @var NumberFormatter|\PHPUnit\Framework\MockObject\MockObject */
+    private NumberFormatter $numberFormatter;
+
     protected function setUp(): void
     {
         $this->tokenStorage = $this->createMock(TokenStorageInterface::class);
@@ -59,6 +63,16 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->productPriceProvider,
             $this->priceScopeCriteriaFactory
         );
+        
+        $this->numberFormatter = $this->createMock(NumberFormatter::class);
+        $this->provider->setNumberFormatter($this->numberFormatter);
+
+        $this->numberFormatter
+            ->expects(self::any())
+            ->method('formatPriceValue')
+            ->willReturnCallback(static function (float $value) {
+                return round($value, 2);
+            });
     }
 
     public function testGetPrice(): void
@@ -104,13 +118,13 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(
                 [
                     'no_data' => null,
-                    '42-unit-5.5-USD' => Price::create(1.1, 'USD'),
-                    'price1' => Price::create(2.2, 'USD')
+                    '42-unit-5.5-USD' => Price::create(1.1234, 'USD'),
+                    'price1' => Price::create(2.2345, 'USD')
                 ]
             );
 
         $this->assertEquals(
-            Price::create(1.1, 'USD'),
+            Price::create(1.12, 'USD'),
             $this->provider->getPrice($product, $productUnit, $qty)
         );
     }
@@ -161,7 +175,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(
                 [
                     'no_data' => null,
-                    'price1' => Price::create(2.2, 'USD')
+                    'price1' => Price::create(2.2345, 'USD')
                 ]
             );
 

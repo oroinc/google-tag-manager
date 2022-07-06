@@ -6,6 +6,7 @@ use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
+use Oro\Bundle\GoogleTagManagerBundle\Formatter\NumberFormatter;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
@@ -35,6 +36,8 @@ class ProductPriceDetailProvider
     /** @var ProductPriceScopeCriteriaFactoryInterface */
     private $priceScopeCriteriaFactory;
 
+    private ?NumberFormatter $numberFormatter = null;
+
     public function __construct(
         TokenStorageInterface $tokenStorage,
         WebsiteManager $websiteManager,
@@ -49,6 +52,11 @@ class ProductPriceDetailProvider
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
     }
 
+    public function setNumberFormatter(?NumberFormatter $numberFormatter): void
+    {
+        $this->numberFormatter = $numberFormatter;
+    }
+
     public function getPrice(Product $product, ProductUnit $productUnit, float $qty): ?Price
     {
         $website = $this->websiteManager->getCurrentWebsite();
@@ -58,8 +66,12 @@ class ProductPriceDetailProvider
         $scopeCriteria = $this->priceScopeCriteriaFactory->create($website, $this->getCustomer());
 
         $prices = $this->productPriceProvider->getMatchedPrices([$priceCriteria], $scopeCriteria);
+        $price = $prices[$priceCriteria->getIdentifier()] ?? null;
+        if ($price) {
+            $price = Price::create($this->numberFormatter->formatPriceValue($price->getValue()), $price->getCurrency());
+        }
 
-        return $prices[$priceCriteria->getIdentifier()] ?? null;
+        return $price;
     }
 
     private function getCustomer(): ?Customer

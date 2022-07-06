@@ -11,6 +11,8 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 
 /**
  * Provide product detail for GTM data layer
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class ProductDetailProvider
 {

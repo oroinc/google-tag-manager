@@ -5,6 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
@@ -12,6 +13,8 @@ use Oro\Bundle\RFPBundle\Entity\RequestProductItem;
 
 /**
  * Handles changes of RequestProductItem entities.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class RequestProductItemEventListener
 {
@@ -33,6 +36,8 @@ class RequestProductItemEventListener
     /** @var int */
     private $batchSize;
 
+    private ?DataCollectionStateProviderInterface $dataCollectionStateProvider = null;
+
     /** @var array */
     private $items = [];
 
@@ -50,6 +55,12 @@ class RequestProductItemEventListener
         $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->settingsProvider = $settingsProvider;
         $this->batchSize = $batchSize;
+    }
+
+    public function setDataCollectionStateProvider(
+        ?DataCollectionStateProviderInterface $dataCollectionStateProvider
+    ): void {
+        $this->dataCollectionStateProvider = $dataCollectionStateProvider;
     }
 
     /**
@@ -114,10 +125,12 @@ class RequestProductItemEventListener
 
     private function isApplicable(): bool
     {
-        if (!$this->settingsProvider->getGoogleTagManagerSettings()) {
-            return false;
+        if ($this->dataCollectionStateProvider) {
+            $isApplicable = $this->dataCollectionStateProvider->isEnabled('universal_analytics');
+        } else {
+            $isApplicable = (bool) $this->settingsProvider->getGoogleTagManagerSettings();
         }
 
-        return $this->frontendHelper->isFrontendRequest();
+        return $isApplicable && $this->frontendHelper->isFrontendRequest();
     }
 }

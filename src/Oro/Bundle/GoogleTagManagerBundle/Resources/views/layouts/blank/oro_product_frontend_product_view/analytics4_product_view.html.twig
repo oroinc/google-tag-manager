@@ -1,0 +1,22 @@
+{% block _google_tag_manager_analytics4_product_view_widget %}
+    {% set productDetail = oro_google_tag_manager_analytics4_product_detail(product) %}
+    {% if productDetail is not empty %}
+        {% if not is_configurable_product_type(product.type) or matrixFormType == 'none' %}
+            {% set firstPrice = productPrices|default([])|first %}
+            {% set priceValue = firstPrice.price|default(0)|oro_google_tag_manager_format_price %}
+            {% set productDetail = productDetail|merge({price: priceValue}) %}
+        {% endif %}
+
+        {% set attr = layout_attr_defaults(attr, {
+            '~class': ' hidden',
+            'data-page-component-module': 'oroui/js/app/components/view-component',
+            '~data-page-component-options': {
+                view: 'orogoogletagmanager/js/app/views/analytics4/product-gtm-analytics4-view',
+                data: productDetail
+            },
+        }) %}
+        <div {{ block('block_attributes') }}>
+            {{ block_widget(block) }}
+        </div>
+    {% endif %}
+{% endblock %}

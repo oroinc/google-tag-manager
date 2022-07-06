@@ -1,3 +1,5 @@
+# @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
+
 layout:
     actions:
         - '@setBlockTheme':
@@ -7,7 +9,7 @@ layout:
             parentId: product_view_primary_wrapper
             blockType: block
             options:
-                visible: '=data["oro_google_tag_manager_settings"].isReady()'
+                visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("universal_analytics")'
                 vars:
                     product: '=data["oro_product_variant"].getProductVariantOrProduct(data)'
                     productPrices: '=data["frontend_product_prices"].getByProduct(data["oro_product_variant"].getProductVariantOrProduct(data))'

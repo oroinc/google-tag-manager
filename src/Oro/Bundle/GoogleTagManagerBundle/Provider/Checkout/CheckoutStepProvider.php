@@ -8,6 +8,8 @@ use Oro\Bundle\WorkflowBundle\Model\WorkflowManager;
 
 /**
  * Returns information about current checkout step.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class CheckoutStepProvider
 {

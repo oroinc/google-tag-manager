@@ -30,9 +30,37 @@ class DataLayerManager
     }
 
     /**
+     * Appends data to the data layer in the current session.
+     *
+     * @param array ...$data ['data_name' => 'data_value']
+     */
+    public function append(array ...$data): void
+    {
+        $current = $this->session->get(self::KEY, []);
+        array_push($current, ...$data);
+
+        $this->session->set(self::KEY, $current);
+    }
+
+    /**
+     * Prepends data to the data layer in the current session.
+     *
+     * @param array ...$data ['data_name' => 'data_value']
+     */
+    public function prepend(array ...$data): void
+    {
+        $current = $this->session->get(self::KEY, []);
+        array_unshift($current, ...$data);
+
+        $this->session->set(self::KEY, $current);
+    }
+
+    /**
      * Adds data to the data layer in the current session.
      *
      * @param array $data ['data_name' => 'data_value']
+     *
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0. Use append instead.
      */
     public function add(array $data): void
     {

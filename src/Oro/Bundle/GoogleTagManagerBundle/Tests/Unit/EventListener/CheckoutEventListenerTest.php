@@ -9,6 +9,7 @@ use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\CheckoutEventListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use PHPUnit\Framework\TestCase;
@@ -30,13 +31,16 @@ class CheckoutEventListenerTest extends TestCase
     /** @var GoogleTagManagerSettingsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $settingsProvider;
 
+    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private DataCollectionStateProviderInterface $dataCollectionStateProvider;
+
     /** @var CheckoutEventListener */
     private $listener;
 
     protected function setUp(): void
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);
-        $this->frontendHelper->expects($this->any())
+        $this->frontendHelper->expects(self::any())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
@@ -44,6 +48,7 @@ class CheckoutEventListenerTest extends TestCase
         $this->purchaseDetailProvider = $this->createMock(PurchaseDetailProvider::class);
         $this->transport = $this->createMock(Transport::class);
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
+        $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
 
         $this->listener = new CheckoutEventListener(
             $this->frontendHelper,
@@ -51,19 +56,22 @@ class CheckoutEventListenerTest extends TestCase
             $this->purchaseDetailProvider,
             $this->settingsProvider
         );
+
+        $this->listener->setDataCollectionStateProvider($this->dataCollectionStateProvider);
     }
 
     public function testPreUpdateNotApplicable(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn(null);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(false);
 
-        $this->purchaseDetailProvider->expects($this->never())
-            ->method($this->anything());
+        $this->purchaseDetailProvider->expects(self::never())
+            ->method(self::anything());
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         /** @var EntityManagerInterface $objectManager */
         $objectManager = $this->createMock(EntityManagerInterface::class);
@@ -77,15 +85,16 @@ class CheckoutEventListenerTest extends TestCase
 
     public function testPreUpdateNotApplicableChangeSet(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
-        $this->purchaseDetailProvider->expects($this->never())
-            ->method($this->anything());
+        $this->purchaseDetailProvider->expects(self::never())
+            ->method(self::anything());
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         /** @var EntityManagerInterface $objectManager */
         $objectManager = $this->createMock(EntityManagerInterface::class);
@@ -99,19 +108,20 @@ class CheckoutEventListenerTest extends TestCase
 
     public function testPreUpdate(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
         $checkout = new Checkout();
         $changeSet = ['completed' => [false, true]];
 
-        $this->purchaseDetailProvider->expects($this->any())
+        $this->purchaseDetailProvider->expects(self::once())
             ->method('getData')
             ->with($checkout)
             ->willReturn([['data1'], ['data2']]);
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects(self::exactly(2))
             ->method('add')
             ->withConsecutive([['data1']], [['data2']]);
 
@@ -124,24 +134,123 @@ class CheckoutEventListenerTest extends TestCase
 
     public function testPreUpdateWithClear(): void
     {
-        $this->settingsProvider->expects($this->once())
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
+
+        $checkout = new Checkout();
+        $changeSet = ['completed' => [false, true]];
+
+        $this->purchaseDetailProvider->expects(self::once())
+            ->method('getData')
+            ->with($checkout)
+            ->willReturn([['data1'], ['data2']]);
+
+        $this->dataLayerManager->expects(self::never())
+            ->method('add');
+
+        /** @var EntityManagerInterface $objectManager */
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($checkout, new PreUpdateEventArgs($checkout, $objectManager, $changeSet));
+        $this->listener->onClear();
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateNotApplicableWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn(null);
+
+        $this->purchaseDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        /** @var EntityManagerInterface $objectManager */
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $checkout = new Checkout();
+        $changeSet = ['completed' => [false, true]];
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preUpdate($checkout, new PreUpdateEventArgs($checkout, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateNotApplicableChangeSetWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->purchaseDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        /** @var EntityManagerInterface $objectManager */
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $checkout = new Checkout();
+        $changeSet = ['completed' => [true, false]];
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preUpdate($checkout, new PreUpdateEventArgs($checkout, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
             ->method('getGoogleTagManagerSettings')
             ->willReturn($this->transport);
 
         $checkout = new Checkout();
         $changeSet = ['completed' => [false, true]];
 
-        $this->purchaseDetailProvider->expects($this->any())
+        $this->purchaseDetailProvider->expects(self::any())
             ->method('getData')
             ->with($checkout)
             ->willReturn([['data1'], ['data2']]);
 
-        $this->dataLayerManager->expects($this->never())
+        $this->dataLayerManager->expects(self::exactly(2))
+            ->method('add')
+            ->withConsecutive([['data1']], [['data2']]);
+
+        /** @var EntityManagerInterface $objectManager */
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preUpdate($checkout, new PreUpdateEventArgs($checkout, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateWithClearWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $checkout = new Checkout();
+        $changeSet = ['completed' => [false, true]];
+
+        $this->purchaseDetailProvider->expects(self::any())
+            ->method('getData')
+            ->with($checkout)
+            ->willReturn([['data1'], ['data2']]);
+
+        $this->dataLayerManager->expects(self::never())
             ->method('add');
 
         /** @var EntityManagerInterface $objectManager */
         $objectManager = $this->createMock(EntityManagerInterface::class);
 
+        $this->listener->setDataCollectionStateProvider(null);
         $this->listener->preUpdate($checkout, new PreUpdateEventArgs($checkout, $objectManager, $changeSet));
         $this->listener->onClear();
         $this->listener->postFlush();

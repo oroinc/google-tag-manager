@@ -1,0 +1,10 @@
+{% block __oro_product_grid__google_tag_manager_analytics4_products_datagrid_widget %}
+    {% if productsDatagridGtmListName is defined %}
+        {% set attr = layout_attr_defaults(attr, {
+            '~class': ' hidden',
+            'data-page-component-module': 'orogoogletagmanager/js/app/components/analytics4/products-datagrid-gtm-analytics4-component',
+            '~data-page-component-options': { 'listName': productsDatagridGtmListName }
+        }) %}
+        <div {{ block('block_attributes') }}></div>
+    {% endif %}
+{% endblock %}

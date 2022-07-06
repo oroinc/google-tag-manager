@@ -10,6 +10,8 @@ define(function(require) {
 
     /**
      * Handles clicks on products datagrid to invoke GTM productClick events.
+     *
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
      */
     const ProductsDatagridGtmComponent = BaseComponent.extend({
         relatedSiblingComponents: {

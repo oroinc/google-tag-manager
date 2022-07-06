@@ -1,0 +1,14 @@
+{% block _hero_promo_gtm_analytics4_widget %}
+    {% set attr = layout_attr_defaults(attr, {
+        '~class': ' hidden',
+        'data-page-component-module': 'orogoogletagmanager/js/app/components/analytics4/home-page-slider-gtm-analytics4-component',
+        'data-page-component-options': {
+            'relatedSiblingComponents': {
+                'embeddedListComponent': 'home-page-slider'
+            },
+            'blockName': 'home-page-slider'
+        }
+
+    }) %}
+    <div {{ block('block_attributes') }}></div>
+{% endblock %}

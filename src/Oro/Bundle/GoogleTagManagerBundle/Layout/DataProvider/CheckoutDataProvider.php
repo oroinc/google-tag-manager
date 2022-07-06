@@ -7,6 +7,8 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider;
 
 /**
  * Layout data provider for checkout data.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class CheckoutDataProvider
 {

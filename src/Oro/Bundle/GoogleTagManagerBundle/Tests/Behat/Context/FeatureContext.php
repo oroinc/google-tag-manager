@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Context;
 
 use Behat\Symfony2Extension\Context\KernelAwareContext;
 use Behat\Symfony2Extension\Context\KernelDictionary;
+use Oro\Bundle\GoogleTagManagerBundle\DependencyInjection\Configuration;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\TestFrameworkBundle\Behat\Context\OroFeatureContext;
 
@@ -15,9 +16,6 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     use KernelDictionary;
 
     private const CHANNEL_TYPE = 'oro_google_tag_manager';
-
-    /** @var int */
-    private $batchSize;
 
     /**
      * Example: Given I enable GTM integration
@@ -35,7 +33,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
             ->findOneBy(['type' => self::CHANNEL_TYPE]);
 
         $configManager = $container->get('oro_config.global');
-        $configManager->set('oro_google_tag_manager.integration', $channel->getId());
+        $configManager->set(Configuration::getConfigKeyByName('integration'), $channel->getId());
         $configManager->flush();
     }
 
@@ -52,7 +50,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     }
 
     /**
-     * Data layer must must contain minimum one expected message.
+     * Data layer must contain minimum one expected message.
      * Note: the indexed array is compared without checking the index by default.
      *
      * Example: Then GTM data layer must contain the following message:
@@ -67,18 +65,23 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     public function gtmDataLayerMustContainTheFollowingMessage(string $expected): void
     {
         $expectedMessage = $this->messageNormalization($expected);
-
-        foreach ($this->getDataLayer() as $actual) {
+        $dataLayer = $this->getDataLayer();
+        foreach ($dataLayer as $actual) {
             if ($this->compareMessages($expectedMessage, $actual)) {
                 return;
             }
         }
 
-        self::fail('Message not find in data layer');
+        self::fail(
+            sprintf(
+                'The expected message is not present in the data layer. Current messages are: %s',
+                json_encode($dataLayer, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            )
+        );
     }
 
     /**
-     * Data layer must must not contain expected message.
+     * Data layer must not contain expected message.
      * Note: the indexed array is compared without checking the index by default.
      *
      * Example: Then GTM data layer must not contain the following message:
@@ -93,10 +96,13 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     public function gtmDataLayerMustNotContainTheFollowingMessage(string $expected): void
     {
         $expectedMessage = $this->messageNormalization($expected);
-
-        foreach ($this->getDataLayer() as $actual) {
+        $dataLayer = $this->getDataLayer();
+        foreach ($dataLayer as $actual) {
             if ($this->compareMessages($expectedMessage, $actual)) {
-                self::fail('Message find in data layer');
+                sprintf(
+                    'The expected message must not be present in the data layer. Current messages are: %s',
+                    json_encode($dataLayer, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+                );
             }
         }
     }
@@ -137,127 +143,8 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
         if (!$compareResult) {
             self::fail(
                 'The last message in the data layer is different from the expected. Last message is '
-                . \json_encode($lastMessage, JSON_PRETTY_PRINT)
+                . \json_encode($lastMessage, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
             );
-        }
-    }
-
-    /**
-     * @codingStandardsIgnoreStart
-     *
-     * @Then /^GTM data layer must contain checkout events for step "(?P<step>(?:[^"]|\\")*)" with (?P<quantity>\d+) products$/
-     *
-     * @codingStandardsIgnoreEnd
-     */
-    public function gtmDataLayerMustContainCheckoutEvents(string $step, int $productQuantity): void
-    {
-        $foundProducts = [];
-        foreach ($this->getDataLayer() as $message) {
-            if (isset($message['event'], $message['ecommerce']['checkout']['actionField']['option'])
-                && $message['event'] === 'checkout'
-                && $message['ecommerce']['checkout']['actionField']['option'] === $step
-            ) {
-                $this->assertFoundProducts($message, 'checkout', $foundProducts);
-            }
-        }
-
-        self::assertCount($productQuantity, $foundProducts);
-    }
-
-    /**
-     * @Then /^GTM data layer must contain purchase events with (?P<quantity>\d+) products$/
-     */
-    public function gtmDataLayerMustContainPurchaseEvents(int $productQuantity): void
-    {
-        $foundProducts = [];
-        $id = null;
-        $found = ['revenue' => false, 'tax' => false, 'shipping' => false, 'affiliation' => false];
-
-        foreach ($this->getDataLayer() as $message) {
-            if (isset($message['event']) && $message['event'] === 'purchase') {
-                self::assertTrue(isset($message['ecommerce']['purchase']['actionField']['id']));
-                if ($id === null) {
-                    $id = $message['ecommerce']['purchase']['actionField']['id'];
-                } else {
-                    self::assertSame($id, $message['ecommerce']['purchase']['actionField']['id']);
-                }
-
-                // Every of action fields must be specified in only one of chunked messages
-                $intersected = array_intersect_key($found, $message['ecommerce']['purchase']['actionField']);
-                self::assertTrue(
-                    !array_filter($intersected),
-                    sprintf('Duplicate data in purchase action fields: %s', implode(', ', array_keys($intersected)))
-                );
-                $found = array_merge($found, array_fill_keys(array_keys($intersected), true));
-
-                $this->assertFoundProducts($message, 'purchase', $foundProducts);
-            }
-        }
-
-        self::assertCount($productQuantity, $foundProducts);
-        self::assertCount(
-            count($found),
-            array_filter($found),
-            sprintf(
-                'Not all required purchase action fields are filled: %s',
-                implode(', ', array_keys(array_diff_key($found, array_filter($found))))
-            )
-        );
-    }
-
-    /**
-     * @Then /^GTM data layer must contain (?P<event>addToCart|removeFromCart) events with (?P<quantity>\d+) products$/
-     */
-    public function gtmDataLayerMustContainShoppingListEvents(string $event, int $productQuantity): void
-    {
-        $lastError = null;
-        $productKey = $event === 'addToCart' ? 'add' : 'remove';
-        $foundMessages = $this->spin(function () use ($event, $productKey, $productQuantity, &$lastError) {
-            try {
-                $foundMessages = 0;
-                $foundProducts = [];
-                foreach ($this->getDataLayer() as $message) {
-                    if (isset($message['event']) && $message['event'] === $event) {
-                        $foundMessages++;
-                        $this->assertFoundProducts($message, $productKey, $foundProducts);
-                    }
-                }
-
-                self::assertCount($productQuantity, $foundProducts);
-            } catch (\Exception $exception) {
-                $lastError = $exception;
-                return false;
-            }
-
-            $lastError = null;
-            return $foundMessages;
-        }, 10);
-
-        if ($lastError && $lastError instanceof \Throwable) {
-            throw $lastError;
-        }
-
-        self::assertSame(
-            (int)ceil($productQuantity / $this->getBatchSize()),
-            $foundMessages,
-            'Invalid batching: found not excepted message quantity'
-        );
-    }
-
-    private function assertFoundProducts(array $message, string $key, array &$foundProducts): void
-    {
-        self::assertTrue(
-            isset($message['ecommerce'][$key]['products'])
-            && \is_array($message['ecommerce'][$key]['products'])
-            && count($message['ecommerce'][$key]['products'])
-            && count($message['ecommerce'][$key]['products']) <= $this->getBatchSize()
-        );
-
-        foreach ($message['ecommerce'][$key]['products'] as $product) {
-            self::assertArrayHasKey('id', $product);
-            self::assertArrayNotHasKey($product['id'], $foundProducts);
-
-            $foundProducts[$product['id']] = null;
         }
     }
 
@@ -282,7 +169,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     }
 
     /**
-     * Choose a comparison strategy for arrays based on the type of expected array: associative or indexed
+     * Chooses a comparison strategy for arrays based on the type of expected array: associative or indexed.
      */
     private function getComparisonStrategy(array $expected): callable
     {
@@ -292,11 +179,11 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     }
 
     /**
-     * Compare message without index check
+     * Compares message without index check.
      *
      * @param $expected
      * @param array $actual
-     * @return bool
+     * @return string|bool
      *
      * @see getComparisonStrategy
      */
@@ -320,16 +207,16 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     }
 
     /**
-     * Compare messages with index check
+     * Compares messages with index check.
      *
      * @param array $actual
      * @param mixed $expected
      * @param string $key
-     * @return bool|string|int key
+     * @return string|bool key
      *
      * @see getComparisonStrategy
      */
-    private function compareStrategyAssociative(array $actual, $expected, $key)
+    private function compareStrategyAssociative(array $actual, $expected, string $key)
     {
         if (!\array_key_exists($key, $actual)) {
             return false;
@@ -353,7 +240,7 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     private function messageNormalization($message): array
     {
         if (\is_string($message)) {
-            $message = \json_decode($message, true);
+            $message = \json_decode($message, true, 512, JSON_THROW_ON_ERROR);
         }
 
         self::assertIsArray($message, 'GTM data layer message must be a correct json or array');
@@ -362,25 +249,53 @@ class FeatureContext extends OroFeatureContext implements KernelAwareContext
     }
 
     /**
-     * Get current data layer events list
+     * Gets current data layer messages.
      */
-    private function getDataLayer(): array
+    private function getDataLayer(int $try = 1): array
     {
-        /** @var array $currentDataLayer */
-        $currentDataLayer = $this->getSession()->evaluateScript(
-            'return typeof window.dataLayer != "undefined" && window.dataLayer;'
-        );
-
-        self::assertIsArray($currentDataLayer, 'GTM integration is not enabled');
-        return $currentDataLayer;
-    }
-
-    private function getBatchSize(): int
-    {
-        if (!$this->batchSize) {
-            $this->batchSize = (int) $this->getContainer()->getParameter('oro_google_tag_manager.products.batch_size');
+        if ($try >= 5) {
+            self::fail(
+                'Cannot get the stable data layer state: window.dataLayer keeps changing after 5 tries.'
+                . ' Looks like JS is constantly pushing new messages to data layer.'
+            );
         }
 
-        return $this->batchSize;
+        $dataLayer = $this->spin(function () {
+            /** @var array $dataLayer */
+            $dataLayer = $this->getSession()->evaluateScript(
+                <<<JS
+                (function () {
+                    if (window.dataLayer instanceof Array) {
+                        return window.dataLayer;
+                    }
+                    
+                    return null;
+                })();
+JS
+            );
+            if (!is_array($dataLayer)) {
+                return false;
+            }
+
+            return $dataLayer;
+        }, 10);
+
+        self::assertIsArray($dataLayer, 'GTM integration is not enabled');
+
+        // Tries to detect a change in data layer during 1 second.
+        $isDataLayerChanged = $this->spin(function () use ($dataLayer) {
+            /** @var array $dataLayer */
+            $dataLayer2 = $this->getSession()->evaluateScript('return window.dataLayer;');
+
+            return $dataLayer !== $dataLayer2;
+        }, 1);
+
+        if ($isDataLayerChanged) {
+            // Data layer is changed. It means that not all messages are pushed. Tries again to get
+            // the stable data layer.
+            return $this->getDataLayer(++$try);
+        }
+
+        return $dataLayer;
     }
 }

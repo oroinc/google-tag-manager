@@ -1,6 +1,5 @@
 {%- macro getPrice(prices) -%}
     {%- if prices is not empty -%}
-        {%- set firstPrice = prices|first -%}
-        {{- firstPrice.price|number_format(oro_locale_number_attribute('max_fraction_digits', 'currency'), '.', '') -}}
+        {{ (prices|first).price|oro_google_tag_manager_format_price }}
     {%- endif -%}
 {%- endmacro -%}

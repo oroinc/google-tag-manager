@@ -1,39 +1,39 @@
 include:
-    - '@OroCheckoutBundle:Payment.yml'
-    - '@OroCheckoutBundle:Shipping.yml'
-    - '@OroCheckoutBundle:CheckoutCustomerFixture.yml'
+  - '@OroCheckoutBundle:Payment.yml'
+  - '@OroCheckoutBundle:Shipping.yml'
+  - '@OroCheckoutBundle:CheckoutCustomerFixture.yml'
 
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    precision{1..35}:
-        unit: '@item'
-        precision: '0'
+  precision{1..35}:
+    unit: '@item'
+    precision: '0'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    locValue{1..35}:
-        string: 'Product <current()>'
+  locValue{1..35}:
+    string: 'Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    product{1..35}:
-        type: 'simple'
-        sku: 'SKU<current()>'
-        attributeFamily: '@defaultProductFamily'
-        primaryUnitPrecision: '@precision<current()>'
-        __calls:
-            - addName: ['@locValue<current()>']
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        organization: '@organization'
+  product{1..35}:
+    type: 'simple'
+    sku: 'SKU<current()>'
+    attributeFamily: '@defaultProductFamily'
+    primaryUnitPrecision: '@precision<current()>'
+    __calls:
+      - addName: [ '@locValue<current()>' ]
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    organization: '@organization'
 
 Oro\Bundle\PricingBundle\Entity\ProductPrice:
-    price{1..35}:
-        product: '@product<current()>'
-        priceList: '@defaultPriceList'
-        currency: 'USD'
-        quantity: 1
-        unit: '@item'
-        value: 10
+  price{1..35}:
+    product: '@product<current()>'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: 10
 
 Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
-    priceRelation{1..35}:
-        product: '@product<current()>'
-        priceList: '@defaultPriceList'
+  priceRelation{1..35}:
+    product: '@product<current()>'
+    priceList: '@defaultPriceList'

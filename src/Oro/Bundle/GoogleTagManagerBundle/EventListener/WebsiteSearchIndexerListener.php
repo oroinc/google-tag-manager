@@ -9,7 +9,9 @@ use Oro\Bundle\WebsiteSearchBundle\Event\IndexEntityEvent;
 use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
 
 /**
- * Add product details to search index for using in frontend product datagrid
+ * Adds product details to search index for using in frontend product datagrid.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class WebsiteSearchIndexerListener
 {

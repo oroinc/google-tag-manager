@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout;
 
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\CheckoutBundle\Entity\CheckoutLineItem;
+use Oro\Bundle\GoogleTagManagerBundle\Formatter\NumberFormatter;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
@@ -13,6 +14,8 @@ use Oro\Bundle\WorkflowBundle\Entity\WorkflowStep;
 
 /**
  * Returns data for checkout steps (Checkout events) and success page (Purchase event).
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class CheckoutDetailProvider
 {
@@ -36,6 +39,8 @@ class CheckoutDetailProvider
      */
     private $priceScopeCriteriaFactory;
 
+    private ?NumberFormatter $numberFormatter = null;
+
     /**
      * @var int
      */
@@ -53,6 +58,11 @@ class CheckoutDetailProvider
         $this->productPriceProvider = $productPriceProvider;
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
         $this->batchSize = $batchSize;
+    }
+
+    public function setNumberFormatter(?NumberFormatter $numberFormatter): void
+    {
+        $this->numberFormatter = $numberFormatter;
     }
 
     public function getData(Checkout $checkout): array
@@ -120,7 +130,7 @@ class CheckoutDetailProvider
         string $currency
     ): float {
         if ($item->isPriceFixed()) {
-            return $item->getPrice() ? (float) $item->getPrice()->getValue() : 0.0;
+            return $item->getPrice() ? $this->formatValue((float) $item->getPrice()->getValue()) : 0.0;
         }
 
         $criteria = $this->prepareProductsPriceCriteria($item, $currency);
@@ -131,7 +141,7 @@ class CheckoutDetailProvider
         $prices = $this->productPriceProvider->getMatchedPrices([$criteria], $scope);
 
         return isset($prices[$criteria->getIdentifier()])
-            ? (float) $prices[$criteria->getIdentifier()]->getValue()
+            ? $this->formatValue((float) $prices[$criteria->getIdentifier()]->getValue())
             : 0.0;
     }
 
@@ -152,5 +162,14 @@ class CheckoutDetailProvider
             (float) $item->getQuantity(),
             $item->getCurrency() ?: $currency
         );
+    }
+
+    private function formatValue(float $value): float
+    {
+        if ($this->numberFormatter) {
+            return $this->numberFormatter->formatPriceValue($value);
+        }
+
+        return $value;
     }
 }

@@ -8,3 +8,9 @@ dynamic-imports:
         - orogoogletagmanager/js/app/components/purchase-gtm-component
         - orogoogletagmanager/js/app/components/shopping-list-gtm-component
         - orogoogletagmanager/js/app/views/product-gtm-view
+        - orogoogletagmanager/js/app/components/data-layer-push-component
+        - orogoogletagmanager/js/app/components/analytics4/data-layer-manager-analytics4-component
+        - orogoogletagmanager/js/app/components/analytics4/home-page-slider-gtm-analytics4-component
+        - orogoogletagmanager/js/app/components/analytics4/products-datagrid-gtm-analytics4-component
+        - orogoogletagmanager/js/app/components/analytics4/products-embedded-list-gtm-analytics4-component
+        - orogoogletagmanager/js/app/views/analytics4/product-gtm-analytics4-view

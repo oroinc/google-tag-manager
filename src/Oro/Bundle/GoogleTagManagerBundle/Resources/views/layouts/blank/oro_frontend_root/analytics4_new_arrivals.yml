@@ -1,0 +1,20 @@
+layout:
+    imports:
+        -
+            id: oro_product_list_gtm_analytics4
+            root: new_arrival_products_container
+            namespace: new_arrivals
+
+    actions:
+        - '@setOption':
+              id: new_arrivals_gtm_analytics4_product_list
+              optionName: visible
+              optionValue: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4") && data["new_arrivals"].getProducts()'
+        - '@setOption':
+              id: new_arrivals_gtm_analytics4_product_list
+              optionName: 'vars.embeddedListComponentName'
+              optionValue: 'new-arrivals-list'
+        - '@setOption':
+              id: new_arrivals_gtm_analytics4_product_list
+              optionName: 'vars.embeddedBlockName'
+              optionValue: 'new-arrivals'

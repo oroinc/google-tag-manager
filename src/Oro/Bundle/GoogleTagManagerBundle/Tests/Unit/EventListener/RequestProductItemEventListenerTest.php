@@ -6,6 +6,7 @@ use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\RequestProductItemEventListener;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
@@ -38,6 +39,9 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
     /** @var GoogleTagManagerSettingsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $settingsProvider;
 
+    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private DataCollectionStateProviderInterface $dataCollectionStateProvider;
+
     /** @var RequestProductItemEventListener */
     private $listener;
 
@@ -49,6 +53,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->productPriceDetailProvider = $this->createMock(ProductPriceDetailProvider::class);
         $this->transport = $this->createMock(Transport::class);
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
+        $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
 
         $this->listener = new RequestProductItemEventListener(
             $this->frontendHelper,
@@ -58,94 +63,101 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
             $this->settingsProvider,
             1
         );
+
+        $this->listener->setDataCollectionStateProvider($this->dataCollectionStateProvider);
     }
 
     public function testPrePersistWithoutEnabledIntegration(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn(null);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(false);
 
-        $this->productPriceDetailProvider->expects($this->never())
-            ->method($this->anything());
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->prePersist($this->getRequestProductItem(1001));
     }
 
     public function testPrePersistWithoutItem(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
-        $this->frontendHelper->expects($this->any())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->productPriceDetailProvider->expects($this->never())
-            ->method($this->anything());
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->prePersist(null);
     }
 
     public function testPrePersistWithoutProduct(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
-        $this->frontendHelper->expects($this->any())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->productPriceDetailProvider->expects($this->never())
-            ->method($this->anything());
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->prePersist(new RequestProductItem());
     }
 
     public function testPrePersistForBackend(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
-        $this->frontendHelper->expects($this->any())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(false);
 
-        $this->productPriceDetailProvider->expects($this->never())
-            ->method($this->anything());
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->prePersist($this->getRequestProductItem(1001));
     }
 
     public function testPrePersist(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::exactly(2))
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
-        $this->frontendHelper->expects($this->any())
+        $this->frontendHelper->expects(self::exactly(2))
             ->method('isFrontendRequest')
             ->willReturn(true);
 
         $item1 = $this->getRequestProductItem(1001);
         $item2 = $this->getRequestProductItem(2002, 'set');
 
-        $this->productDetailProvider->expects($this->any())
+        $this->productDetailProvider->expects(self::any())
             ->method('getData')
             ->willReturnMap(
                 [
@@ -162,7 +174,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->productPriceDetailProvider->expects($this->any())
+        $this->productPriceDetailProvider->expects(self::any())
             ->method('getPrice')
             ->willReturnMap(
                 [
@@ -171,7 +183,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects(self::exactly(2))
             ->method('add')
             ->withConsecutive(
                 [
@@ -218,6 +230,174 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $this->listener->prePersist($item1);
+        $this->listener->prePersist($item2);
+        $this->listener->postFlush();
+    }
+
+    public function testPrePersistWithoutEnabledIntegrationWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn(null);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->prePersist($this->getRequestProductItem(1001));
+    }
+
+    public function testPrePersistWithoutItemWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->frontendHelper->expects(self::any())
+            ->method('isFrontendRequest')
+            ->willReturn(true);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->prePersist(null);
+    }
+
+    public function testPrePersistWithoutProductWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->frontendHelper->expects(self::any())
+            ->method('isFrontendRequest')
+            ->willReturn(true);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->prePersist(new RequestProductItem());
+    }
+
+    public function testPrePersistForBackendWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->frontendHelper->expects(self::any())
+            ->method('isFrontendRequest')
+            ->willReturn(false);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->prePersist($this->getRequestProductItem(1001));
+    }
+
+    public function testPrePersistWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $this->frontendHelper->expects(self::any())
+            ->method('isFrontendRequest')
+            ->willReturn(true);
+
+        $item1 = $this->getRequestProductItem(1001);
+        $item2 = $this->getRequestProductItem(2002, 'set');
+
+        $this->productDetailProvider->expects(self::any())
+            ->method('getData')
+            ->willReturnMap(
+                [
+                    [
+                        $item1->getProduct(),
+                        null,
+                        ['id' => 'sku123', 'name' => 'Product 1', 'category' => 'Category 1', 'brand' => 'Brand 1']
+                    ],
+                    [
+                        $item2->getProduct(),
+                        null,
+                        ['id' => 'sku456', 'name' => 'Product 2', 'category' => 'Category 2', 'brand' => 'Brand 2']
+                    ],
+                ]
+            );
+
+        $this->productPriceDetailProvider->expects(self::any())
+            ->method('getPrice')
+            ->willReturnMap(
+                [
+                    [$item1->getProduct(), $item1->getProductUnit(), $item1->getQuantity(), Price::create(10.1, 'USD')],
+                    [$item2->getProduct(), $item2->getProductUnit(), $item2->getQuantity(), Price::create(50.5, 'USD')],
+                ]
+            );
+
+        $this->dataLayerManager->expects(self::exactly(2))
+            ->method('add')
+            ->withConsecutive(
+                [
+                    [
+                        'event' => 'addToCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'add' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku123',
+                                        'name' => 'Product 1',
+                                        'category' => 'Category 1',
+                                        'brand' => 'Brand 1',
+                                        'variant' => 'item',
+                                        'quantity' => 5.5,
+                                        'price' => 10.1
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'event' => 'addToCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'add' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku456',
+                                        'name' => 'Product 2',
+                                        'category' => 'Category 2',
+                                        'brand' => 'Brand 2',
+                                        'variant' => 'set',
+                                        'quantity' => 5.5,
+                                        'price' => 50.5
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            );
+
+        $this->listener->setDataCollectionStateProvider(null);
         $this->listener->prePersist($item1);
         $this->listener->prePersist($item2);
         $this->listener->postFlush();

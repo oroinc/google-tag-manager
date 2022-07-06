@@ -9,6 +9,13 @@ services:
         tags:
             - { name: layout.data_provider, alias: 'oro_google_tag_manager_settings' }
 
+    oro_google_tag_manager.layout.data_provider.data_collection_state:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\DataCollectionStateProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.data_collection_state'
+        tags:
+            - { name: layout.data_provider, alias: 'oro_google_tag_manager_data_collection_state' }
+
     oro_google_tag_manager.layout.data_provider.data_layer_settings:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\DataLayerProvider'
         arguments:
@@ -20,6 +27,7 @@ services:
 
     oro_google_tag_manager.layout.data_provider.checkout_data:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\CheckoutDataProvider'
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_google_tag_manager.provider.checkout_detail'
         tags:
@@ -27,8 +35,17 @@ services:
 
     oro_google_tag_manager.layout.block.type.google_tag_manager_checkout:
         parent: oro_layout.block_type.abstract_configurable_container
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         calls:
             - [setOptionsConfig, [{details: {required: true}}]]
             - [setName, ['google_tag_manager_checkout']]
         tags:
             - { name: layout.block_type, alias: google_tag_manager_checkout }
+
+    oro_google_tag_manager.layout.block.type.google_tag_manager_data_layer_push:
+        parent: oro_layout.block_type.abstract_configurable_container
+        calls:
+            - [setOptionsConfig, [{data_layer_data: {required: true}}]]
+            - [setName, ['google_tag_manager_data_layer_push']]
+        tags:
+            - { name: layout.block_type, alias: google_tag_manager_data_layer_push }

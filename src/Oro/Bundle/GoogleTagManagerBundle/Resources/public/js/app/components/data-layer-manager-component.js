@@ -5,13 +5,17 @@ define(function(require) {
     const mediator = require('oroui/js/mediator');
     const $ = require('jquery');
     const _ = require('underscore');
+    const localeSettings = require('orolocale/js/locale-settings');
 
     const DataLayerManagerComponent = BaseComponent.extend({
         /**
          * @property {Object}
          */
         options: _.extend({}, BaseComponent.prototype.options, {
-            dataLayerName: ''
+            dataLayerName: '',
+            // The number of milliseconds for which the calls to "eventCallback" are to be delayed to avoid duplicated
+            // calls when multiple containers are present on a page.
+            eventCallbackDebounceTimeout: 100
         }),
 
         /**
@@ -24,10 +28,16 @@ define(function(require) {
          */
         listen: {
             'gtm:event:push mediator': '_onPush',
+
+            // @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
             'gtm:event:promotionClick mediator': '_onPromotionClick',
+            // @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
             'gtm:event:promotionImpressions mediator': '_onPromotionImpressions',
+            // @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
             'gtm:event:productClick mediator': '_onProductClick',
+            // @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
             'gtm:event:productDetail mediator': '_onProductDetail',
+            // @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
             'gtm:event:productImpressions mediator': '_onProductImpressions'
         },
 
@@ -96,9 +106,14 @@ define(function(require) {
 
         /**
          * @param {Object} data
+         * @param {Boolean} [clear] Clear ecommerce object before pushing data. False by default.
          * @private
          */
-        _onPush: function(data) {
+        _onPush: function(data, clear = false) {
+            if (clear) {
+                this.getDataLayer().push({ecommerce: null});
+            }
+
             this.getDataLayer().push(data);
         },
 
@@ -115,11 +130,7 @@ define(function(require) {
                         promotions: clicksData
                     }
                 },
-                eventCallback: function() {
-                    if (destinationUrl) {
-                        document.location = destinationUrl;
-                    }
-                }
+                eventCallback: this._getClickLinkCallback(destinationUrl)
             });
         },
 
@@ -172,15 +183,12 @@ define(function(require) {
             const data = {
                 event: 'productClick',
                 ecommerce: {
+                    currencyCode: localeSettings.getCurrency(),
                     click: {
                         products: clicksData
                     }
                 },
-                eventCallback: function() {
-                    if (destinationUrl) {
-                        document.location = destinationUrl;
-                    }
-                }
+                eventCallback: this._getClickLinkCallback(destinationUrl)
             };
 
             if (listName) {
@@ -209,6 +217,21 @@ define(function(require) {
             }
 
             this._onPush(data);
+        },
+
+        /**
+         * Returns callback for "eventCallback" that is called after the "productClick", "promotionClick" events
+         * are triggered.
+         *
+         * @param {String} destinationUrl
+         * @private
+         */
+        _getClickLinkCallback: function(destinationUrl) {
+            return _.debounce(function() {
+                if (destinationUrl) {
+                    document.location = destinationUrl;
+                }
+            }, this.options.eventCallbackDebounceTimeout);
         }
     });
 

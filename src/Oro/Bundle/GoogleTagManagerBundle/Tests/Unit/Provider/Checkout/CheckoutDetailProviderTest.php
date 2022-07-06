@@ -5,6 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider\Checkout;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\CheckoutBundle\Entity\CheckoutLineItem;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
+use Oro\Bundle\GoogleTagManagerBundle\Formatter\NumberFormatter;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutStepProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
@@ -37,6 +38,9 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
     /** @var CheckoutDetailProvider */
     private $provider;
 
+    /** @var NumberFormatter|\PHPUnit\Framework\MockObject\MockObject */
+    private NumberFormatter $numberFormatter;
+
     protected function setUp(): void
     {
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
@@ -51,6 +55,16 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->priceScopeCriteriaFactory,
             1
         );
+
+        $this->numberFormatter = $this->createMock(NumberFormatter::class);
+        $this->numberFormatter
+            ->expects(self::any())
+            ->method('formatPriceValue')
+            ->willReturnCallback(static function (float $value) {
+                return round($value, 2);
+            });
+
+        $this->provider->setNumberFormatter($this->numberFormatter);
     }
 
     /**
@@ -108,8 +122,8 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->with([$priceCriteria], $scopeCriteria)
             ->willReturn(
                 [
-                    '2002-item-5.5-USD' => Price::create(10.10, 'USD'),
-                    'test' => Price::create(11.11, 'USD')
+                    '2002-item-5.5-USD' => Price::create(10.1234, 'USD'),
+                    'test' => Price::create(11.2345, 'USD')
                 ]
             );
 
@@ -127,7 +141,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                                 [
                                     'id' => 'sku2',
                                     'name' => 'Product 2',
-                                    'price' => 10.10,
+                                    'price' => 10.12,
                                     'brand' => 'Brand 2',
                                     'category' => 'Category 2',
                                     'quantity' => 5.5,
@@ -151,7 +165,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                                 [
                                     'id' => 'sku3',
                                     'name' => 'Product 3',
-                                    'price' => 100.10,
+                                    'price' => 100.57,
                                     'brand' => 'Brand 3',
                                     'category' => 'Category 3',
                                     'quantity' => 15.15,
@@ -175,7 +189,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                                 [
                                     'id' => 'free-form-sku',
                                     'name' => 'Free Form Product',
-                                    'price' => 4.2,
+                                    'price' => 4.26,
                                     'quantity' => 3.14,
                                     'position' => 4,
                                     'variant' => 'set',
@@ -210,7 +224,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         $lineItem2->setProduct($product2)
             ->setProductUnit($productUnit2)
             ->setQuantity(5.5)
-            ->setPrice(Price::create(1.1, 'USD'))
+            ->setPrice(Price::create(1.2345, 'USD'))
             ->preSave();
 
         $productUnit3 = new ProductUnit();
@@ -221,7 +235,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setProductUnit($productUnit3)
             ->setQuantity(15.15)
             ->setPriceFixed(true)
-            ->setPrice(Price::create(100.1, 'USD'))
+            ->setPrice(Price::create(100.5678, 'USD'))
             ->preSave();
 
         $lineItem4 = new CheckoutLineItem();
@@ -230,7 +244,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setProductUnit($productUnit3)
             ->setQuantity(3.14)
             ->setPriceFixed(true)
-            ->setPrice(Price::create(4.2, 'USD'))
+            ->setPrice(Price::create(4.2555, 'USD'))
             ->preSave();
 
         $checkout = new Checkout();

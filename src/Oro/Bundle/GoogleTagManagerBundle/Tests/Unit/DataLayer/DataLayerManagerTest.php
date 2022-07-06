@@ -12,16 +12,15 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
     private const KEY = 'oro_google_tag_manager.data_layer';
 
     /** @var SessionInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $session;
+    private SessionInterface $session;
 
     /** @var CollectorInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $collector1;
+    private CollectorInterface $collector1;
 
     /** @var CollectorInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $collector2;
+    private CollectorInterface $collector2;
 
-    /** @var DataLayerManager */
-    private $manager;
+    private DataLayerManager $manager;
 
     protected function setUp(): void
     {
@@ -32,26 +31,116 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
         $this->manager = new DataLayerManager($this->session, [$this->collector1, $this->collector2]);
     }
 
+    /**
+     * @dataProvider appendDataProvider
+     */
+    public function testAppend(array $expected, array ...$data): void
+    {
+        $original = [['option1' => 'value1'], ['option2' => 'value2']];
+
+        $this->session->expects(self::once())
+            ->method('get')
+            ->with(self::KEY, [])
+            ->willReturn($original);
+
+        $this->session->expects(self::once())
+            ->method('set')
+            ->with(self::KEY, $expected);
+
+        $this->collector1->expects(self::never())
+            ->method(self::anything());
+
+        $this->collector2->expects(self::never())
+            ->method(self::anything());
+
+        $this->manager->append(...$data);
+    }
+
+    public function appendDataProvider(): array
+    {
+        return [
+            [
+                'expected' => [['option1' => 'value1'], ['option2' => 'value2'], ['option3' => 'value3']],
+                'data1' => ['option3' => 'value3'],
+            ],
+            [
+                'expected' => [
+                    ['option1' => 'value1'],
+                    ['option2' => 'value2'],
+                    ['option3' => 'value3'],
+                    ['option4' => 'value4'],
+                ],
+                'data1' => ['option3' => 'value3'],
+                'data2' => ['option4' => 'value4'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider prependDataProvider
+     */
+    public function testPrepend(array $expected, array ...$data): void
+    {
+        $original = [['option1' => 'value1'], ['option2' => 'value2']];
+
+        $this->session->expects(self::once())
+            ->method('get')
+            ->with(self::KEY, [])
+            ->willReturn($original);
+
+        $this->session->expects(self::once())
+            ->method('set')
+            ->with(self::KEY, $expected);
+
+        $this->collector1->expects(self::never())
+            ->method(self::anything());
+
+        $this->collector2->expects(self::never())
+            ->method(self::anything());
+
+        $this->manager->prepend(...$data);
+    }
+
+    public function prependDataProvider(): array
+    {
+        return [
+            [
+                'expected' => [['option3' => 'value3'], ['option1' => 'value1'], ['option2' => 'value2']],
+                'data1' => ['option3' => 'value3'],
+            ],
+            [
+                'expected' => [
+                    ['option3' => 'value3'],
+                    ['option4' => 'value4'],
+                    ['option1' => 'value1'],
+                    ['option2' => 'value2'],
+                ],
+                'data1' => ['option3' => 'value3'],
+                'data2' => ['option4' => 'value4'],
+            ],
+        ];
+    }
+
     public function testAdd(): void
     {
         $original = [['option1' => 'value1'], ['option2' => 'value2']];
         $data = ['option3' => 'value3'];
         $expected = array_merge($original, [$data]);
 
-        $this->session->expects($this->once())
+        $this->session->expects(self::once())
             ->method('get')
             ->with(self::KEY, [])
             ->willReturn($original);
 
-        $this->session->expects($this->once())
+        $this->session->expects(self::once())
             ->method('set')
             ->with(self::KEY, $expected);
 
-        $this->collector1->expects($this->never())
-            ->method($this->anything());
+        $this->collector1->expects(self::never())
+            ->method(self::anything());
 
-        $this->collector2->expects($this->never())
-            ->method($this->anything());
+        $this->collector2->expects(self::never())
+            ->method(self::anything());
 
         $this->manager->add($data);
     }
@@ -62,12 +151,12 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
         $data1 = ['option2' => 'value2'];
         $data2 = ['option3' => 'value3'];
 
-        $this->session->expects($this->once())
+        $this->session->expects(self::once())
             ->method('get')
             ->with(self::KEY, [])
             ->willReturn($original);
 
-        $this->collector1->expects($this->once())
+        $this->collector1->expects(self::once())
             ->method('handle')
             ->willReturnCallback(
                 function (ArrayCollection $data) use ($original, $data1) {
@@ -79,7 +168,7 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
                 }
             );
 
-        $this->collector2->expects($this->once())
+        $this->collector2->expects(self::once())
             ->method('handle')
             ->willReturnCallback(
                 function (ArrayCollection $data) use ($original, $data1, $data2) {
@@ -91,7 +180,7 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
                 }
             );
 
-        $this->assertEquals(array_merge($original, [$data1], [$data2]), $this->manager->collectAll());
+        self::assertEquals(array_merge($original, [$data1], [$data2]), $this->manager->collectAll());
     }
 
     public function testGetForEvents(): void
@@ -102,23 +191,23 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
             ['event' => 'test_event2', 'option3' => 'value3'],
         ];
 
-        $this->session->expects($this->once())
+        $this->session->expects(self::once())
             ->method('get')
             ->with(self::KEY, [])
             ->willReturn($data);
 
-        $this->collector1->expects($this->never())
+        $this->collector1->expects(self::never())
             ->method('handle');
 
-        $this->collector2->expects($this->never())
+        $this->collector2->expects(self::never())
             ->method('handle');
 
-        $this->assertEquals([$data[2]], $this->manager->getForEvents(['test_event2']));
+        self::assertEquals([$data[2]], $this->manager->getForEvents(['test_event2']));
     }
 
     public function testReset(): void
     {
-        $this->session->expects($this->once())
+        $this->session->expects(self::once())
             ->method('remove')
             ->with(self::KEY);
 

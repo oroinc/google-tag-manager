@@ -1,23 +1,37 @@
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    featuredProductUnitPrecision{1..5}:
-        unit: '@item'
-        precision: '1'
+  featuredProductUnitPrecision{1..5}:
+    unit: '@item'
+    precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    featuredLocalProductName{1..5}:
-        string: 'Featured Product <current()>'
+  featuredLocalProductName{1..5}:
+    string: 'Featured Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    featuredProduct{1..5}:
-        type: 'simple'
-        sku: 'FEATURED-<current()>'
-        primaryUnitPrecision: '@featuredProductUnitPrecision<current()>'
-        __calls:
-            - addName: ['@featuredLocalProductName<current()>']
-        organization: '@organization'
-        owner: '@business_unit'
-        attributeFamily: '@defaultProductFamily'
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        featured: true
-        newArrival: false
+  featuredProduct{1..5}:
+    type: 'simple'
+    sku: 'FEATURED<current()>'
+    primaryUnitPrecision: '@featuredProductUnitPrecision<current()>'
+    __calls:
+      - addName: [ '@featuredLocalProductName<current()>' ]
+    organization: '@organization'
+    owner: '@business_unit'
+    attributeFamily: '@defaultProductFamily'
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    featured: true
+    newArrival: false
+
+Oro\Bundle\PricingBundle\Entity\ProductPrice:
+  price{1..5}:
+    product: '@featuredProduct<current()>'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: '<(1.5555 * $current)>'
+
+Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
+  priceRelation{1..5}:
+    product: '@featuredProduct<current()>'
+    priceList: '@defaultPriceList'

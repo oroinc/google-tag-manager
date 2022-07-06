@@ -1,5 +1,9 @@
 system_configuration:
     groups:
+        google_settings:
+            configurator:
+                - '@oro_google_tag_manager.form.configurator.settings_configurator::buildForm'
+
         google_tag_manager_settings:
             title: 'oro.google_tag_manager.system_configuration.groups.settings.label'
 
@@ -7,11 +11,27 @@ system_configuration:
         oro_google_tag_manager.integration:
             data_type: integer
             type: 'Oro\Bundle\IntegrationBundle\Form\Type\ConfigIntegrationSelectType'
+            priority: 100
+            page_reload: true
             options:
                 label: 'oro.google_tag_manager.system_configuration.fields.integration.label'
                 required: false
                 allowed_types:
                     - oro_google_tag_manager
+
+        oro_google_tag_manager.enabled_data_collection_types:
+            data_type: array
+            type: Oro\Bundle\FormBundle\Form\Type\Select2ChoiceType
+            priority: 90
+            options:
+                label: 'oro.google_tag_manager.system_configuration.fields.enabled_data_collection_types.label'
+                multiple: true
+                required: true
+                choices:
+                    'oro.google_tag_manager.system_configuration.fields.enabled_data_collection_types.choices.universal_analytics': 'universal_analytics'
+                    'oro.google_tag_manager.system_configuration.fields.enabled_data_collection_types.choices.google_analytics4': 'google_analytics4'
+                constraints:
+                    - NotBlank: ~
 
     tree:
         system_configuration:
@@ -25,6 +45,7 @@ system_configuration:
                                         priority: 0
                                         children:
                                             - oro_google_tag_manager.integration
+                                            - oro_google_tag_manager.enabled_data_collection_types
 
         organization_configuration:
             platform:
@@ -37,6 +58,7 @@ system_configuration:
                                         priority: 0
                                         children:
                                             - oro_google_tag_manager.integration
+                                            - oro_google_tag_manager.enabled_data_collection_types
 
         website_configuration:
             platform:
@@ -49,3 +71,4 @@ system_configuration:
                                         priority: 0
                                         children:
                                             - oro_google_tag_manager.integration
+                                            - oro_google_tag_manager.enabled_data_collection_types

@@ -1,100 +1,100 @@
 include:
-    - '@OroCustomerBundle/Tests/Behat/Features/Fixtures/CustomerUserAmandaRCole.yml'
+  - '@OroCustomerBundle/Tests/Behat/Features/Fixtures/CustomerUserAmandaRCole.yml'
 
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    precision1:
-        unit: '@item'
-        precision: '0'
-    precision2:
-        unit: '@item'
-        precision: '0'
-    precision3:
-        unit: '@set'
-        precision: '1'
+  precision1:
+    unit: '@item'
+    precision: '0'
+  precision2:
+    unit: '@item'
+    precision: '0'
+  precision3:
+    unit: '@set'
+    precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    locValue1:
-        string: 'Product 1'
-    locValue2:
-        string: 'Product 2'
+  locValue1:
+    string: 'Product 1'
+  locValue2:
+    string: 'Product 2'
 
 Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
-    locValueFamily:
-        string: 'Default'
+  locValueFamily:
+    string: 'Default'
 
 Oro\Bundle\CatalogBundle\Entity\CategoryTitle:
-    localNewCategory:
-        string: 'NewCategory'
+  localNewCategory:
+    string: 'NewCategory'
 
 Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
-    productAttributeFamily:
-        entityClass: 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
-        code: 'product_attribute_family_code'
-        __calls:
-            - addLabel: ['@locValueFamily']
-        owner: '@organization'
+  productAttributeFamily:
+    entityClass: 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
+    code: 'product_attribute_family_code'
+    __calls:
+      - addLabel: [ '@locValueFamily' ]
+    owner: '@organization'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    product1:
-        type: 'simple'
-        sku: 'SKU1'
-        __calls:
-            - addName: ['@locValue1']
-            - addUnitPrecision: ['@precision1']
-            - setPrimaryUnitPrecision: ['@precision1']
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        organization: '@organization'
-        attributeFamily: '@productAttributeFamily'
+  product1:
+    type: 'simple'
+    sku: 'SKU1'
+    __calls:
+      - addName: [ '@locValue1' ]
+      - addUnitPrecision: [ '@precision1' ]
+      - setPrimaryUnitPrecision: [ '@precision1' ]
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    organization: '@organization'
+    attributeFamily: '@productAttributeFamily'
 
-    product2:
-        type: 'simple'
-        sku: 'SKU2'
-        __calls:
-            - addName: ['@locValue2']
-            - addUnitPrecision: ['@precision2']
-            - addUnitPrecision: ['@precision3']
-            - setPrimaryUnitPrecision: ['@precision2']
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        organization: '@organization'
-        attributeFamily: '@productAttributeFamily'
+  product2:
+    type: 'simple'
+    sku: 'SKU2'
+    __calls:
+      - addName: [ '@locValue2' ]
+      - addUnitPrecision: [ '@precision2' ]
+      - addUnitPrecision: [ '@precision3' ]
+      - setPrimaryUnitPrecision: [ '@precision2' ]
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    organization: '@organization'
+    attributeFamily: '@productAttributeFamily'
 
 Doctrine\Common\Collections\ArrayCollection:
-    products:
-        __construct: [['@product1', '@product2']]
+  products:
+    __construct: [ [ '@product1', '@product2' ] ]
 
 Oro\Bundle\CatalogBundle\Entity\Category:
-    categoryLightingProducts:
-        __calls:
-            - addTitle: ['@localNewCategory']
-            - setParentCategory: ['@root_category']
-            - setProducts: ['@products']
+  categoryLightingProducts:
+    __calls:
+      - addTitle: [ '@localNewCategory' ]
+      - setParentCategory: [ '@root_category' ]
+      - setProducts: [ '@products' ]
 
 Oro\Bundle\PricingBundle\Entity\ProductPrice:
-    price1:
-        product: '@product1'
-        priceList: '@defaultPriceList'
-        currency: 'USD'
-        quantity: 1
-        unit: '@item'
-        value: 10
-    price2_1:
-        product: '@product2'
-        priceList: '@defaultPriceList'
-        currency: 'USD'
-        quantity: 1
-        unit: '@item'
-        value: 15
-    price2_2:
-        product: '@product2'
-        priceList: '@defaultPriceList'
-        currency: 'USD'
-        quantity: 1
-        unit: '@set'
-        value: 50
+  price1:
+    product: '@product1'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: 10.4555
+  price2_1:
+    product: '@product2'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: 15.1234
+  price2_2:
+    product: '@product2'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@set'
+    value: 50.6789
 
 Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
-    priceRelation{1..2}:
-        product: '@product<current()>'
-        priceList: '@defaultPriceList'
+  priceRelation{1..2}:
+    product: '@product<current()>'
+    priceList: '@defaultPriceList'
