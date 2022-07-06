@@ -5,6 +5,9 @@ define(function(require) {
     const mediator = require('oroui/js/mediator');
     const _ = require('underscore');
 
+    /**
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
+     */
     const PurchaseGtmComponent = BaseComponent.extend({
         /**
          * @property {Object}

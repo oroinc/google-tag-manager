@@ -6,7 +6,9 @@ define(function(require) {
     const productDetailsGtmHelper = require('orogoogletagmanager/js/app/product-details-gtm-helper');
 
     /**
-     * Listens to oro:embedded-list:* events and invokes product click, product impression GTM events,
+     * Listens to oro:embedded-list:* events and invokes product click, product impression GTM events.
+     *
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
      */
     const ProductsEmbeddedListGtmComponent = BaseComponent.extend({
         /**
@@ -26,8 +28,8 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        _invokeEventImpression: function(impressionsData) {
-            mediator.trigger('gtm:event:productImpressions', impressionsData, localeSettings.getCurrency());
+        _invokeEventView: function(viewData) {
+            mediator.trigger('gtm:event:productImpressions', viewData, localeSettings.getCurrency());
         },
 
         /**
@@ -40,7 +42,7 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        _getImpressionData: function(model, position) {
+        _getViewData: function(model, position) {
             return _.extend({}, productDetailsGtmHelper.getDetailsFromModel(model), {
                 list: this._getBlockName(),
                 position: position

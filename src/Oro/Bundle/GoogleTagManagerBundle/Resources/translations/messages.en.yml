@@ -13,3 +13,8 @@ oro.google_tag_manager:
         fields:
             integration:
                 label: 'Google Tag Manager Integration'
+            enabled_data_collection_types:
+                label: 'Data Collection for'
+                choices:
+                    universal_analytics: 'Universal Analytics'
+                    google_analytics4: 'Google Analytics 4'

@@ -6,6 +6,9 @@ define(function(require) {
     const mediator = require('oroui/js/mediator');
     const localeSettings = require('orolocale/js/locale-settings');
 
+    /**
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
+     */
     const ProductGtmView = BaseView.extend({
         /**
          * @property {Object}

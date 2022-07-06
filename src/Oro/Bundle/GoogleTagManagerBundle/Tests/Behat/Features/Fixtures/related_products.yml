@@ -1,48 +1,72 @@
 include:
-    - '@OroGoogleTagManagerBundle:products.yml'
+  - '@OroGoogleTagManagerBundle:products.yml'
 
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    relatedProductUnitPrecision{1..3}:
-        unit: '@item'
-        precision: '1'
-    upsellProductUnitPrecision{1..3}:
-        unit: '@item'
-        precision: '1'
+  relatedProductUnitPrecision{1..3}:
+    unit: '@item'
+    precision: '1'
+  upsellProductUnitPrecision{1..3}:
+    unit: '@item'
+    precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    relatedLocalProductName{1..3}:
-        string: 'Related Product <current()>'
-    upsellLocalProductName{1..3}:
-        string: 'Upsell Product <current()>'
+  relatedLocalProductName{1..3}:
+    string: 'Related Product <current()>'
+  upsellLocalProductName{1..3}:
+    string: 'Upsell Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    relatedProduct{1..3}:
-        type: 'simple'
-        sku: 'RELATED-<current()>'
-        primaryUnitPrecision: '@relatedProductUnitPrecision<current()>'
-        __calls:
-            - addName: ['@relatedLocalProductName<current()>']
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        organization: '@organization'
-        attributeFamily: '@productAttributeFamily'
-    upsellProduct{1..3}:
-        type: 'simple'
-        sku: 'UPSELL-<current()>'
-        primaryUnitPrecision: '@upsellProductUnitPrecision<current()>'
-        __calls:
-            - addName: ['@upsellLocalProductName<current()>']
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        organization: '@organization'
-        attributeFamily: '@productAttributeFamily'
+  relatedProduct{1..3}:
+    type: 'simple'
+    sku: 'RELATED<current()>'
+    primaryUnitPrecision: '@relatedProductUnitPrecision<current()>'
+    __calls:
+      - addName: [ '@relatedLocalProductName<current()>' ]
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    organization: '@organization'
+    attributeFamily: '@productAttributeFamily'
+  upsellProduct{1..3}:
+    type: 'simple'
+    sku: 'UPSELL<current()>'
+    primaryUnitPrecision: '@upsellProductUnitPrecision<current()>'
+    __calls:
+      - addName: [ '@upsellLocalProductName<current()>' ]
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    organization: '@organization'
+    attributeFamily: '@productAttributeFamily'
 
 Oro\Bundle\ProductBundle\Entity\RelatedItem\RelatedProduct:
-    relatedProductRelation{1..3}:
-        product: '@product2'
-        relatedItem: '@relatedProduct<current()>'
+  relatedProductRelation{1..3}:
+    product: '@product2'
+    relatedItem: '@relatedProduct<current()>'
 
 Oro\Bundle\ProductBundle\Entity\RelatedItem\UpsellProduct:
-    upsellProductRelation{1..3}:
-        product: '@product2'
-        relatedItem: '@upsellProduct<current()>'
+  upsellProductRelation{1..3}:
+    product: '@product2'
+    relatedItem: '@upsellProduct<current()>'
+
+Oro\Bundle\PricingBundle\Entity\ProductPrice:
+  relatedProductPrice{1..3}:
+    product: '@relatedProduct<current()>'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: '<(1.1234 * $current)>'
+  upsellProductPrice{1..3}:
+    product: '@upsellProduct<current()>'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: '<(1.5678 * $current)>'
+
+Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
+  relatedProductPriceRelation{1..3}:
+    product: '@relatedProduct<current()>'
+    priceList: '@defaultPriceList'
+  upsellProductPriceRelation{1..3}:
+    product: '@upsellProduct<current()>'
+    priceList: '@defaultPriceList'

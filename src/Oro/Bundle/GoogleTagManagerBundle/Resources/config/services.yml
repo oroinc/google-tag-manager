@@ -15,20 +15,24 @@ services:
 
     oro_google_tag_manager.provider.product_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider'
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         public: false
         arguments:
             - '@oro_entity.doctrine_helper'
 
+    Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider:
+        alias: oro_google_tag_manager.provider.product_detail
+
     oro_google_tag_manager.provider.checkout_step:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutStepProvider'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_workflow.manager'
             - ['enter_credentials_step', 'customer_consents']
 
     oro_google_tag_manager.provider.checkout_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_google_tag_manager.provider.product_detail'
             - '@oro_google_tag_manager.provider.checkout_step'
@@ -38,7 +42,7 @@ services:
 
     oro_google_tag_manager.provider.purchase_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_entity.doctrine_helper'
             - '@oro_google_tag_manager.provider.product_detail'
@@ -47,6 +51,11 @@ services:
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - [setAppliedPromotionsNamesProvider, ['@oro_google_tag_manager.provider.applied_promotions_names']]
+            - [setLogger, ['@logger']]
+        tags:
+            - { name: monolog.logger, channel: oro_google_tag_manager }
 
     oro_google_tag_manager.provider.page_type:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider'
@@ -73,7 +82,7 @@ services:
 
     oro_google_tag_manager.event_listener.website_search_index:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\WebsiteSearchIndexerListener'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_website_search.manager.website_context_manager'
             - '@oro_google_tag_manager.provider.product_detail'
@@ -82,23 +91,28 @@ services:
 
     oro_google_tag_manager.event_listener.frontend_product_datagrid_product_detail:
         class: Oro\Bundle\GoogleTagManagerBundle\EventListener\ProductDatagridProductDetailListener
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        calls:
+            - [setDataCollectionStateProvider, ['@oro_google_tag_manager.provider.data_collection_state']]
         tags:
             - { name: kernel.event_listener, event: oro_datagrid.datagrid.build.pre.frontend-product-search-grid, method: onPreBuild }
             - { name: kernel.event_listener, event: oro_datagrid.search_datasource.result.after.frontend-product-search-grid, method: onResultAfter }
 
     oro_google_tag_manager.event_listener.product_list.product_detail:
         class: Oro\Bundle\GoogleTagManagerBundle\EventListener\ProductListProductDetailListener
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        calls:
+            - [setDataCollectionStateProvider, ['@oro_google_tag_manager.provider.data_collection_state']]
         tags:
             - { name: kernel.event_listener, event: oro_product.product_list.build_query, method: onBuildQuery }
             - { name: kernel.event_listener, event: oro_product.product_list.build_result, method: onBuildResult }
 
     oro_google_tag_manager.provider.product_price_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider'
-        public: false
         arguments:
             - '@security.token_storage'
             - '@oro_website.manager'
@@ -108,7 +122,7 @@ services:
 
     oro_google_tag_manager.event_listener.shopping_list_line_item:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\ShoppingListLineItemEventListener'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.data_layer.manager'
@@ -116,6 +130,8 @@ services:
             - '@oro_google_tag_manager.provider.product_price_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - [setDataCollectionStateProvider, ['@oro_google_tag_manager.provider.data_collection_state']]
         tags:
             - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: addShoppingListIdToIgnore }
             - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: prePersist }
@@ -126,12 +142,14 @@ services:
 
     oro_google_tag_manager.event_listener.checkout:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\CheckoutEventListener'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.data_layer.manager'
             - '@oro_google_tag_manager.provider.purchase_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+        calls:
+            - [setDataCollectionStateProvider, ['@oro_google_tag_manager.provider.data_collection_state']]
         tags:
             - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\CheckoutBundle\Entity\Checkout', event: preUpdate }
             - { name: doctrine.event_listener, event: postFlush }
@@ -139,7 +157,7 @@ services:
 
     oro_google_tag_manager.event_listener.request_product_item:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\RequestProductItemEventListener'
-        public: false
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
         arguments:
             - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.data_layer.manager'
@@ -147,7 +165,163 @@ services:
             - '@oro_google_tag_manager.provider.product_price_detail'
             - '@oro_google_tag_manager.provider.google_tag_manager_settings'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - [setDataCollectionStateProvider, ['@oro_google_tag_manager.provider.data_collection_state']]
         tags:
             - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\RFPBundle\Entity\RequestProductItem', event: prePersist }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.provider.data_collection_state:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+            - !tagged_iterator oro_google_tag_manager.data_collection_state_provider
+        calls:
+            - [setLogger, ['@logger']]
+        tags:
+            - { name: monolog.logger, channel: oro_google_tag_manager }
+
+    oro_google_tag_manager.provider.data_collection_state.config_based:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateConfigBasedProvider'
+        arguments:
+            - '@oro_config.manager'
+        tags:
+            - { name: oro_google_tag_manager.data_collection_state_provider }
+
+    oro_google_tag_manager.provider.analytics4.product_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider'
+        arguments:
+            - '@doctrine'
+
+    Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider:
+        alias: oro_google_tag_manager.provider.analytics4.product_detail
+
+    oro_google_tag_manager.provider.analytics4.checkout_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.analytics4.product_detail'
+            - '@oro_pricing.provider.product_price'
+            - '@oro_pricing.model.product_price_scope_criteria_factory'
+            - '@oro_shipping.formatter.shipping_method_label'
+            - '@oro_payment.formatter.payment_method_label'
+            - '%oro_google_tag_manager.products.batch_size%'
+
+    oro_google_tag_manager.provider.analytics4.purchase_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider'
+        arguments:
+            - '@doctrine'
+            - '@oro_google_tag_manager.provider.analytics4.product_detail'
+            - '@oro_tax.provider.tax_provider_registry'
+            - '@oro_google_tag_manager.provider.applied_promotions_names'
+            - '@oro_shipping.formatter.shipping_method_label'
+            - '@oro_payment.formatter.payment_method_label'
+            - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - [setLogger, ['@logger']]
+        tags:
+            - { name: monolog.logger, channel: oro_google_tag_manager }
+
+    oro_google_tag_manager.event_listener.analytics4.website_search_index:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\WebsiteSearchIndexerListener'
+        arguments:
+            - '@oro_website_search.manager.website_context_manager'
+            - '@oro_google_tag_manager.provider.analytics4.product_detail'
+        tags:
+            - { name: kernel.event_listener, event: oro_website_search.event.index_entity.product, method: onWebsiteSearchIndex }
+
+    oro_google_tag_manager.event_listener.analytics4.frontend_product_datagrid_product_detail:
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ProductDatagridProductDetailListener
+        arguments:
+            - '@oro_google_tag_manager.provider.data_collection_state'
+        tags:
+            - { name: kernel.event_listener, event: oro_datagrid.datagrid.build.pre.frontend-product-search-grid, method: onPreBuild }
+            - { name: kernel.event_listener, event: oro_datagrid.search_datasource.result.after.frontend-product-search-grid, method: onResultAfter }
+
+    oro_google_tag_manager.event_listener.analytics4.product_list.product_detail:
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ProductListProductDetailListener
+        arguments:
+            - '@oro_google_tag_manager.provider.data_collection_state'
+        tags:
+            - { name: kernel.event_listener, event: oro_product.product_list.build_query, method: onBuildQuery }
+            - { name: kernel.event_listener, event: oro_product.product_list.build_result, method: onBuildResult }
+
+    oro_google_tag_manager.event_listener.analytics4.shopping_list_line_item:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ShoppingListLineItemEventListener'
+        arguments:
+            - '@oro_frontend.request.frontend_helper'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.analytics4.product_detail'
+            - '@oro_google_tag_manager.provider.product_price_detail'
+            - '@oro_google_tag_manager.provider.data_collection_state'
+            - '%oro_google_tag_manager.products.batch_size%'
+        tags:
+            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: onCheckoutSourceEntityClearOrRemove }
+            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_clear, method: onCheckoutSourceEntityClearOrRemove }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: prePersist }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preUpdate }
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preRemove }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.event_listener.analytics4.checkout_purchase:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutPurchaseEventListener'
+        arguments:
+            - '@oro_frontend.request.frontend_helper'
+            - '@oro_google_tag_manager.provider.data_collection_state'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.analytics4.purchase_detail'
+        tags:
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\CheckoutBundle\Entity\Checkout', event: preUpdate }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.event_listener.analytics.checkout_info:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutInfoEventListener'
+        arguments:
+            - '@oro_frontend.request.frontend_helper'
+            - '@oro_google_tag_manager.provider.data_collection_state'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.analytics4.checkout_detail'
+        tags:
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\CheckoutBundle\Entity\Checkout', event: preUpdate }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.event_listener.analytics.begin_checkout:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\BeginCheckoutEventListener'
+        arguments:
+            - '@oro_frontend.request.frontend_helper'
+            - '@oro_google_tag_manager.provider.data_collection_state'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.analytics4.checkout_detail'
+        tags:
+            - { name: kernel.event_listener, event: extendable_condition.start_checkout, method: onStartCheckout }
+
+    oro_google_tag_manager.event_listener.analytics4.request_product_item:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\RequestProductItemEventListener'
+        arguments:
+            - '@oro_frontend.request.frontend_helper'
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.analytics4.product_detail'
+            - '@oro_google_tag_manager.provider.product_price_detail'
+            - '@oro_google_tag_manager.provider.data_collection_state'
+            - '%oro_google_tag_manager.products.batch_size%'
+        tags:
+            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\RFPBundle\Entity\RequestProductItem', event: prePersist }
+            - { name: doctrine.event_listener, event: postFlush }
+            - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.form.configurator.settings_configurator:
+        class: Oro\Bundle\GoogleTagManagerBundle\Form\Configurator\SettingsConfigurator
+        deprecated: 'The "%service_id%" service is deprecated and will be removed in oro/google-tag-manager-bundle:5.1.0.'
+        # Used in system configuration.
+        public: true
+        arguments:
+            - '@oro_config.form.handler.config'
+
+    oro_google_tag_manager.provider.applied_promotions_names:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider'
+        arguments:
+            - '@doctrine'
+            - '@oro_promotion.provider.entity_coupons_provider'

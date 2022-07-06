@@ -4,7 +4,9 @@ define(function(require) {
     const _ = require('underscore');
 
     /**
-     * Listens to oro:embedded-list:* events and invokes promo click, promo impression GTM events,
+     * Listens to oro:embedded-list:* events and invokes promo click, promo impression GTM events.
+     *
+     * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
      */
     const HomePageSliderGtmComponent = BaseComponent.extend({
         /**
@@ -24,8 +26,8 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        _invokeEventImpression: function(impressionsData) {
-            mediator.trigger('gtm:event:promotionImpressions', impressionsData);
+        _invokeEventView: function(viewData) {
+            mediator.trigger('gtm:event:promotionImpressions', viewData);
         },
 
         /**
@@ -40,7 +42,7 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        _getImpressionData: function(model, position) {
+        _getViewData: function(model, position) {
             return {
                 name: model['name'],
                 creative: this._getBlockName(),
@@ -59,7 +61,7 @@ define(function(require) {
          * @inheritdoc
          */
         _getClickData: function(model, position) {
-            return this._getImpressionData(model, position);
+            return this._getViewData(model, position);
         }
     });
 

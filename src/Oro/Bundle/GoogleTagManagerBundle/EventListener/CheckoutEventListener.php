@@ -7,27 +7,27 @@ use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\PurchaseDetailProvider;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 
 /**
  * Handles completed Checkout to generate purchase data.
+
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class CheckoutEventListener
 {
-    /** @var FrontendHelper */
-    private $frontendHelper;
+    private FrontendHelper $frontendHelper;
 
-    /** @var DataLayerManager */
-    private $dataLayerManager;
+    private DataLayerManager $dataLayerManager;
 
-    /** @var PurchaseDetailProvider */
-    private $purchaseDetailProvider;
+    private PurchaseDetailProvider $purchaseDetailProvider;
 
-    /** @var GoogleTagManagerSettingsProviderInterface */
-    private $settingsProvider;
+    private GoogleTagManagerSettingsProviderInterface $settingsProvider;
 
-    /** @var array */
-    private $data = [];
+    private ?DataCollectionStateProviderInterface $dataCollectionStateProvider = null;
+
+    private array $data = [];
 
     public function __construct(
         FrontendHelper $frontendHelper,
@@ -39,6 +39,12 @@ class CheckoutEventListener
         $this->dataLayerManager = $dataLayerManager;
         $this->purchaseDetailProvider = $purchaseDetailProvider;
         $this->settingsProvider = $settingsProvider;
+    }
+
+    public function setDataCollectionStateProvider(
+        ?DataCollectionStateProviderInterface $dataCollectionStateProvider
+    ): void {
+        $this->dataCollectionStateProvider = $dataCollectionStateProvider;
     }
 
     public function preUpdate(Checkout $checkout, PreUpdateEventArgs $args): void
@@ -70,10 +76,12 @@ class CheckoutEventListener
 
     private function isApplicable(): bool
     {
-        if (!$this->settingsProvider->getGoogleTagManagerSettings()) {
-            return false;
+        if ($this->dataCollectionStateProvider) {
+            $isApplicable = $this->dataCollectionStateProvider->isEnabled('universal_analytics');
+        } else {
+            $isApplicable = (bool) $this->settingsProvider->getGoogleTagManagerSettings();
         }
 
-        return $this->frontendHelper->isFrontendRequest();
+        return $isApplicable && $this->frontendHelper->isFrontendRequest();
     }
 }

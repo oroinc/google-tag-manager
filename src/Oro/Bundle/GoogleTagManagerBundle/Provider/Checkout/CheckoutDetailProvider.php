@@ -13,6 +13,8 @@ use Oro\Bundle\WorkflowBundle\Entity\WorkflowStep;
 
 /**
  * Returns data for checkout steps (Checkout events) and success page (Purchase event).
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class CheckoutDetailProvider
 {

@@ -1,21 +1,35 @@
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    topSellingProductUnitPrecision{1..5}:
-        unit: '@item'
-        precision: '1'
+  topSellingProductUnitPrecision{1..5}:
+    unit: '@item'
+    precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    topSellingLocalProductName{1..5}:
-        string: 'Top Selling Product <current()>'
+  topSellingLocalProductName{1..5}:
+    string: 'Top Selling Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    TopSellingProduct{1..5}:
-        type: 'simple'
-        sku: 'TopSelling<current()>'
-        primaryUnitPrecision: '@topSellingProductUnitPrecision<current()>'
-        __calls:
-            - addName: ['@topSellingLocalProductName<current()>']
-        organization: '@organization'
-        owner: '@business_unit'
-        attributeFamily: '@defaultProductFamily'
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
+  topSellingProduct{1..5}:
+    type: 'simple'
+    sku: 'TopSelling<current()>'
+    primaryUnitPrecision: '@topSellingProductUnitPrecision<current()>'
+    __calls:
+      - addName: [ '@topSellingLocalProductName<current()>' ]
+    organization: '@organization'
+    owner: '@business_unit'
+    attributeFamily: '@defaultProductFamily'
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+
+Oro\Bundle\PricingBundle\Entity\ProductPrice:
+  price{1..5}:
+    product: '@topSellingProduct<current()>'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: '<(1.4567 * $current)>'
+
+Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
+  priceRelation{1..5}:
+    product: '@topSellingProduct<current()>'
+    priceList: '@defaultPriceList'

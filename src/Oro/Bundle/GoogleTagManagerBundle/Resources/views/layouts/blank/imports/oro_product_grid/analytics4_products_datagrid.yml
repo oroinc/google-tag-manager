@@ -1,0 +1,13 @@
+layout:
+    actions:
+        - '@setBlockTheme':
+            themes: 'analytics4_products_datagrid.html.twig'
+        - '@add':
+            id: __google_tag_manager_analytics4_products_datagrid
+            parentId: product_grid_container
+            blockType: block
+            options:
+                visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'
+                attr:
+                    data-page-component-options:
+                        batchSize: '=data["oro_google_tag_manager_data_layer"].getBatchSize()'

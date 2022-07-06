@@ -33,5 +33,10 @@ oro_behat_extension:
                 - Oro\Bundle\DataGridBundle\Tests\Behat\Context\GridContext
                 - Oro\Bundle\WebCatalogBundle\Tests\Behat\Context\FeatureContext
                 - Oro\Bundle\CustomerBundle\Tests\Behat\Context\FrontendGridContext
+                - Oro\Bundle\WorkflowBundle\Tests\Behat\Context\FeatureContext
+                - Oro\Bundle\NavigationBundle\Tests\Behat\Context\FeatureContext
+                - Oro\Bundle\TestFrameworkBundle\Tests\Behat\Context\BrowserTabContext
+                - Oro\Bundle\ProductBundle\Tests\Behat\Context\FeatureContext
+                - Oro\Bundle\AttachmentBundle\Tests\Behat\Context\AttachmentImageContext
             paths:
                 - '@OroGoogleTagManagerBundle/Tests/Behat/Features'

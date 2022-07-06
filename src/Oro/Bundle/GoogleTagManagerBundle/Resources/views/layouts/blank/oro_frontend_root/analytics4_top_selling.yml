@@ -1,0 +1,20 @@
+layout:
+    imports:
+        -
+            id: oro_product_list_gtm_analytics4
+            root: top_selling_items_container
+            namespace: top_selling
+
+    actions:
+        - '@setOption':
+              id: top_selling_gtm_analytics4_product_list
+              optionName: visible
+              optionValue: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4") && data["top_selling_items"].getProducts()'
+        - '@setOption':
+              id: top_selling_gtm_analytics4_product_list
+              optionName: 'vars.embeddedListComponentName'
+              optionValue: 'top-selling-list'
+        - '@setOption':
+              id: top_selling_gtm_analytics4_product_list
+              optionName: 'vars.embeddedBlockName'
+              optionValue: 'top-selling'

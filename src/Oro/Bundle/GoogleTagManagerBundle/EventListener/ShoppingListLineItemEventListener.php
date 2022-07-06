@@ -7,6 +7,7 @@ use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
@@ -16,32 +17,28 @@ use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 
 /**
  * Handles changes of LineItem entities.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class ShoppingListLineItemEventListener
 {
-    /** @var FrontendHelper */
-    private $frontendHelper;
+    private FrontendHelper $frontendHelper;
 
-    /** @var DataLayerManager */
-    private $dataLayerManager;
+    private DataLayerManager $dataLayerManager;
 
-    /** @var ProductDetailProvider */
-    private $productDetailProvider;
+    private ProductDetailProvider $productDetailProvider;
 
-    /** @var ProductPriceDetailProvider */
-    private $productPriceDetailProvider;
+    private ProductPriceDetailProvider $productPriceDetailProvider;
 
-    /** @var GoogleTagManagerSettingsProviderInterface */
-    private $settingsProvider;
+    private GoogleTagManagerSettingsProviderInterface $settingsProvider;
 
-    /** @var int */
-    private $batchSize;
+    private int $batchSize;
 
-    /** @var array */
-    private $added = [];
+    private ?DataCollectionStateProviderInterface $dataCollectionStateProvider = null;
 
-    /** @var array */
-    private $removed = [];
+    private array $added = [];
+
+    private array $removed = [];
 
     /** @var int[] */
     private $skipRemovingInShoppingListIds = [];
@@ -60,6 +57,12 @@ class ShoppingListLineItemEventListener
         $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->settingsProvider = $settingsProvider;
         $this->batchSize = $batchSize;
+    }
+
+    public function setDataCollectionStateProvider(
+        ?DataCollectionStateProviderInterface $dataCollectionStateProvider
+    ): void {
+        $this->dataCollectionStateProvider = $dataCollectionStateProvider;
     }
 
     public function prePersist(LineItem $item): void
@@ -204,6 +207,16 @@ class ShoppingListLineItemEventListener
 
     private function isApplicable(): bool
     {
-        return $this->frontendHelper->isFrontendRequest() && $this->settingsProvider->getGoogleTagManagerSettings();
+        if (!$this->frontendHelper->isFrontendRequest()) {
+            return false;
+        }
+
+        if ($this->dataCollectionStateProvider) {
+            $isApplicable = $this->dataCollectionStateProvider->isEnabled('universal_analytics');
+        } else {
+            $isApplicable = (bool) $this->settingsProvider->getGoogleTagManagerSettings();
+        }
+
+        return $isApplicable;
     }
 }

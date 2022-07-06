@@ -1,23 +1,37 @@
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    newArrivalsProductUnitPrecision{1..5}:
-        unit: '@item'
-        precision: '1'
+  newArrivalsProductUnitPrecision{1..5}:
+    unit: '@item'
+    precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    newArrivalsLocalProductName{1..5}:
-        string: 'New Arrival Product <current()>'
+  newArrivalsLocalProductName{1..5}:
+    string: 'New Arrival Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    newArrivalsProduct{1..5}:
-        type: 'simple'
-        sku: 'NEW-ARRIVAL-<current()>'
-        primaryUnitPrecision: '@newArrivalsProductUnitPrecision<current()>'
-        __calls:
-            - addName: ['@newArrivalsLocalProductName<current()>']
-        organization: '@organization'
-        owner: '@business_unit'
-        attributeFamily: '@defaultProductFamily'
-        inventoryStatus: '@enumInventoryStatuses'
-        status: 'enabled'
-        featured: false
-        newArrival: true
+  newArrivalsProduct{1..5}:
+    type: 'simple'
+    sku: 'NEWARRIVAL<current()>'
+    primaryUnitPrecision: '@newArrivalsProductUnitPrecision<current()>'
+    __calls:
+      - addName: [ '@newArrivalsLocalProductName<current()>' ]
+    organization: '@organization'
+    owner: '@business_unit'
+    attributeFamily: '@defaultProductFamily'
+    inventoryStatus: '@enumInventoryStatuses'
+    status: 'enabled'
+    featured: false
+    newArrival: true
+
+Oro\Bundle\PricingBundle\Entity\ProductPrice:
+  price{1..5}:
+    product: '@newArrivalsProduct<current()>'
+    priceList: '@defaultPriceList'
+    currency: 'USD'
+    quantity: 1
+    unit: '@item'
+    value: '<(1.6789 * $current)>'
+
+Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
+  priceRelation{1..5}:
+    product: '@newArrivalsProduct<current()>'
+    priceList: '@defaultPriceList'

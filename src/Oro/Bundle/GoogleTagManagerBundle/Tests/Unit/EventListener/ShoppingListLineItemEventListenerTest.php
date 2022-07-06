@@ -9,6 +9,7 @@ use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\ShoppingListLineItemEventListener;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
@@ -19,22 +20,23 @@ use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Oro\Component\Testing\ReflectionUtil;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ */
 class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataLayerManager;
+    private DataLayerManager|\PHPUnit\Framework\MockObject\MockObject $dataLayerManager;
 
-    /** @var ProductPriceDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $productPriceDetailProvider;
+    private ProductPriceDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productPriceDetailProvider;
 
-    /** @var Transport|\PHPUnit\Framework\MockObject\MockObject */
-    private $transport;
+    private Transport|\PHPUnit\Framework\MockObject\MockObject $transport;
 
-    /** @var GoogleTagManagerSettingsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $settingsProvider;
+    private GoogleTagManagerSettingsProviderInterface|\PHPUnit\Framework\MockObject\MockObject $settingsProvider;
 
-    /** @var ShoppingListLineItemEventListener */
-    private $listener;
+    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
+
+    private ShoppingListLineItemEventListener $listener;
 
     protected function setUp(): void
     {
@@ -44,14 +46,14 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
 
         $frontendHelper = $this->createMock(FrontendHelper::class);
-        $frontendHelper->expects($this->any())
+        $frontendHelper->expects(self::any())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
         $productDetailProvider = $this->createMock(ProductDetailProvider::class);
-        $productDetailProvider->expects($this->any())
+        $productDetailProvider->expects(self::any())
             ->method('getData')
-            ->with($this->isInstanceOf(Product::class))
+            ->with(self::isInstanceOf(Product::class))
             ->willReturn(
                 [
                     'id' => 'sku123',
@@ -61,6 +63,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
         $this->listener = new ShoppingListLineItemEventListener(
             $frontendHelper,
             $this->dataLayerManager,
@@ -69,19 +72,22 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             $this->settingsProvider,
             1
         );
+
+        $this->listener->setDataCollectionStateProvider($this->dataCollectionStateProvider);
     }
 
     public function testPrePersistNotApplicable(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn(null);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(false);
 
-        $this->productPriceDetailProvider->expects($this->never())
+        $this->productPriceDetailProvider->expects(self::never())
             ->method('getPrice');
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->prePersist($this->getLineItem());
         $this->listener->postFlush();
@@ -89,13 +95,14 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testPrePersist(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::exactly(2))
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
         $item = $this->getLineItem();
 
-        $this->productPriceDetailProvider->expects($this->any())
+        $this->productPriceDetailProvider->expects(self::exactly(2))
             ->method('getPrice')
             ->with(
                 $item->getProduct(),
@@ -104,7 +111,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->once())
+        $this->dataLayerManager->expects(self::once())
             ->method('add')
             ->with(
                 [
@@ -120,11 +127,11 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                     'brand' => 'test Brand',
                                     'variant' => 'item',
                                     'quantity' => 5.5,
-                                    'price' => 100.1
-                                ]
-                            ]
-                        ]
-                    ]
+                                    'price' => 100.1,
+                                ],
+                            ],
+                        ],
+                    ],
                 ]
             );
 
@@ -138,17 +145,18 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
      */
     public function testPreUpdateNotApplicable(array $changeSet): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn(null);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(false);
 
         $item = $this->getLineItem($changeSet['unit'][1] ?? null);
 
-        $this->productPriceDetailProvider->expects($this->never())
+        $this->productPriceDetailProvider->expects(self::never())
             ->method('getPrice');
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $objectManager = $this->createMock(EntityManagerInterface::class);
 
@@ -161,43 +169,39 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
      */
     public function testPreUpdate(array $changeSet, array $expected): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
         $item = $this->getLineItem($changeSet['unit'][1] ?? null);
 
         $setUnit = new ProductUnit();
         $setUnit->setCode('set');
 
-        $this->productPriceDetailProvider->expects($this->any())
+        $this->productPriceDetailProvider->expects(self::any())
             ->method('getPrice')
             ->willReturnMap([
                 [
                     $item->getProduct(),
                     $item->getProductUnit(),
                     $item->getQuantity(),
-                    Price::create(100.1, 'USD')
+                    Price::create(100.1, 'USD'),
                 ],
                 [
                     $item->getProduct(),
                     $changeSet['unit'][0] ?? $setUnit,
                     $item->getQuantity(),
-                    Price::create(200.2, 'USD')
-                ]
+                    Price::create(200.2, 'USD'),
+                ],
             ]);
 
         if ($expected) {
-            $this->dataLayerManager->expects($this->exactly(count($expected)))
+            $this->dataLayerManager->expects(self::exactly(count($expected)))
                 ->method('add')
-                ->withConsecutive(...array_map(
-                    function ($item) {
-                        return [$item];
-                    },
-                    $expected
-                ));
+                ->withConsecutive(...array_map(static fn ($item) => [$item], $expected));
         } else {
-            $this->dataLayerManager->expects($this->never())
+            $this->dataLayerManager->expects(self::never())
                 ->method('add');
         }
 
@@ -235,13 +239,13 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'item',
                                         'quantity' => 20,
-                                        'price' => 100.1
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
             [
                 'changeSet' => ['quantity' => [30, 10]],
@@ -259,13 +263,13 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'item',
                                         'quantity' => 20,
-                                        'price' => 100.1
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
             [
                 'changeSet' => ['unit' => [$itemUnit, $setUnit]],
@@ -283,11 +287,11 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'set',
                                         'quantity' => 5.5,
-                                        'price' => 100.1
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                     [
                         'event' => 'removeFromCart',
@@ -302,13 +306,13 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'item',
                                         'quantity' => 5.5,
-                                        'price' => 200.2
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        'price' => 200.2,
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
-                ]
+                ],
             ],
             [
                 'changeSet' => ['unit' => [$itemUnit, $setUnit], 'quantity' => [10, 30]],
@@ -326,11 +330,11 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'set',
                                         'quantity' => 30,
-                                        'price' => 100.1
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                     [
                         'event' => 'removeFromCart',
@@ -345,32 +349,33 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'item',
                                         'quantity' => 10,
-                                        'price' => 200.2
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        'price' => 200.2,
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
-                ]
+                ],
             ],
             [
                 'changeSet' => ['notes' => ['old note', 'new note']],
-                'expected' => []
-            ]
+                'expected' => [],
+            ],
         ];
     }
 
     public function testPreRemoveNotApplicable(): void
     {
-        $this->settingsProvider->expects($this->once())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn(null);
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(false);
 
-        $this->productPriceDetailProvider->expects($this->never())
+        $this->productPriceDetailProvider->expects(self::never())
             ->method('getPrice');
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->preRemove($this->getLineItem());
         $this->listener->postFlush();
@@ -378,13 +383,14 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testPreRemove(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::exactly(2))
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
         $item = $this->getLineItem();
 
-        $this->productPriceDetailProvider->expects($this->any())
+        $this->productPriceDetailProvider->expects(self::exactly(2))
             ->method('getPrice')
             ->with(
                 $item->getProduct(),
@@ -393,7 +399,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             )
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->once())
+        $this->dataLayerManager->expects(self::once())
             ->method('add')
             ->with(
                 [
@@ -409,11 +415,11 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                     'brand' => 'test Brand',
                                     'variant' => 'item',
                                     'quantity' => 5.5,
-                                    'price' => 100.1
-                                ]
-                            ]
-                        ]
-                    ]
+                                    'price' => 100.1,
+                                ],
+                            ],
+                        ],
+                    ],
                 ]
             );
 
@@ -424,9 +430,10 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testPreRemoveForDifferentUnits(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::exactly(2))
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
         $item = $this->getLineItem();
         $item1 = $this->getLineItem();
@@ -434,11 +441,11 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $unit->setCode('box');
         $item1->setUnit($unit);
 
-        $this->productPriceDetailProvider->expects($this->exactly(2))
+        $this->productPriceDetailProvider->expects(self::exactly(2))
             ->method('getPrice')
             ->willReturn(Price::create(100.1, 'USD'));
 
-        $this->dataLayerManager->expects($this->exactly(2))
+        $this->dataLayerManager->expects(self::exactly(2))
             ->method('add')
             ->withConsecutive(
                 [
@@ -455,12 +462,12 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'item',
                                         'quantity' => 5.5,
-                                        'price' => 100.1
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 [
                     [
@@ -476,12 +483,12 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
                                         'brand' => 'test Brand',
                                         'variant' => 'box',
                                         'quantity' => 5.5,
-                                        'price' => 100.1
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]
             );
 
@@ -490,11 +497,12 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
-    public function testPreRemoveAfterCheckoutSourceEntityHasRemoved()
+    public function testPreRemoveAfterCheckoutSourceEntityHasRemoved(): void
     {
-        $this->settingsProvider->expects($this->any())
-            ->method('getGoogleTagManagerSettings')
-            ->willReturn($this->transport);
+        $this->dataCollectionStateProvider->expects(self::exactly(2))
+            ->method('isEnabled')
+            ->with('universal_analytics')
+            ->willReturn(true);
 
         $shoppingListId = 2;
 
@@ -503,11 +511,304 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->addShoppingListIdToIgnore($event);
 
         $item = $this->getLineItem(null, $shoppingListId);
-        $this->productPriceDetailProvider->expects($this->never())
+        $this->productPriceDetailProvider->expects(self::never())
             ->method('getPrice');
 
-        $this->dataLayerManager->expects($this->never())
-            ->method($this->anything());
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
+    public function testPrePersistNotApplicableWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn(null);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method('getPrice');
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->prePersist($this->getLineItem());
+        $this->listener->postFlush();
+    }
+
+    public function testPrePersistWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $item = $this->getLineItem();
+
+        $this->productPriceDetailProvider->expects(self::any())
+            ->method('getPrice')
+            ->with(
+                $item->getProduct(),
+                $item->getUnit(),
+                $item->getQuantity()
+            )
+            ->willReturn(Price::create(100.1, 'USD'));
+
+        $this->dataLayerManager->expects(self::once())
+            ->method('add')
+            ->with(
+                [
+                    'event' => 'addToCart',
+                    'ecommerce' => [
+                        'currencyCode' => 'USD',
+                        'add' => [
+                            'products' => [
+                                [
+                                    'id' => 'sku123',
+                                    'name' => 'Test Product',
+                                    'category' => 'Test Category',
+                                    'brand' => 'test Brand',
+                                    'variant' => 'item',
+                                    'quantity' => 5.5,
+                                    'price' => 100.1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
+            );
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->prePersist($item);
+        $this->listener->prePersist($item);
+        $this->listener->postFlush();
+    }
+
+    /**
+     * @dataProvider preUpdateDataProvider
+     */
+    public function testPreUpdateNotApplicableWhenNoDataCollectionStateProvider(array $changeSet): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn(null);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method('getPrice');
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        /** @var EntityManagerInterface $objectManager */
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    /**
+     * @dataProvider preUpdateDataProvider
+     */
+    public function testPreUpdateWhenNoDataCollectionStateProvider(array $changeSet, array $expected): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $setUnit = new ProductUnit();
+        $setUnit->setCode('set');
+
+        $this->productPriceDetailProvider->expects(self::any())
+            ->method('getPrice')
+            ->willReturnMap([
+                [
+                    $item->getProduct(),
+                    $item->getProductUnit(),
+                    $item->getQuantity(),
+                    Price::create(100.1, 'USD'),
+                ],
+                [
+                    $item->getProduct(),
+                    $changeSet['unit'][0] ?? $setUnit,
+                    $item->getQuantity(),
+                    Price::create(200.2, 'USD'),
+                ],
+            ]);
+
+        if ($expected) {
+            $this->dataLayerManager->expects(self::exactly(count($expected)))
+                ->method('add')
+                ->withConsecutive(...array_map(static fn ($item) => [$item], $expected));
+        } else {
+            $this->dataLayerManager->expects(self::never())
+                ->method('add');
+        }
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveNotApplicableWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::once())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn(null);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method('getPrice');
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preRemove($this->getLineItem());
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $item = $this->getLineItem();
+
+        $this->productPriceDetailProvider->expects(self::any())
+            ->method('getPrice')
+            ->with(
+                $item->getProduct(),
+                $item->getUnit(),
+                $item->getQuantity()
+            )
+            ->willReturn(Price::create(100.1, 'USD'));
+
+        $this->dataLayerManager->expects(self::once())
+            ->method('add')
+            ->with(
+                [
+                    'event' => 'removeFromCart',
+                    'ecommerce' => [
+                        'currencyCode' => 'USD',
+                        'remove' => [
+                            'products' => [
+                                [
+                                    'id' => 'sku123',
+                                    'name' => 'Test Product',
+                                    'category' => 'Test Category',
+                                    'brand' => 'test Brand',
+                                    'variant' => 'item',
+                                    'quantity' => 5.5,
+                                    'price' => 100.1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
+            );
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preRemove($item);
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveForDifferentUnitsWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $item = $this->getLineItem();
+        $item1 = $this->getLineItem();
+        $unit = new ProductUnit();
+        $unit->setCode('box');
+        $item1->setUnit($unit);
+
+        $this->productPriceDetailProvider->expects(self::exactly(2))
+            ->method('getPrice')
+            ->willReturn(Price::create(100.1, 'USD'));
+
+        $this->dataLayerManager->expects(self::exactly(2))
+            ->method('add')
+            ->withConsecutive(
+                [
+                    [
+                        'event' => 'removeFromCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'remove' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku123',
+                                        'name' => 'Test Product',
+                                        'category' => 'Test Category',
+                                        'brand' => 'test Brand',
+                                        'variant' => 'item',
+                                        'quantity' => 5.5,
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        'event' => 'removeFromCart',
+                        'ecommerce' => [
+                            'currencyCode' => 'USD',
+                            'remove' => [
+                                'products' => [
+                                    [
+                                        'id' => 'sku123',
+                                        'name' => 'Test Product',
+                                        'category' => 'Test Category',
+                                        'brand' => 'test Brand',
+                                        'variant' => 'box',
+                                        'quantity' => 5.5,
+                                        'price' => 100.1,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
+            );
+
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->preRemove($item);
+        $this->listener->preRemove($item1);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveAfterCheckoutSourceEntityHasRemovedWhenNoDataCollectionStateProvider(): void
+    {
+        $this->settingsProvider->expects(self::any())
+            ->method('getGoogleTagManagerSettings')
+            ->willReturn($this->transport);
+
+        $shoppingListId = 2;
+
+        $shoppingList = $this->getShoppingList($shoppingListId);
+        $event = new CheckoutSourceEntityRemoveEvent($shoppingList);
+        $this->listener->setDataCollectionStateProvider(null);
+        $this->listener->addShoppingListIdToIgnore($event);
+
+        $item = $this->getLineItem(null, $shoppingListId);
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method('getPrice');
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
 
         $this->listener->preRemove($item);
         $this->listener->postFlush();

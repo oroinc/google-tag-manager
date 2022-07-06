@@ -5,21 +5,31 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\EntityBundle\ORM\DoctrineHelper;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Entity\Repository\PaymentTransactionRepository;
 use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
+use Oro\Bundle\PromotionBundle\Entity\AppliedCouponsAwareInterface;
 use Oro\Bundle\PromotionBundle\Entity\Coupon;
+use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
+use Oro\Bundle\TaxBundle\Exception\TaxationDisabledException;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Returns data for checkout steps (Checkout events) and success page (Purchase event).
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
-class PurchaseDetailProvider
+class PurchaseDetailProvider implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /** @var DoctrineHelper */
     private $doctrineHelper;
 
@@ -41,6 +51,8 @@ class PurchaseDetailProvider
     /** @var int */
     private $batchSize;
 
+    private ?AppliedPromotionsNamesProvider $appliedPromotionsNamesProvider = null;
+
     public function __construct(
         DoctrineHelper $doctrineHelper,
         ProductDetailProvider $productDataProvider,
@@ -57,6 +69,12 @@ class PurchaseDetailProvider
         $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
         $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
         $this->batchSize = $batchSize;
+    }
+
+    public function setAppliedPromotionsNamesProvider(
+        ?AppliedPromotionsNamesProvider $appliedPromotionsNamesProvider
+    ): void {
+        $this->appliedPromotionsNamesProvider = $appliedPromotionsNamesProvider;
     }
 
     public function getData(Checkout $checkout): array
@@ -131,15 +149,23 @@ class PurchaseDetailProvider
                 ->getEnabledProvider()
                 ->loadTax($order);
 
-            $taxAmount = (float) $result->getTotal()
-                ->getTaxAmount();
+            $taxAmount = (float) $result->getTotal()->getTaxAmount();
 
             if (abs($taxAmount) <= 1e-6) {
                 $taxAmount = 0;
             }
 
             $actionField['tax'] = $taxAmount;
-        } catch (\Exception $e) {
+        } catch (TaxationDisabledException $exception) {
+            $this->logger->debug(
+                'Skipped adding tax to the GTM data layer: taxation is disabled',
+                ['order' => $order, 'exception' => $exception]
+            );
+        } catch (\Throwable $throwable) {
+            $this->logger->error(
+                'Skipped adding tax to the GTM data layer due to an unexpected error: {message}',
+                ['order' => $order, 'throwable' => $throwable, 'message' => $throwable->getMessage()]
+            );
         }
 
         $promotions = $this->getPromotions($order);
@@ -171,31 +197,35 @@ class PurchaseDetailProvider
 
     private function getPromotions(Order $order): array
     {
+        if ($this->appliedPromotionsNamesProvider) {
+            /** @var Order|AppliedCouponsAwareInterface $order */
+            return $this->appliedPromotionsNamesProvider->getAppliedPromotionsNames($order);
+        }
+
         /** @var Coupon[] $coupons */
         $coupons = $this->entityCouponsProvider->getCoupons($order)->toArray();
         if (!$coupons) {
             return [];
         }
 
-        $promotions = [];
+        $promotionIds = [];
         foreach ($coupons as $coupon) {
             $promotion = $coupon->getPromotion();
-            if (!$promotion) {
+            if (!$promotion || !$promotion->getId()) {
                 continue;
             }
 
-            $rule = $promotion->getRule();
-            if (!$rule) {
-                continue;
-            }
-
-            $promotions[] = $rule->getName();
+            $promotionIds[] = $promotion->getId();
         }
 
-        $promotions = \array_filter(\array_unique($promotions));
-        \sort($promotions);
+        $promotionsNames = $this->doctrineHelper
+            ->getEntityRepositoryForClass(Promotion::class)
+            ->getPromotionsNamesByIds($promotionIds);
+        $promotionsNames = array_values(array_unique(array_filter($promotionsNames)));
 
-        return $promotions;
+        sort($promotionsNames);
+
+        return $promotionsNames;
     }
 
     private function getOrder(Checkout $checkout): ?Order

@@ -3,7 +3,7 @@
     "description": "Oro Google Tag Manager integration",
     "type": "symfony-bundle",
     "keywords": ["Oro", "Google", "Tag", "Manager", "Integration"],
-    "homepage": "https://github.com/oroinc/google-tag-manager-bundle",
+    "homepage": "https://github.com/oroinc/google-tag-manager",
     "license": "OSL-3.0",
     "authors": [
         {

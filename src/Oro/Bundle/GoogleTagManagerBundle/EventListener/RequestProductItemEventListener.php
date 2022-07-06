@@ -5,6 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
+use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
@@ -12,29 +13,26 @@ use Oro\Bundle\RFPBundle\Entity\RequestProductItem;
 
 /**
  * Handles changes of RequestProductItem entities.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class RequestProductItemEventListener
 {
-    /** @var FrontendHelper */
-    private $frontendHelper;
+    private FrontendHelper $frontendHelper;
 
-    /** @var DataLayerManager */
-    private $dataLayerManager;
+    private DataLayerManager $dataLayerManager;
 
-    /** @var ProductDetailProvider */
-    private $productDetailProvider;
+    private ProductDetailProvider $productDetailProvider;
 
-    /** @var ProductPriceDetailProvider */
-    private $productPriceDetailProvider;
+    private ProductPriceDetailProvider $productPriceDetailProvider;
 
-    /** @var GoogleTagManagerSettingsProviderInterface */
-    private $settingsProvider;
+    private GoogleTagManagerSettingsProviderInterface $settingsProvider;
 
-    /** @var int */
-    private $batchSize;
+    private int $batchSize;
 
-    /** @var array */
-    private $items = [];
+    private ?DataCollectionStateProviderInterface $dataCollectionStateProvider = null;
+
+    private array $items = [];
 
     public function __construct(
         FrontendHelper $frontendHelper,
@@ -52,9 +50,12 @@ class RequestProductItemEventListener
         $this->batchSize = $batchSize;
     }
 
-    /**
-     * @param RequestProductItem $item
-     */
+    public function setDataCollectionStateProvider(
+        ?DataCollectionStateProviderInterface $dataCollectionStateProvider
+    ): void {
+        $this->dataCollectionStateProvider = $dataCollectionStateProvider;
+    }
+
     public function prePersist(RequestProductItem $item = null): void
     {
         if (!$this->isApplicable()) {
@@ -114,10 +115,12 @@ class RequestProductItemEventListener
 
     private function isApplicable(): bool
     {
-        if (!$this->settingsProvider->getGoogleTagManagerSettings()) {
-            return false;
+        if ($this->dataCollectionStateProvider) {
+            $isApplicable = $this->dataCollectionStateProvider->isEnabled('universal_analytics');
+        } else {
+            $isApplicable = (bool) $this->settingsProvider->getGoogleTagManagerSettings();
         }
 
-        return $this->frontendHelper->isFrontendRequest();
+        return $isApplicable && $this->frontendHelper->isFrontendRequest();
     }
 }

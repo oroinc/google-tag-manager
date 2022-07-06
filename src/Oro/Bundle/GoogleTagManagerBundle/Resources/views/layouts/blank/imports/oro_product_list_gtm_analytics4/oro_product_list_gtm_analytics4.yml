@@ -1,0 +1,15 @@
+layout:
+    actions:
+        - '@setBlockTheme':
+            themes: 'oro_product_list_gtm_analytics4.html.twig'
+
+        - '@add':
+            id: __gtm_analytics4_product_list
+            parentId: __root
+            blockType: block
+            options:
+                # Must be enabled explicitly for each block.
+                visible: false
+                vars:
+                    embeddedListComponentName: ''
+                    embeddedBlockName: ''

@@ -12,19 +12,23 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     {
         $configuration = new Configuration();
 
-        $this->assertInstanceOf(TreeBuilder::class, $configuration->getConfigTreeBuilder());
+        self::assertInstanceOf(TreeBuilder::class, $configuration->getConfigTreeBuilder());
     }
 
     public function testProcessConfiguration(): void
     {
         $processor = new Processor();
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'settings' => [
                     'resolved' => true,
                     'integration' => [
                         'value' => null,
+                        'scope' => 'app',
+                    ],
+                    'enabled_data_collection_types' => [
+                        'value' => ['universal_analytics'],
                         'scope' => 'app',
                     ],
                 ],

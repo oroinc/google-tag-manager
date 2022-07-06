@@ -10,6 +10,8 @@ use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
 
 /**
  * Adds product details for using in GTM data layer to search index.
+ *
+ * @deprecated Will be removed in oro/google-tag-manager-bundle:5.1.0.
  */
 class WebsiteSearchIndexerListener
 {
