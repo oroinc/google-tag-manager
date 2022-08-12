@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4;
 
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\Product;
+use Oro\Bundle\WebsiteSearchBundle\Engine\Context\ContextTrait;
 use Oro\Bundle\WebsiteSearchBundle\Event\IndexEntityEvent;
 use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
 
@@ -12,6 +13,8 @@ use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
  */
 class WebsiteSearchIndexerListener
 {
+    use ContextTrait;
+
     public const PRODUCT_DETAIL_FIELD = 'gtm_analytics4_product_detail';
 
     private WebsiteContextManager $websiteContextManager;
@@ -28,6 +31,10 @@ class WebsiteSearchIndexerListener
 
     public function onWebsiteSearchIndex(IndexEntityEvent $event): void
     {
+        if (!$this->hasContextFieldGroup($event->getContext(), 'main')) {
+            return;
+        }
+
         $websiteId = $this->websiteContextManager->getWebsiteId($event->getContext());
         if (!$websiteId) {
             $event->stopPropagation();
