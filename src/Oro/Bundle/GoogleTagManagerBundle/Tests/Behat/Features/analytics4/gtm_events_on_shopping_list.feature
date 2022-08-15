@@ -21,7 +21,7 @@ Feature: GTM events on shopping list
     Given I type "SKU1" in "search"
     And I click "Search Button"
     When I click on "Add to Shopping List"
-    And I should see "Product has been added to" flash message
+    And I should see "Product has been added to" flash message and I close it
     Then last message in the GTM data layer should be:
       """
         {
@@ -69,7 +69,7 @@ Feature: GTM events on shopping list
   Scenario: Update product quantity in shopping list
     When I type "3" in "Product Quantity"
     And I click "Update Shopping List"
-    And I should see "Record has been successfully updated" flash message
+    And I should see "Record has been successfully updated" flash message and I close it
     Then last message in the GTM data layer should be:
       """
         {
@@ -93,7 +93,7 @@ Feature: GTM events on shopping list
   Scenario: Remove part of products from shopping list
     When I type "2" in "Product Quantity"
     And I click "Update Shopping List"
-    And I should see "Record has been successfully updated" flash message
+    And I should see "Record has been successfully updated" flash message and I close it
     Then last message in the GTM data layer should be:
       """
         {
@@ -118,7 +118,7 @@ Feature: GTM events on shopping list
     When type "SKU2" in "search"
     And I click "Search Button"
     And I click on "Add to Shopping List"
-    And I should see "Product has been added to" flash message
+    And I should see "Product has been added to" flash message and I close it
     Then last message in the GTM data layer should be:
       """
         {
@@ -187,7 +187,7 @@ Feature: GTM events on shopping list
     When I click "Add Shopping List item Note" on row "SKU2" in grid
     And I fill in "Shopping List Product Note" with "My notes"
     And I click "Add"
-    Then I should see "Line item note has been successfully updated" flash message
+    Then I should see "Line item note has been successfully updated" flash message and I close it
     And last message in the GTM data layer should be:
       """
         {
@@ -212,7 +212,7 @@ Feature: GTM events on shopping list
     When I click "Shopping List Actions"
     And I click "Duplicate"
     And I click "Yes, duplicate"
-    Then I should see "The shopping list has been duplicated" flash message
+    Then I should see "The shopping list has been duplicated" flash message and I close it
     And GTM data layer must contain the following message:
       """
         {

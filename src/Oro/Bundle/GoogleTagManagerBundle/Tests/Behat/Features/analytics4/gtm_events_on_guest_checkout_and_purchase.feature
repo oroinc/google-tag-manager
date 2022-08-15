@@ -44,7 +44,7 @@ Feature: GTM events on guest checkout and purchase
     When type "SKU123" in "search"
     And I click "SKU123"
     And I click "Add to Shopping List"
-    Then I should see "Product has been added to" flash message
+    Then I should see "Product has been added to" flash message and I close it
 
   Scenario: Event "begin_checkout" is triggered when checkout starts
     When I open shopping list widget
