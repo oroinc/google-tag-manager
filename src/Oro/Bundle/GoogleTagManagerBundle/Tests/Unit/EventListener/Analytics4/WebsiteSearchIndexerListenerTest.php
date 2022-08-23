@@ -22,6 +22,8 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
+        $this->markTestSkipped('BB-21644');
+
         $this->websiteContextManger = $this->createMock(WebsiteContextManager::class);
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
 
