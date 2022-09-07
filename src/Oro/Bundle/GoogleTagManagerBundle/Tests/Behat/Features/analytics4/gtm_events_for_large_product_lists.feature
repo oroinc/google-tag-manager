@@ -17,7 +17,7 @@ Feature: GTM events for large product lists
     And I select 50 records per page in "ProductFrontendGrid"
     And I check All Visible records in "ProductFrontendGrid"
     And I wait for products to load
-    And I click "Create New Shopping List" link from mass action dropdown in "Product Frontend Grid"
+    And I click "Create New Shopping List" in "ProductFrontendMassPanelInBottomSticky" element
     And I click "Create and Add"
     Then I should see "35 products were added"
     And GTM data layer must contain the following message:

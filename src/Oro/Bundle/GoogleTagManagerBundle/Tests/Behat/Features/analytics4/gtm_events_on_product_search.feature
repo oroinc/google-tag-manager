@@ -133,7 +133,8 @@ Feature: GTM events on product search
         }
       """
 
-    When I click "Gallery View"
+    When I click "Catalog Switcher Toggle"
+    And I click "Gallery View"
     Then GTM data layer must contain the following message:
       """
         {
@@ -155,7 +156,8 @@ Feature: GTM events on product search
         }
       """
 
-    When I click "No Image View"
+    When I click "Catalog Switcher Toggle"
+    And I click "No Image View"
     Then GTM data layer must contain the following message:
       """
         {
