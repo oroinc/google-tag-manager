@@ -1,13 +1,19 @@
 {% block __oro_product_list_gtm_analytics4__gtm_analytics4_product_list_widget %}
-    {% set attr = layout_attr_defaults(attr, {
-        '~class': ' hidden',
-        'data-page-component-module': 'orogoogletagmanager/js/app/components/analytics4/products-embedded-list-gtm-analytics4-component',
-        'data-page-component-options': {
-            'relatedSiblingComponents': {
-                'embeddedListComponent': embeddedListComponentName
-            },
-            'blockName': embeddedBlockName
-        }
-    }) %}
-    <div {{ block('block_attributes') }}></div>
+    {% set embedded_list = block.parent.children|filter(sibling => sibling.vars.block_type == 'embedded_list')|first %}
+    {% if embedded_list %}
+        {% set embeddedListComponentName = embeddedListComponentName|default(embedded_list.vars.attr['data-page-component-name']|default('')) %}
+        {% if embeddedListComponentName %}
+            {% set attr = layout_attr_defaults(attr, {
+                '~class': ' hidden',
+                'data-page-component-module': 'orogoogletagmanager/js/app/components/analytics4/products-embedded-list-gtm-analytics4-component',
+                'data-page-component-options': {
+                    'relatedSiblingComponents': {
+                        'embeddedListComponent': embeddedListComponentName
+                    },
+                    'blockName': embeddedBlockName
+                }
+            }) %}
+            <div {{ block('block_attributes') }}></div>
+        {% endif %}
+    {% endif %}
 {% endblock %}

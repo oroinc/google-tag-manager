@@ -1,0 +1,7 @@
+layout:
+    imports:
+        -
+            id: oro_image_slider_gtm_analytics4
+            root: content_widget_container
+
+    actions: []

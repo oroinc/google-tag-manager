@@ -35,6 +35,7 @@ The current file describes significant changes in the code that may affect the u
 * Changed the order of payment method views in the array returning from 
   `\Oro\Bundle\PaymentBundle\Method\View\CompositePaymentMethodViewProvider::getPaymentMethodViews` - now 
   the order of payment method views is the same as in the `$identifiers` input argument.
+* JS module `orogoogletagmanager/js/app/components/analytics4/home-page-slider-gtm-analytics4-component` to `orogoogletagmanager/js/app/components/analytics4/image-slider-gtm-analytics4-component`.
 
 ### Removed
 
@@ -69,6 +70,7 @@ The current file describes significant changes in the code that may affect the u
 * Removed TWIG templates, layout blocks and layout updates related to Universal Analytics.
 * Removed `oro_google_tag_manager_product_detail` TWIG function related to Universal Analytics.
 * Removed `product_detail` search index field of Product entity, make use of the new `gtm_analytics4_product_detail` instead.
+* Removed `gtm:data-layer-manager:ready` mediator event, use mediator handler instead: `mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false`.
 
 ## 4.1.0
 

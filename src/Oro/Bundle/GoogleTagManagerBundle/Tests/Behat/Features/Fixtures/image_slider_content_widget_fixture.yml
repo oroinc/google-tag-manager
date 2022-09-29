@@ -1,0 +1,114 @@
+Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
+    slider_block_title:
+        string: 'Image sliders block'
+    sliders_page_title:
+        string: 'Image sliders'
+    sliders_page_slug:
+        string: 'sliders'
+    sliders_cms_page_title:
+        string: 'Image Sliders CMS Page'
+
+Oro\Bundle\CommerceMenuBundle\Entity\MenuUpdate:
+    sliders_page_menu_item:
+        __calls:
+            - addTitle: ['@sliders_cms_page_title']
+        uri: 'sliders'
+        menu: 'commerce_main_menu'
+        scope: '@default_scope'
+        custom: true
+
+Oro\Bundle\AttachmentBundle\Entity\File:
+    digital_asset_file1:
+        owner: '@admin'
+        filename: 'sample1.jpeg'
+        file_size: 20000
+        originalFilename: 'original-sample1.jpeg'
+        extension: 'jpeg'
+        mimeType: 'image/jpeg'
+    digital_asset_file2:
+        owner: '@admin'
+        filename: 'sample3.jpeg'
+        file_size: 20000
+        originalFilename: 'original-sample3.jpeg'
+        extension: 'jpeg'
+        mimeType: 'image/jpeg'
+    digital_asset_file3:
+        owner: '@admin'
+        filename: 'sample3.jpeg'
+        file_size: 20000
+        originalFilename: 'original-sample3.jpeg'
+        extension: 'jpeg'
+        mimeType: 'image/jpeg'
+
+Oro\Bundle\CMSBundle\Entity\ContentWidget:
+    image_slide_content_widget:
+        name: 'image-slider'
+        widgetType: 'image_slider'
+        organization: '@organization'
+        settings:
+            slidesToShow: 1
+            slidesToScroll: 1
+            autoplay: false
+            dots: true
+            infinite: true
+
+Oro\Bundle\CMSBundle\Entity\ImageSlide:
+    cms_image_slide1:
+        slideOrder: '1'
+        url: '/'
+        displayInSameWindow: true
+        title: 'first slide'
+        text: 'first slide text'
+        textAlignment: 'center'
+        contentWidget: '@image_slide_content_widget'
+        organization: '@organization'
+        mainImage: '@digital_asset_file1'
+    cms_image_slide2:
+        slideOrder: '2'
+        url: '/'
+        displayInSameWindow: true
+        title: 'second slide'
+        text: 'second slide text'
+        textAlignment: 'center'
+        contentWidget: '@image_slide_content_widget'
+        organization: '@organization'
+        mainImage: '@digital_asset_file2'
+    cms_image_slide3:
+        slideOrder: '3'
+        url: '/'
+        displayInSameWindow: true
+        title: 'third slide'
+        text: 'third slide text'
+        textAlignment: 'center'
+        contentWidget: '@image_slide_content_widget'
+        organization: '@organization'
+        mainImage: '@digital_asset_file3'
+
+Oro\Bundle\CMSBundle\Entity\TextContentVariant:
+    text_content_variant:
+        contentBlock: '@content_block'
+        __calls:
+            - addScope: ['@default_scope']
+        content: >
+            <div data-title="image-slider" data-type="image_slider" class="content-widget content-placeholder">{{ widget("image-slider") }}</div>
+
+Oro\Bundle\CMSBundle\Entity\ContentBlock:
+    content_block:
+        organization: '@organization'
+        owner: '@business_unit'
+        alias: 'sliders-block'
+        titles: ['@slider_block_title']
+        __calls:
+            - addScope: ['@default_scope']
+            - addContentVariant: ['@text_content_variant']
+        enabled: true
+
+Oro\Bundle\CMSBundle\Entity\Page:
+    sliders_page:
+        __calls:
+            - addTitle: ['@sliders_page_title']
+        content: > 
+            <div data-title="image-slider" data-type="image_slider" class="content-widget content-placeholder">{{ widget("image-slider") }}</div>
+            <div data-title="Image sliders block" class="content-block content-placeholder">{{ content_block("sliders-block") }}</div>
+        organization: '@organization'
+        slugPrototypes: ['@sliders_page_slug']

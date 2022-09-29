@@ -21,10 +21,9 @@ define(function(require) {
             blockName: ''
         }),
 
-        /**
-         * @property {Boolean}
-         */
-        _gtmReady: false,
+        get _gtmReady() {
+            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
+        },
 
         /**
          * @inheritdoc
@@ -36,11 +35,13 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        initialize: function(options) {
+        initialize(options) {
             BaseEmbeddedListGtmComponent.__super__.initialize.call(this, options);
 
             if (!this.embeddedListComponent) {
-                throw new Error('Sibling component `embeddedListComponent` is required.');
+                const embeddedListComponentName = options.relatedSiblingComponents.__initial__.embeddedListComponent;
+                throw new Error(`EmbeddedListComponent with name "${embeddedListComponentName}" is not found, ` +
+                    'it is required for GTM integration.');
             }
 
             this.options = _.defaults(options || {}, this.options);
@@ -49,24 +50,19 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        delegateListeners: function() {
-            mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
-            this.embeddedListComponent.on('oro:embedded-list:shown', this._onView.bind(this));
-            this.embeddedListComponent.on('oro:embedded-list:clicked', this._onClick.bind(this));
+        delegateListeners() {
+            this.listenTo(this.embeddedListComponent, {
+                'oro:embedded-list:shown': this._onView,
+                'oro:embedded-list:clicked': this._onClick
+            });
 
             BaseEmbeddedListGtmComponent.__super__.delegateListeners.call(this);
         },
-
-        _onGtmReady: function() {
-            this._gtmReady = true;
-        },
-
         /**
          * @param {jQuery} $shownItems
-         * @private
+         * @protected
          */
-        _onView: function($shownItems) {
+        _onView($shownItems) {
             const viewData = [];
 
             $shownItems.each((function(i, item) {
@@ -86,9 +82,9 @@ define(function(require) {
          * Implement this method to invoke gtm:event:push event for view item list.
          *
          * @param {Array} viewData
-         * @private
+         * @protected
          */
-        _invokeEventView: function(viewData) {
+        _invokeEventView(viewData) {
             throw new Error('This method should be implemented in descendant');
         },
 
@@ -98,9 +94,9 @@ define(function(require) {
          * @param {Object} model Model of the viewed item
          * @param {Number} index Position in the list
          * @returns {Object}
-         * @private
+         * @protected
          */
-        _getViewData: function(model, index) {
+        _getViewData(model, index) {
             throw new Error('This method should be implemented in descendant');
         },
 
@@ -109,35 +105,35 @@ define(function(require) {
          *
          * @param {jQuery.Element} $item
          * @returns {Object|undefined}
-         * @private
+         * @protected
          */
-        _getModel: function($item) {
+        _getModel($item) {
             throw new Error('This method should be implemented in descendant');
         },
 
         /**
          * @param {jQuery.Element} $item
          * @returns {Number}
-         * @private
+         * @protected
          */
-        _getPosition: function($item) {
+        _getPosition($item) {
             return $(this.embeddedListComponent.$el).find(this.embeddedListComponent.options.itemSelector).index($item);
         },
 
         /**
          * @returns {String} Embedded block name
-         * @private
+         * @protected
          */
-        _getBlockName: function() {
+        _getBlockName() {
             return this.options.blockName;
         },
 
         /**
          * @param {jQuery.Element} $clickedItem
          * @param {jQuery.Event} event
-         * @private
+         * @protected
          */
-        _onClick: function($clickedItem, event) {
+        _onClick($clickedItem, event) {
             if (!event || event.isDefaultPrevented()) {
                 return;
             }
@@ -174,9 +170,9 @@ define(function(require) {
          *
          * @param {Array} clicksData Array of data of clicked items
          * @param {String} destinationUrl URL of the clicked link
-         * @private
+         * @protected
          */
-        _invokeEventClick: function(clicksData, destinationUrl) {
+        _invokeEventClick(clicksData, destinationUrl) {
             throw new Error('This method should be implemented in descendant');
         },
 
@@ -186,26 +182,10 @@ define(function(require) {
          * @param {Object} model Model of the clicked item
          * @param {Number} index Position in the list
          * @returns {Object}
-         * @private
+         * @protected
          */
-        _getClickData: function(model, index) {
+        _getClickData(model, index) {
             throw new Error('This method should be implemented in descendant');
-        },
-
-        /**
-         * @inheritdoc
-         */
-        dispose: function() {
-            if (this.disposed) {
-                return;
-            }
-
-            mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
-            this.embeddedListComponent.off('oro:embedded-list:shown', this._onView.bind(this));
-            this.embeddedListComponent.off('oro:embedded-list:clicked', this._onClick.bind(this));
-
-            BaseEmbeddedListGtmComponent.__super__.dispose.call(this);
         }
     });
 

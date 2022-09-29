@@ -12,9 +12,5 @@ layout:
               optionValue: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'
         - '@setOption':
               id: related_products_gtm_analytics4_product_list
-              optionName: 'vars.embeddedListComponentName'
-              optionValue: 'related-products-list'
-        - '@setOption':
-              id: related_products_gtm_analytics4_product_list
               optionName: 'vars.embeddedBlockName'
               optionValue: 'related-products'

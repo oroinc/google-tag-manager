@@ -1,12 +1,12 @@
 layout:
     actions:
         - '@setBlockTheme':
-            themes: 'analytics4_home_page_slider.html.twig'
+            themes: 'oro_image_slider_gtm_analytics4.html.twig'
 
         - '@add':
-            id: hero_promo_gtm_analytics4
+            id: __gtm_analytics4_slider
+            parentId: __root
+            siblingId: content_widget_image_slider
             blockType: block
-            parentId: page_content
-            siblingId: hero_promo
             options:
                 visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'

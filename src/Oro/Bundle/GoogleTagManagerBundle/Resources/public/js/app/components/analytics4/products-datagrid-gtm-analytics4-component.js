@@ -27,10 +27,9 @@ define(function(require) {
             listName: ''
         }),
 
-        /**
-         * @property {Boolean}
-         */
-        _gtmReady: false,
+        get _gtmReady() {
+            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
+        },
 
         /**
          * @property {jQuery.Element}
@@ -47,7 +46,7 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        initialize: function(options) {
+        initialize(options) {
             ProductsDatagridGtmAnalytics4Component.__super__.initialize.call(this, options);
 
             if (!this.productsDatagridComponent) {
@@ -64,13 +63,12 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        delegateListeners: function() {
+        delegateListeners() {
             ProductsDatagridGtmAnalytics4Component.__super__.delegateListeners.call(this);
 
-            mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
             // Both click and mouseup needed to be able to track both left and middle buttons clicks.
-            this.$datagridEl.on('click mouseup', this.options.productSelector + ' a', this._onClick.bind(this));
+            this.$datagridEl.on(`click.${this.cid} mouseup.${this.cid}`,
+                this.options.productSelector + ' a', this._onClick.bind(this));
 
             this.listenTo(this.productsDatagridComponent.grid, 'content:update', this._onView.bind(this));
         },
@@ -78,7 +76,7 @@ define(function(require) {
         /**
          * @private
          */
-        _onView: function() {
+        _onView() {
             const productsDetails = [];
             const listName = this._getListName();
 
@@ -98,15 +96,11 @@ define(function(require) {
             });
         },
 
-        _onGtmReady: function() {
-            this._gtmReady = true;
-        },
-
         /**
          * @param {jQuery.Event} event
          * @private
          */
-        _onClick: function(event) {
+        _onClick(event) {
             if (!event || event.isDefaultPrevented()) {
                 return;
             }
@@ -146,7 +140,7 @@ define(function(require) {
          * @returns {Object|undefined}
          * @private
          */
-        _getProductDetails: function(product) {
+        _getProductDetails(product) {
             const details = productDetailsGtmGa4Helper.getDetails(product);
             if (!details) {
                 return undefined;
@@ -163,7 +157,7 @@ define(function(require) {
          * @returns {Object|undefined}
          * @private
          */
-        _getClickData: function(product) {
+        _getClickData(product) {
             const details = this._getProductDetails(product);
             if (!details) {
                 return undefined;
@@ -179,7 +173,7 @@ define(function(require) {
          * @returns {Number}
          * @private
          */
-        _getIndex: function(product) {
+        _getIndex(product) {
             return $(this.$datagridEl).find(this.options.productSelector).index(product);
         },
 
@@ -187,7 +181,7 @@ define(function(require) {
          * @returns {String} List name
          * @private
          */
-        _getListName: function() {
+        _getListName() {
             return this.options.listName;
         },
 
@@ -199,7 +193,7 @@ define(function(require) {
          * @returns {Array}
          * @private
          */
-        _chunk: function(array, size) {
+        _chunk(array, size) {
             return array.reduce(function(res, item, index) {
                 if (index % size === 0) {
                     res.push([]);
@@ -213,14 +207,12 @@ define(function(require) {
         /**
          * @inheritdoc
          */
-        dispose: function() {
+        dispose() {
             if (this.disposed) {
                 return;
             }
 
-            mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
-            this.$datagridEl.off('click mouseup', this.options.productSelector, this._onClick.bind(this));
+            this.$datagridEl.off(`.${this.cid}`);
 
             ProductsDatagridGtmAnalytics4Component.__super__.dispose.call(this);
         }
