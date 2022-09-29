@@ -3,9 +3,10 @@ define(function(require) {
 
     const BaseComponent = require('oroui/js/app/components/base/component');
     const mediator = require('oroui/js/mediator');
-    const $ = require('jquery');
     const _ = require('underscore');
     const localeSettings = require('orolocale/js/locale-settings');
+
+    mediator.setHandler('gtm:data-layer-manager:isReady', () => false);
 
     const DataLayerManagerComponent = BaseComponent.extend({
         /**
@@ -21,7 +22,7 @@ define(function(require) {
         /**
          * @property {Array}
          */
-        _dataLayer: [],
+        _dataLayer: null,
 
         /**
          * @property {Object}
@@ -51,65 +52,48 @@ define(function(require) {
         /**
          * @param {Object} options
          */
-        initialize: function(options) {
+        initialize(options) {
             DataLayerManagerComponent.__super__.initialize.call(this, options);
-
             this.options = _.defaults(options || {}, this.options);
-        },
+            this._dataLayer = window[this.options.dataLayerName] || [];
 
-        /**
-         * @inheritdoc
-         */
-        delegateListeners: function() {
-            DataLayerManagerComponent.__super__.delegateListeners.call(this);
-
-            const gtmLoaded = $.Deferred();
-            const dataLayer = window[this.options.dataLayerName];
-            if (dataLayer instanceof Array && dataLayer.push !== Array.prototype.push) {
-                // Google Tag Manager has been already loaded.
-                gtmLoaded.resolve();
-            } else {
-                window.addEventListener('gtm:loaded', function() {
-                    gtmLoaded.resolve();
-                }, {once: true});
-            }
-
-            const pageLoaded = $.Deferred();
-            mediator.once('page:afterChange', function() {
-                pageLoaded.resolve();
-            });
-
-            // Wait until GTM is loaded and page is fully ready.
-            $.when([gtmLoaded, pageLoaded]).done((function() {
-                // Copy dataLayer contents if we already have something queued to push to data layer.
-                const dataLayerOld = this._dataLayer;
-
-                this._dataLayer = window[this.options.dataLayerName];
-
-                if (dataLayerOld.length) {
-                    // Push queued content to data layer.
-                    _.each(dataLayerOld, (function(item) {
-                        this._onPush(item);
-                    }).bind(this));
-                }
-
+            this._deferredInit();
+            const onGTMLoaded = () => {
                 mediator.trigger('gtm:data-layer-manager:ready');
-            }).bind(this));
+                mediator.setHandler('gtm:data-layer-manager:isReady', () => true);
+                this._resolveDeferredInit();
+            };
+            const gtmScript = document.querySelector('script[data-gtm-integration]');
+
+            if (
+                // there's no gtm.js script, in case the integration is stubbed for a test
+                !gtmScript ||
+                // gtm.js already loaded
+                gtmScript.loadDone ||
+                // gtm.js load is failed, resolve deferredInit to unblock UI (there's already system error in console)
+                gtmScript.loadError
+            ) {
+                onGTMLoaded();
+            } else {
+                window.addEventListener('gtm:loaded', onGTMLoaded, {once: true});
+                // gtm.js load is failed, resolve deferredInit to unblock UI (there's already system error in console)
+                window.addEventListener('gtm:error', onGTMLoaded, {once: true});
+            }
         },
 
         /**
          * @returns {Array}
          */
-        getDataLayer: function() {
+        getDataLayer() {
             return this._dataLayer;
         },
 
         /**
          * @param {Object} data
-         * @param {Boolean} [clear] Clear ecommerce object before pushing data. False by default.
+         * @param {boolean} [clear] Clear ecommerce object before pushing data. False by default.
          * @private
          */
-        _onPush: function(data, clear = false) {
+        _onPush(data, clear = false) {
             if (clear) {
                 this.getDataLayer().push({ecommerce: null});
             }

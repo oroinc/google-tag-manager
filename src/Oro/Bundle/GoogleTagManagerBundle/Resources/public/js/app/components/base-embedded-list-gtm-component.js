@@ -22,9 +22,11 @@ define(function(require) {
         }),
 
         /**
-         * @property {Boolean}
+         * @property {boolean}
          */
-        _gtmReady: false,
+        get _gtmReady() {
+            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
+        },
 
         /**
          * @inheritdoc
@@ -40,7 +42,9 @@ define(function(require) {
             BaseEmbeddedListGtmComponent.__super__.initialize.call(this, options);
 
             if (!this.embeddedListComponent) {
-                throw new Error('Sibling component `embeddedListComponent` is required.');
+                const embeddedListComponentName = options.relatedSiblingComponents.__initial__.embeddedListComponent;
+                throw new Error(`EmbeddedListComponent with name "${embeddedListComponentName}" is not found, ` +
+                    'it is required for GTM integration.');
             }
 
             this.options = _.defaults(options || {}, this.options);
@@ -50,16 +54,16 @@ define(function(require) {
          * @inheritdoc
          */
         delegateListeners: function() {
-            mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
-            this.embeddedListComponent.on('oro:embedded-list:shown', this._onImpression.bind(this));
-            this.embeddedListComponent.on('oro:embedded-list:clicked', this._onClick.bind(this));
+            this.listenTo(this.embeddedListComponent, {
+                'oro:embedded-list:shown': this._onImpression,
+                'oro:embedded-list:clicked': this._onClick
+            });
 
             BaseEmbeddedListGtmComponent.__super__.delegateListeners.call(this);
         },
 
         _onGtmReady: function() {
-            this._gtmReady = true;
+            // @deprecated
         },
 
         /**
@@ -208,22 +212,6 @@ define(function(require) {
          */
         _getClickData: function(model, index) {
             throw new Error('This method should be implemented in descendant');
-        },
-
-        /**
-         * @inheritdoc
-         */
-        dispose: function() {
-            if (this.disposed) {
-                return;
-            }
-
-            mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
-            this.embeddedListComponent.off('oro:embedded-list:shown', this._onImpression.bind(this));
-            this.embeddedListComponent.off('oro:embedded-list:clicked', this._onClick.bind(this));
-
-            BaseEmbeddedListGtmComponent.__super__.dispose.call(this);
         }
     });
 

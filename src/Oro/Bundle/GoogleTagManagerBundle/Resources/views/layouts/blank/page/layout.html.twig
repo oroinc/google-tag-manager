@@ -3,8 +3,10 @@
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;j.addEventListener('load',
-            function(){d.dispatchEvent(new CustomEvent('gtm:loaded',{bubbles: true}));});f.parentNode.insertBefore(j,f);
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;j.setAttribute('data-gtm-integration','');
+            j.addEventListener('load',()=>{j.loadDone=true;d.dispatchEvent(new CustomEvent('gtm:loaded',{bubbles: true}));});
+            j.addEventListener('error',()=>{j.loadError=true;d.dispatchEvent(new CustomEvent('gtm:error',{bubbles: true}));});
+            f.parentNode.insertBefore(j,f);
         })(window,document,'script','{{ data_layer_name }}','{{ container_id }}');</script>
     <!-- End Google Tag Manager -->
 {% endblock %}

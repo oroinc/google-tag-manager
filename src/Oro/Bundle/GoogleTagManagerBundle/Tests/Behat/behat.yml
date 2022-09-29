@@ -18,6 +18,12 @@ oro_behat_extension:
         New Arrivals Next Button:
             selector: 'div[data-page-component-name="new-arrivals-list"] button.slick-next'
 
+        First Image Slider:
+            selector: '.cms-page>[data-type="image_slider"]'
+
+        Second Image Slider:
+            selector: '.cms-page>.content-block [data-type="image_slider"]'
+
     suites:
         OroGoogleTagManagerBundle:
             contexts:

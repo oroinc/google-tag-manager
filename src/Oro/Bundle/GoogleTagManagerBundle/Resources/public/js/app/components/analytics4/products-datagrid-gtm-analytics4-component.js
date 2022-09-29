@@ -28,9 +28,11 @@ define(function(require) {
         }),
 
         /**
-         * @property {Boolean}
+         * @property {boolean}
          */
-        _gtmReady: false,
+        get _gtmReady() {
+            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
+        },
 
         /**
          * @property {jQuery.Element}
@@ -67,10 +69,9 @@ define(function(require) {
         delegateListeners: function() {
             ProductsDatagridGtmAnalytics4Component.__super__.delegateListeners.call(this);
 
-            mediator.once('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
             // Both click and mouseup needed to be able to track both left and middle buttons clicks.
-            this.$datagridEl.on('click mouseup', this.options.productSelector + ' a', this._onClick.bind(this));
+            this.$datagridEl.on(`click.${this.cid} mouseup.${this.cid}`,
+                this.options.productSelector + ' a', this._onClick.bind(this));
 
             this.listenTo(this.productsDatagridComponent.grid, 'content:update', this._onView.bind(this));
         },
@@ -99,7 +100,7 @@ define(function(require) {
         },
 
         _onGtmReady: function() {
-            this._gtmReady = true;
+            // @deprecated
         },
 
         /**
@@ -218,9 +219,7 @@ define(function(require) {
                 return;
             }
 
-            mediator.off('gtm:data-layer-manager:ready', this._onGtmReady, this);
-
-            this.$datagridEl.off('click mouseup', this.options.productSelector, this._onClick.bind(this));
+            this.$datagridEl.off(`.${this.cid}`);
 
             ProductsDatagridGtmAnalytics4Component.__super__.dispose.call(this);
         }

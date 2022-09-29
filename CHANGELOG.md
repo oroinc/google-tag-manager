@@ -63,6 +63,8 @@ The current file describes significant changes in the code that may affect the u
 * Deprecated TWIG templates, layout blocks and layout updates related to Universal Analytics.
 * Deprecated `oro_google_tag_manager_product_detail` TWIG function related to Universal Analytics.
 * Deprecated `product_detail` search index field of Product entity, make use of the new `gtm_analytics4_product_detail` instead.
+* Deprecated `gtm:data-layer-manager:ready` mediator event, use mediator handler instead: `mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false`.
+* Deprecated `hero_promo_gtm_analytics4` layout block, use `__gtm_analytics4_slider` instead.
 
 ## 4.1.0
 

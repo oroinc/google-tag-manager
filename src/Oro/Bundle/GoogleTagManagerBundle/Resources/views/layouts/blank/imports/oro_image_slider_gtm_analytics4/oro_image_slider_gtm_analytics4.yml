@@ -1,0 +1,12 @@
+layout:
+    actions:
+        - '@setBlockTheme':
+            themes: 'oro_image_slider_gtm_analytics4.html.twig'
+
+        - '@add':
+            id: __gtm_analytics4_slider
+            parentId: __root
+            siblingId: content_widget_image_slider
+            blockType: block
+            options:
+                visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'

@@ -17,10 +17,10 @@ define(function(require) {
         },
 
         /**
-         * @property {Object}
+         * @property {boolean}
          */
-        listen: {
-            'gtm:data-layer-manager:ready mediator': '_onReady'
+        get _gtmReady() {
+            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
         },
 
         /**
@@ -35,6 +35,11 @@ define(function(require) {
          */
         initialize: function(options) {
             this.options = _.defaults(options || {}, this.options);
+            if (this._gtmReady) {
+                this._onReady();
+            } else {
+                this.listenToOnce(mediator, 'gtm:data-layer-manager:ready', this._onReady);
+            }
         },
 
         _onReady: function() {
