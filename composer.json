@@ -16,7 +16,7 @@
         "exclude-from-classmap": ["/Tests/"]
     },
     "require": {
-        "oro/commerce": "4.2.*"
+        "oro/commerce": "^4.2.12"
     },
     "repositories": {
         "oro": {
