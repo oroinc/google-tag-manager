@@ -878,8 +878,6 @@ Feature: GTM events for large product lists
       | SKU34       | 1        | item |
       | SKU35       | 1        | item |
     And I import file for quick order
-    And I click "Add to Form"
-    And I wait for products to load
     When I click "Add to Shopping List"
     Then GTM data layer must contain the following message:
       """
