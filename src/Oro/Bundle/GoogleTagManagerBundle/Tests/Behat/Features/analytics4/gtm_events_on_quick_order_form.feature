@@ -15,16 +15,16 @@ Feature: GTM events on quick order form
 
   Scenario: Check add to cart events on quick order form
     Given I click "Quick Order Form"
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU1 | SKU1 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU2 | SKU2 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU3 | SKU2 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | QTY1  | 1   |
       | QTY2  | 2   |
       | UNIT2 | set |
@@ -70,16 +70,16 @@ Feature: GTM events on quick order form
 
   Scenario: Check create order events on quick order form
     Given I click "Quick Order Form"
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU1 | SKU1 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU2 | SKU2 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU3 | SKU2 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | QTY1  | 1   |
       | QTY2  | 2   |
       | UNIT2 | set |
@@ -128,16 +128,16 @@ Feature: GTM events on quick order form
 
   Scenario: Check add to cart events on request quote
     Given I click "Quick Order Form"
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU1 | SKU1 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU2 | SKU2 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | SKU3 | SKU2 |
     And I wait for products to load
-    And I fill "QuickAddForm" with:
+    And I fill "Quick Order Form" with:
       | QTY1  | 1   |
       | QTY2  | 2   |
       | UNIT2 | set |
