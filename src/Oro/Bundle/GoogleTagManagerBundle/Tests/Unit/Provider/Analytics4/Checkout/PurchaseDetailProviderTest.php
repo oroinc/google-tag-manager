@@ -74,7 +74,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->method('formatShippingMethodWithTypeLabel')
             ->willReturnCallback(
                 static function (string $shippingMethod, string $shippingType) {
-                    return $shippingMethod . ShippingMethodLabelFormatter::DELIMITER . $shippingType . '_formatted';
+                    return $shippingMethod . ', ' . $shippingType . '_formatted';
                 }
             );
 
