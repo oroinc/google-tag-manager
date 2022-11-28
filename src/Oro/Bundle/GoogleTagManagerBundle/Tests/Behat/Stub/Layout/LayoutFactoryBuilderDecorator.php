@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Stub\Layout;
 
 use Oro\Bundle\DistributionBundle\Handler\ApplicationState;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\IntegrationSettingsProvider;
+use Oro\Bundle\LayoutBundle\Layout\Context\LayoutContextStack;
 use Oro\Component\Layout\BlockTypeExtensionInterface;
 use Oro\Component\Layout\BlockTypeInterface;
 use Oro\Component\Layout\BlockViewCache;
@@ -21,21 +22,25 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
 
     private ExpressionProcessor $expressionProcessor;
 
-    private ?BlockViewCache $blockViewCache;
-
     private ApplicationState $applicationState;
+
+    private LayoutContextStack $layoutContextStack;
+
+    private ?BlockViewCache $blockViewCache;
 
     public function __construct(
         LayoutFactoryBuilderInterface $inner,
-        IntegrationSettingsProvider   $gtmSettingsProvider,
-        ExpressionProcessor           $expressionProcessor,
-        ApplicationState              $applicationState,
-        BlockViewCache                $blockViewCache = null
+        IntegrationSettingsProvider $gtmSettingsProvider,
+        ExpressionProcessor $expressionProcessor,
+        ApplicationState $applicationState,
+        LayoutContextStack $layoutContextStack,
+        BlockViewCache $blockViewCache = null
     ) {
         $this->inner = $inner;
         $this->gtmSettingsProvider = $gtmSettingsProvider;
         $this->expressionProcessor = $expressionProcessor;
         $this->applicationState = $applicationState;
+        $this->layoutContextStack = $layoutContextStack;
         $this->blockViewCache = $blockViewCache;
     }
 
@@ -96,6 +101,7 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
             return new LayoutFactoryDecorator(
                 $this->inner->getLayoutFactory(),
                 $this->expressionProcessor,
+                $this->layoutContextStack,
                 $this->blockViewCache
             );
         }

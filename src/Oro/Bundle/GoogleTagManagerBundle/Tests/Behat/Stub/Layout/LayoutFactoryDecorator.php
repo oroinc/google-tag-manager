@@ -5,6 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Behat\Stub\Layout;
 use Oro\Component\Layout\BlockViewCache;
 use Oro\Component\Layout\DeferredLayoutManipulatorInterface;
 use Oro\Component\Layout\ExpressionLanguage\ExpressionProcessor;
+use Oro\Component\Layout\LayoutContextStack;
 use Oro\Component\Layout\LayoutFactoryInterface;
 use Oro\Component\Layout\RawLayoutBuilderInterface;
 
@@ -13,22 +14,23 @@ use Oro\Component\Layout\RawLayoutBuilderInterface;
  */
 class LayoutFactoryDecorator implements LayoutFactoryInterface
 {
-    /** @var LayoutFactoryInterface */
-    private $inner;
+    private LayoutFactoryInterface $inner;
 
-    /** @var ExpressionProcessor */
-    private $expressionProcessor;
+    private ExpressionProcessor $expressionProcessor;
 
-    /** @var BlockViewCache */
-    private $blockViewCache;
+    private LayoutContextStack $layoutContextStack;
+
+    private BlockViewCache $blockViewCache;
 
     public function __construct(
         LayoutFactoryInterface $inner,
         ExpressionProcessor $expressionProcessor,
+        LayoutContextStack $layoutContextStack,
         BlockViewCache $blockViewCache = null
     ) {
         $this->inner = $inner;
         $this->expressionProcessor = $expressionProcessor;
+        $this->layoutContextStack = $layoutContextStack;
         $this->blockViewCache = $blockViewCache;
     }
 
@@ -96,6 +98,7 @@ class LayoutFactoryDecorator implements LayoutFactoryInterface
             $blockFactory,
             $this->getRendererRegistry(),
             $this->expressionProcessor,
+            $this->layoutContextStack,
             $this->blockViewCache
         );
     }
