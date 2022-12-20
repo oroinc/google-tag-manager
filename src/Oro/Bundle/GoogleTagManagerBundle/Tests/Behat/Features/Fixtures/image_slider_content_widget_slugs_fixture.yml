@@ -1,8 +1,0 @@
-Oro\Bundle\RedirectBundle\Entity\Slug:
-    landing_page_slug:
-        organization: '@organization'
-        url: '/@sliders_page_slug->string'
-        slugPrototype: '@sliders_page_slug'
-        routeName: 'oro_cms_frontend_page_view'
-        __calls:
-            - setRouteParameters: [{id: '@sliders_page->id'}]
