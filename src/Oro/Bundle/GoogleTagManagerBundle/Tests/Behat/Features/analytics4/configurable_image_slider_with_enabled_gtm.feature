@@ -22,8 +22,8 @@ Feature: Configurable image slider with enabled GTM
     And I save and close form
     Then I should see "Content widget has been saved" flash message
     And I should see next rows in "Slides" table
-      | Slide Order | URL       | Title       | Text Alignment | Target Window |
-      | 1           | /product/ | Lorem ipsum | Right          | New Window    |
+      | Slide Order | URL       | Title         | Text Alignment | Target Window |
+      | 1           | /product/ | Seasonal Sale | Right          | New Window    |
 
   Scenario: Check content widget of storefront
     Given I proceed as the Buyer
@@ -35,7 +35,7 @@ Feature: Configurable image slider with enabled GTM
         {
           "event": "view_promotion",
           "ecommerce": {
-            "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 0}]
+            "items": [{"creative_name": "home-page-slider", "item_name": "Seasonal Sale", "index": 0}]
           }
         }
       """
@@ -49,7 +49,7 @@ Feature: Configurable image slider with enabled GTM
               "cancel": []
           },
           "ecommerce": {
-            "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 0}]
+            "items": [{"creative_name": "home-page-slider", "item_name": "Seasonal Sale", "index": 0}]
           }
         }
       """
