@@ -68,7 +68,7 @@ Feature: GTM events on homepage
         {
           "event": "view_promotion",
           "ecommerce": {
-            "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 2}]
+            "items": [{"creative_name": "home-page-slider", "item_name": "Best-Priced Medical Supplies", "index": 2}]
           }
         }
       """
@@ -79,7 +79,7 @@ Feature: GTM events on homepage
         {
           "event": "view_promotion",
           "ecommerce": {
-            "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 0}]
+            "items": [{"creative_name": "home-page-slider", "item_name": "Seasonal Sale", "index": 0}]
           }
         }
       """
@@ -93,7 +93,7 @@ Feature: GTM events on homepage
               "cancel": []
           },
           "ecommerce": {
-            "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 0}]
+            "items": [{"creative_name": "home-page-slider", "item_name": "Seasonal Sale", "index": 0}]
           }
         }
       """

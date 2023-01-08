@@ -2,7 +2,6 @@
 @feature-BB-21702
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:image_slider_content_widget_fixture.yml
-@fixture-OroGoogleTagManagerBundle:image_slider_content_widget_slugs_fixture.yml
 
 Feature: GTM events on landing page with image sliders
 

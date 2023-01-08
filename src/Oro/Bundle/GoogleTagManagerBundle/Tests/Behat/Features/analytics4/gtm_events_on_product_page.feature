@@ -111,3 +111,51 @@ Feature: GTM events on product page
       | UPSELL1 | $1.5678 / item     | $1.5678 / item       |
       | UPSELL2 | $3.1356 / item     | $3.1356 / item       |
       | UPSELL3 | $4.7034 / item     | $4.7034 / item       |
+
+    And GTM data layer must contain the following message:
+      """
+        {
+          "ecommerce": {
+              "currency": "USD",
+              "items": [
+                  {
+                      "index": 0,
+                      "item_category": "NewCategory",
+                      "item_id": "SKU1",
+                      "item_list_name": "similar-products",
+                      "item_name": "Product 1",
+                      "price": 10.4555
+                  },
+                  {
+                      "index": 1,
+                      "item_id": "RELATED2",
+                      "item_list_name": "similar-products",
+                      "item_name": "Related Product 2",
+                      "price": 2.2468
+                  },
+                  {
+                      "index": 2,
+                      "item_id": "UPSELL2",
+                      "item_list_name": "similar-products",
+                      "item_name": "Upsell Product 2",
+                      "price": 3.1356
+                  },
+                  {
+                      "index": 3,
+                      "item_id": "RELATED1",
+                      "item_list_name": "similar-products",
+                      "item_name": "Related Product 1",
+                      "price": 1.1234
+                  }
+              ]
+          },
+          "event": "view_item_list"
+        }
+      """
+
+    And I should see the following products in the "Similar Products Block":
+      | SKU      | Product Price Your | Product Price Listed |
+      | SKU1     | $10.4555 / item    | $10.4555 / item      |
+      | RELATED2 | $2.2468 / item     | $2.2468 / item       |
+      | UPSELL2  | $3.1356 / item     | $3.1356 / item       |
+      | RELATED1 | $1.1234 / item     | $1.1234 / item       |

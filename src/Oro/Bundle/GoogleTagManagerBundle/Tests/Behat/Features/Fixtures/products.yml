@@ -1,5 +1,6 @@
 include:
     - '@OroCustomerBundle/Tests/Behat/Features/Fixtures/CustomerUserAmandaRCole.yml'
+    - '@OroProductBundle:ConfigurableAttributeFamily.yml'
 
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
     precision1:
@@ -18,30 +19,18 @@ Oro\Bundle\ProductBundle\Entity\ProductName:
     locValue2:
         string: 'Product 2'
 
-Oro\Bundle\LocaleBundle\Entity\LocalizedFallbackValue:
-    locValueFamily:
-        string: 'Default'
-
 Oro\Bundle\CatalogBundle\Entity\CategoryTitle:
     localNewCategory:
         string: 'NewCategory'
 
-Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
-    productAttributeFamily:
-        entityClass: 'Oro\\Bundle\\ProductBundle\\Entity\\Product'
-        code: 'product_attribute_family_code'
-        __calls:
-            - addLabel: ['@locValueFamily']
-        owner: '@organization'
-
 Oro\Bundle\ProductBundle\Entity\Product:
     product1:
         type: 'simple'
+        primaryUnitPrecision: '@precision1'
+        unitPrecisions: [ '@precision1' ]
         sku: 'SKU1'
         __calls:
             - addName: ['@locValue1']
-            - addUnitPrecision: ['@precision1']
-            - setPrimaryUnitPrecision: ['@precision1']
         inventoryStatus: '@enumInventoryStatuses'
         status: 'enabled'
         organization: '@organization'

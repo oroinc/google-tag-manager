@@ -20,6 +20,7 @@ Oro\Bundle\WebCatalogBundle\Entity\ContentNode:
         __calls:
             - addTitle: ['@localValueRootNode']
             - addContentVariant: ['@systemPageVariant']
+            - addScope: ['@default_scope']
         webCatalog: '@webCatalog'
 
     nodeAllProduct:
@@ -27,6 +28,7 @@ Oro\Bundle\WebCatalogBundle\Entity\ContentNode:
             - addTitle: ['@localValueAllProductsNode']
             - addSlugPrototype: ['@localValueAllProductsSlug']
             - addContentVariant: ['@systemPageVariantAllProducts']
+            - addScope: ['@default_scope']
         parentNode: '@nodeRoot'
         webCatalog: '@webCatalog'
 
@@ -34,7 +36,9 @@ Oro\Bundle\WebCatalogBundle\Entity\ContentVariant:
     systemPageVariant:
         type: 'system_page'
         systemPageRoute: 'oro_frontend_root'
+        scopes: [ '@default_scope' ]
 
     systemPageVariantAllProducts:
         type: 'system_page'
         systemPageRoute: 'oro_catalog_frontend_product_allproducts'
+        scopes: [ '@default_scope' ]
