@@ -114,8 +114,8 @@ Feature: GTM events on shopping list
   Scenario: Update product quantity in shopping list
     When I type "3" in "Product Quantity"
     And I click "Update Shopping List"
-    And I should see "Record has been successfully updated" flash message
-    Then GTM data layer must contain the following message:
+    Then I should see 'Product has been updated in "Shopping List"' flash message
+    And GTM data layer must contain the following message:
       """
         {
           "event": "addToCart",
@@ -160,8 +160,8 @@ Feature: GTM events on shopping list
   Scenario: Remove part of products from shopping list
     When I type "2" in "Product Quantity"
     And I click "Update Shopping List"
-    And I should see "Record has been successfully updated" flash message
-    Then GTM data layer must contain the following message:
+    Then I should see 'Product has been updated in "Shopping List"' flash message
+    And GTM data layer must contain the following message:
       """
         {
           "event": "removeFromCart",
