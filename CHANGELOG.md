@@ -2,7 +2,12 @@ The upgrade instructions are available at [Oro documentation website](https://do
 
 The current file describes significant changes in the code that may affect the upgrade of your customizations.
 
-## UNRELEASED
+## Changes in the Google Tag Manager package versions
+
+- [5.1.0](#510-unreleased)
+- [4.1.0](#410-2020-01-31)
+
+## 5.1.0 (UNRELEASED)
 
 ### Added
 
@@ -72,7 +77,7 @@ The current file describes significant changes in the code that may affect the u
 * Removed `product_detail` search index field of Product entity, make use of the new `gtm_analytics4_product_detail` instead.
 * Removed `gtm:data-layer-manager:ready` mediator event, use mediator handler instead: `mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false`.
 
-## 4.1.0
+## 4.1.0 (2020-01-31)
 
 ### Removed
 * `*.class` parameters for all entities were removed from the dependency injection container.
