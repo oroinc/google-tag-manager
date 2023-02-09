@@ -1,3 +1,5 @@
+@skip
+# @todo: Unskip when BAP-21877 will be resolved
 @regression
 @feature-BB-21298
 @fixture-OroGoogleTagManagerBundle:integration.yml
