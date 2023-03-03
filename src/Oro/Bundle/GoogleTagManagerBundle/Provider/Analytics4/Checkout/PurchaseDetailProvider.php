@@ -11,7 +11,6 @@ use Oro\Bundle\OrderBundle\Entity\Order;
 use Oro\Bundle\PaymentBundle\Entity\PaymentTransaction;
 use Oro\Bundle\PaymentBundle\Entity\Repository\PaymentTransactionRepository;
 use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
-use Oro\Bundle\PromotionBundle\Entity\AppliedCouponsAwareInterface;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Bundle\TaxBundle\Exception\TaxationDisabledException;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
@@ -172,7 +171,7 @@ class PurchaseDetailProvider implements LoggerAwareInterface
             );
         }
 
-        /** @var Order|AppliedCouponsAwareInterface $order */
+        /** @var Order|object $order */
         $promotionsNames = $this->appliedPromotionsNamesProvider->getAppliedPromotionsNames($order);
         if ($promotionsNames) {
             $data['ecommerce']['coupon'] = implode(',', $promotionsNames);

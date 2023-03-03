@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\CatalogBundle\Entity\Category;
+use Oro\Bundle\EntityExtendBundle\PropertyAccess;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
 use Oro\Bundle\ProductBundle\Entity\Product;
 
@@ -46,8 +47,9 @@ class ProductDetailProvider
             $data['item_brand'] = $brand->getName($localization)->getString();
         }
 
-        if (method_exists($product, 'getCategory') && $product->getCategory()) {
-            $categoryTitles = $this->getCategoryTitles($product->getCategory(), $localization);
+        $accessor = PropertyAccess::createPropertyAccessor();
+        if ($accessor->isReadable($product, 'category') && $accessor->getValue($product, 'category')) {
+            $categoryTitles = $this->getCategoryTitles($accessor->getValue($product, 'category'), $localization);
             $this->fillCategories($categoryTitles, $data);
         }
 

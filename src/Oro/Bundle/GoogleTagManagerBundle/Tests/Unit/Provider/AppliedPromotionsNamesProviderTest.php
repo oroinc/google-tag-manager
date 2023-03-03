@@ -6,12 +6,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider;
 use Oro\Bundle\PaymentBundle\Entity\Repository\PaymentTransactionRepository;
-use Oro\Bundle\PromotionBundle\Entity\AppliedCouponsAwareInterface;
 use Oro\Bundle\PromotionBundle\Entity\Coupon;
 use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Entity\Repository\PromotionRepository;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 use Oro\Bundle\PromotionBundle\Tests\Unit\Entity\Stub\PromotionStub;
+use Oro\Bundle\PromotionBundle\Tests\Unit\Stub\AppliedCouponsAwareStub;
 
 class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
 {
@@ -39,7 +39,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testGetAppliedPromotionsNamesWhenNoCoupons(): void
     {
-        $entity = $this->createMock(AppliedCouponsAwareInterface::class);
+        $entity = $this->createMock(AppliedCouponsAwareStub::class);
         $this->entityCouponsProvider->expects(self::once())
             ->method('getCoupons')
             ->with($entity)
@@ -53,7 +53,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
         $coupons = new ArrayCollection();
         $coupons->add(new Coupon());
 
-        $entity = $this->createMock(AppliedCouponsAwareInterface::class);
+        $entity = $this->createMock(AppliedCouponsAwareStub::class);
         $this->entityCouponsProvider->expects(self::once())
             ->method('getCoupons')
             ->with($entity)
@@ -74,7 +74,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
         $coupon = new Coupon();
         $coupon->setPromotion($promotion);
 
-        $entity = $this->createMock(AppliedCouponsAwareInterface::class);
+        $entity = $this->createMock(AppliedCouponsAwareStub::class);
         $this->entityCouponsProvider->expects(self::once())
             ->method('getCoupons')
             ->with($entity)
@@ -102,7 +102,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
         $coupon2 = new Coupon();
         $coupon2->setPromotion($promotion2);
 
-        $entity = $this->createMock(AppliedCouponsAwareInterface::class);
+        $entity = $this->createMock(AppliedCouponsAwareStub::class);
         $this->entityCouponsProvider->expects(self::once())
             ->method('getCoupons')
             ->with($entity)

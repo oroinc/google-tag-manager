@@ -3,7 +3,6 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\Provider;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Oro\Bundle\PromotionBundle\Entity\AppliedCouponsAwareInterface;
 use Oro\Bundle\PromotionBundle\Entity\Coupon;
 use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
@@ -32,7 +31,7 @@ class AppliedPromotionsNamesProvider
      *      // ...
      *  ]
      */
-    public function getAppliedPromotionsNames(AppliedCouponsAwareInterface $entity): array
+    public function getAppliedPromotionsNames($entity): array
     {
         /** @var Coupon[] $coupons */
         $coupons = $this->entityCouponsProvider->getCoupons($entity)->toArray();
