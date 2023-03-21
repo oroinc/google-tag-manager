@@ -8,7 +8,14 @@
         {% endif %}
 
         {% if productDetail is not empty %}
-            {% if not is_configurable_product_type(product.type) or matrixFormType == 'none' %}
+            {% set isRenderable = (
+                (
+                    not is_configurable_product_type(product.type) and
+                    not is_kit_product_type(product.type)
+                ) or
+                matrixFormType == 'none'
+            ) %}
+            {% if isRenderable %}
                 {% if product.prices is defined %}
                     {% set productPrice = product.prices|first %}
                 {% elseif productPrices is defined %}
