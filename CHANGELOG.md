@@ -4,10 +4,10 @@ The current file describes significant changes in the code that may affect the u
 
 ## Changes in the Google Tag Manager package versions
 
-- [5.1.0](#510-unreleased)
+- [5.1.0](#510-2023-03-31)
 - [4.1.0](#410-2020-01-31)
 
-## 5.1.0 (UNRELEASED)
+## 5.1.0 (2023-03-31)
 
 ### Added
 
