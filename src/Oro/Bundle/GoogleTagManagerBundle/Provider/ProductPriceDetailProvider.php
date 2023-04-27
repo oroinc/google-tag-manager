@@ -7,7 +7,7 @@ use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
-use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactory;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
@@ -35,18 +35,22 @@ class ProductPriceDetailProvider
     /** @var ProductPriceScopeCriteriaFactoryInterface */
     private $priceScopeCriteriaFactory;
 
+    private ProductPriceCriteriaFactory $productPriceCriteriaFactory;
+
     public function __construct(
         TokenStorageInterface $tokenStorage,
         WebsiteManager $websiteManager,
         UserCurrencyManager $userCurrencyManager,
         ProductPriceProviderInterface $productPriceProvider,
-        ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory
+        ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory,
+        ProductPriceCriteriaFactory $productPriceCriteriaFactory
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->websiteManager = $websiteManager;
         $this->userCurrencyManager = $userCurrencyManager;
         $this->productPriceProvider = $productPriceProvider;
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
+        $this->productPriceCriteriaFactory = $productPriceCriteriaFactory;
     }
 
     public function getPrice(Product $product, ProductUnit $productUnit, float $qty): ?Price
@@ -54,7 +58,7 @@ class ProductPriceDetailProvider
         $website = $this->websiteManager->getCurrentWebsite();
         $currency = $this->userCurrencyManager->getUserCurrency($website);
 
-        $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
+        $priceCriteria = $this->productPriceCriteriaFactory->build($product, $productUnit, $qty, $currency);
         $scopeCriteria = $this->priceScopeCriteriaFactory->create($website, $this->getCustomer());
 
         $prices = $this->productPriceProvider->getMatchedPrices([$priceCriteria], $scopeCriteria);

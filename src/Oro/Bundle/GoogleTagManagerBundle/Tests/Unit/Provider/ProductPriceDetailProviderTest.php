@@ -10,6 +10,7 @@ use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactory;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactory;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
@@ -26,23 +27,19 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
 
-    /** @var TokenStorageInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $tokenStorage;
+    private TokenStorageInterface&\PHPUnit\Framework\MockObject\MockObject $tokenStorage;
 
-    /** @var WebsiteManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $websiteManager;
+    private WebsiteManager&\PHPUnit\Framework\MockObject\MockObject $websiteManager;
 
-    /** @var UserCurrencyManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $userCurrencyManager;
+    private UserCurrencyManager&\PHPUnit\Framework\MockObject\MockObject $userCurrencyManager;
 
-    /** @var ProductPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $productPriceProvider;
+    private ProductPriceProviderInterface&\PHPUnit\Framework\MockObject\MockObject $productPriceProvider;
 
-    /** @var ProductPriceScopeCriteriaFactoryInterface */
-    private $priceScopeCriteriaFactory;
+    private ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory;
 
-    /** @var ProductPriceDetailProvider */
-    private $provider;
+    private ProductPriceDetailProvider $provider;
+
+    private ProductPriceCriteriaFactory $productPriceCriteriaFactory;
 
     protected function setUp(): void
     {
@@ -51,13 +48,15 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->userCurrencyManager = $this->createMock(UserCurrencyManager::class);
         $this->productPriceProvider = $this->createMock(ProductPriceProviderInterface::class);
         $this->priceScopeCriteriaFactory = new ProductPriceScopeCriteriaFactory();
+        $this->productPriceCriteriaFactory = $this->createMock(ProductPriceCriteriaFactory::class);
 
         $this->provider = new ProductPriceDetailProvider(
             $this->tokenStorage,
             $this->websiteManager,
             $this->userCurrencyManager,
             $this->productPriceProvider,
-            $this->priceScopeCriteriaFactory
+            $this->priceScopeCriteriaFactory,
+            $this->productPriceCriteriaFactory
         );
     }
 
@@ -90,6 +89,13 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new UsernamePasswordToken($customerUser, '', 'test'));
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
+
+        $this->productPriceCriteriaFactory->expects($this->once())->method('build')->with(
+            $this->equalTo($product),
+            $this->equalTo($productUnit),
+            $this->equalTo($qty),
+            $this->equalTo($currency)
+        )->willReturn($priceCriteria);
 
         $scopeCriteria = new ProductPriceScopeCriteria();
         $scopeCriteria->setWebsite($website);
@@ -147,6 +153,13 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new AnonymousCustomerUserToken('', [], $customerVisitor));
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
+
+        $this->productPriceCriteriaFactory->expects($this->once())->method('build')->with(
+            $this->equalTo($product),
+            $this->equalTo($productUnit),
+            $this->equalTo($qty),
+            $this->equalTo($currency)
+        )->willReturn($priceCriteria);
 
         $scopeCriteria = new ProductPriceScopeCriteria();
         $scopeCriteria->setWebsite($website);
