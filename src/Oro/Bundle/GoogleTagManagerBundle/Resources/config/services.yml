@@ -1,6 +1,7 @@
 services:
     oro_google_tag_manager.data_layer.manager:
         class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager'
+        lazy: true
         arguments:
             - '@session'
             - !tagged_iterator oro_google_tag_manager.data_layer.collector
