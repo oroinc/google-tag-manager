@@ -12,6 +12,7 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetai
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
@@ -33,7 +34,11 @@ class CheckoutPurchaseEventListenerTest extends TestCase
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
-        $this->dataLayerManager = new DataLayerManager(new Session(new MockArraySessionStorage()), []);
+        $session = new Session(new MockArraySessionStorage());
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getSession')
+            ->willReturn($session);
+        $this->dataLayerManager = new DataLayerManager($requestStack, []);
         $this->purchaseDetailProvider = $this->createMock(PurchaseDetailProvider::class);
 
         $this->dataLayerManager->append(['option1' => 'value1']);

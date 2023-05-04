@@ -10,6 +10,7 @@ use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\BeginCheckoutEven
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Component\Action\Event\ExtendableConditionEvent;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
@@ -31,7 +32,12 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
-        $this->dataLayerManager = new DataLayerManager(new Session(new MockArraySessionStorage()), []);
+        $session = new Session(new MockArraySessionStorage());
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->expects($this->any())
+            ->method('getSession')
+            ->willReturn($session);
+        $this->dataLayerManager = new DataLayerManager($requestStack, []);
         $this->checkoutDetailProvider = $this->createMock(CheckoutDetailProvider::class);
 
         $this->dataLayerManager->append(['option1' => 'value1']);

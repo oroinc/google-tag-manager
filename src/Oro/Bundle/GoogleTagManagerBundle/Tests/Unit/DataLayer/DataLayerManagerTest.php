@@ -5,6 +5,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\DataLayer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CollectorInterface;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
@@ -12,6 +13,8 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
     private const KEY = 'oro_google_tag_manager.data_layer';
 
     private SessionInterface|\PHPUnit\Framework\MockObject\MockObject $session;
+
+    private RequestStack|\PHPUnit\Framework\MockObject\MockObject $requestStack;
 
     private CollectorInterface|\PHPUnit\Framework\MockObject\MockObject $collector1;
 
@@ -24,8 +27,12 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
         $this->session = $this->createMock(SessionInterface::class);
         $this->collector1 = $this->createMock(CollectorInterface::class);
         $this->collector2 = $this->createMock(CollectorInterface::class);
+        $this->requestStack = $this->createMock(RequestStack::class);
+        $this->requestStack->expects($this->any())
+            ->method('getSession')
+            ->willReturn($this->session);
 
-        $this->manager = new DataLayerManager($this->session, [$this->collector1, $this->collector2]);
+        $this->manager = new DataLayerManager($this->requestStack, [$this->collector1, $this->collector2]);
     }
 
     /**

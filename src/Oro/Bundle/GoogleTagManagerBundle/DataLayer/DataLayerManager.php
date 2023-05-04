@@ -4,7 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\DataLayer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CollectorInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Collects, store and reset data layer data.
@@ -13,20 +13,12 @@ class DataLayerManager
 {
     private const KEY = 'oro_google_tag_manager.data_layer';
 
-    /** @var SessionInterface */
-    private $session;
-
-    /** @var iterable|CollectorInterface[] */
-    private $collectors;
-
     /**
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      * @param iterable|CollectorInterface[] $collectors
      */
-    public function __construct(SessionInterface $session, iterable $collectors)
+    public function __construct(private RequestStack $requestStack, private iterable $collectors)
     {
-        $this->session = $session;
-        $this->collectors = $collectors;
     }
 
     /**
@@ -36,10 +28,11 @@ class DataLayerManager
      */
     public function append(array ...$data): void
     {
-        $current = $this->session->get(self::KEY, []);
+        $session = $this->requestStack->getSession();
+        $current = $session->get(self::KEY, []);
         array_push($current, ...$data);
 
-        $this->session->set(self::KEY, $current);
+        $session->set(self::KEY, $current);
     }
 
     /**
@@ -49,10 +42,11 @@ class DataLayerManager
      */
     public function prepend(array ...$data): void
     {
-        $current = $this->session->get(self::KEY, []);
+        $session = $this->requestStack->getSession();
+        $current = $session->get(self::KEY, []);
         array_unshift($current, ...$data);
 
-        $this->session->set(self::KEY, $current);
+        $session->set(self::KEY, $current);
     }
 
     /**
@@ -62,7 +56,7 @@ class DataLayerManager
      */
     public function collectAll(): array
     {
-        $data = new ArrayCollection($this->session->get(self::KEY, []));
+        $data = new ArrayCollection($this->requestStack->getSession()->get(self::KEY, []));
 
         foreach ($this->collectors as $collector) {
             $collector->handle($data);
@@ -77,7 +71,8 @@ class DataLayerManager
      */
     public function getForEvents(array $events): array
     {
-        $data = $this->session->get(self::KEY, []);
+        $session = $this->requestStack->getSession();
+        $data = $session->get(self::KEY, []);
 
         $result = [];
         foreach ($data as $key => $item) {
@@ -91,7 +86,7 @@ class DataLayerManager
         }
 
         if ($result) {
-            $this->session->set(self::KEY, $data);
+            $session->set(self::KEY, $data);
         }
 
         return $result;
@@ -102,6 +97,6 @@ class DataLayerManager
      */
     public function reset(): void
     {
-        $this->session->remove(self::KEY);
+        $this->requestStack->getSession()->remove(self::KEY);
     }
 }

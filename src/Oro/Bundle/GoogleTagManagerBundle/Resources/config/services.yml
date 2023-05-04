@@ -2,7 +2,7 @@ services:
     oro_google_tag_manager.data_layer.manager:
         class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager'
         arguments:
-            - '@session'
+            - '@request_stack'
             - !tagged_iterator oro_google_tag_manager.data_layer.collector
 
     oro_google_tag_manager.provider.google_tag_manager_settings:
