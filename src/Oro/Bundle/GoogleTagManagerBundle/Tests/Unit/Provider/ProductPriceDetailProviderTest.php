@@ -90,12 +90,11 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
-        $this->productPriceCriteriaFactory->expects($this->once())->method('build')->with(
-            $this->equalTo($product),
-            $this->equalTo($productUnit),
-            $this->equalTo($qty),
-            $this->equalTo($currency)
-        )->willReturn($priceCriteria);
+        $this->productPriceCriteriaFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($product, $productUnit, $qty, $currency)
+            ->willReturn($priceCriteria);
 
         $scopeCriteria = new ProductPriceScopeCriteria();
         $scopeCriteria->setWebsite($website);
@@ -154,12 +153,11 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
-        $this->productPriceCriteriaFactory->expects($this->once())->method('build')->with(
-            $this->equalTo($product),
-            $this->equalTo($productUnit),
-            $this->equalTo($qty),
-            $this->equalTo($currency)
-        )->willReturn($priceCriteria);
+        $this->productPriceCriteriaFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($product, $productUnit, $qty, $currency)
+            ->willReturn($priceCriteria);
 
         $scopeCriteria = new ProductPriceScopeCriteria();
         $scopeCriteria->setWebsite($website);

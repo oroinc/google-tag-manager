@@ -58,7 +58,7 @@ class ProductPriceDetailProvider
         $website = $this->websiteManager->getCurrentWebsite();
         $currency = $this->userCurrencyManager->getUserCurrency($website);
 
-        $priceCriteria = $this->productPriceCriteriaFactory->build($product, $productUnit, $qty, $currency);
+        $priceCriteria = $this->productPriceCriteriaFactory->create($product, $productUnit, $qty, $currency);
         $scopeCriteria = $this->priceScopeCriteriaFactory->create($website, $this->getCustomer());
 
         $prices = $this->productPriceProvider->getMatchedPrices([$priceCriteria], $scopeCriteria);
