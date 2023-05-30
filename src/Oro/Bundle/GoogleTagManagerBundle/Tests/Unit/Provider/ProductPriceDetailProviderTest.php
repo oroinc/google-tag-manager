@@ -10,16 +10,16 @@ use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
-use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactory;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactory;
-use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
 use Oro\Bundle\WebsiteBundle\Manager\WebsiteManager;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
@@ -27,19 +27,17 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
 
-    private TokenStorageInterface&\PHPUnit\Framework\MockObject\MockObject $tokenStorage;
+    private TokenStorageInterface&MockObject $tokenStorage;
 
-    private WebsiteManager&\PHPUnit\Framework\MockObject\MockObject $websiteManager;
+    private WebsiteManager&MockObject $websiteManager;
 
-    private UserCurrencyManager&\PHPUnit\Framework\MockObject\MockObject $userCurrencyManager;
+    private UserCurrencyManager&MockObject $userCurrencyManager;
 
-    private ProductPriceProviderInterface&\PHPUnit\Framework\MockObject\MockObject $productPriceProvider;
-
-    private ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory;
+    private ProductPriceProviderInterface&MockObject $productPriceProvider;
 
     private ProductPriceDetailProvider $provider;
 
-    private ProductPriceCriteriaFactory $productPriceCriteriaFactory;
+    private ProductPriceCriteriaFactoryInterface&MockObject $productPriceCriteriaFactory;
 
     protected function setUp(): void
     {
@@ -47,15 +45,15 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->websiteManager = $this->createMock(WebsiteManager::class);
         $this->userCurrencyManager = $this->createMock(UserCurrencyManager::class);
         $this->productPriceProvider = $this->createMock(ProductPriceProviderInterface::class);
-        $this->priceScopeCriteriaFactory = new ProductPriceScopeCriteriaFactory();
-        $this->productPriceCriteriaFactory = $this->createMock(ProductPriceCriteriaFactory::class);
+        $priceScopeCriteriaFactory = new ProductPriceScopeCriteriaFactory();
+        $this->productPriceCriteriaFactory = $this->createMock(ProductPriceCriteriaFactoryInterface::class);
 
         $this->provider = new ProductPriceDetailProvider(
             $this->tokenStorage,
             $this->websiteManager,
             $this->userCurrencyManager,
             $this->productPriceProvider,
-            $this->priceScopeCriteriaFactory,
+            $priceScopeCriteriaFactory,
             $this->productPriceCriteriaFactory
         );
     }

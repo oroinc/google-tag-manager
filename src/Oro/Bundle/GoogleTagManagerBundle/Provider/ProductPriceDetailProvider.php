@@ -7,7 +7,7 @@ use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
-use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactory;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
@@ -35,7 +35,7 @@ class ProductPriceDetailProvider
     /** @var ProductPriceScopeCriteriaFactoryInterface */
     private $priceScopeCriteriaFactory;
 
-    private ProductPriceCriteriaFactory $productPriceCriteriaFactory;
+    private ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory;
 
     public function __construct(
         TokenStorageInterface $tokenStorage,
@@ -43,7 +43,7 @@ class ProductPriceDetailProvider
         UserCurrencyManager $userCurrencyManager,
         ProductPriceProviderInterface $productPriceProvider,
         ProductPriceScopeCriteriaFactoryInterface $priceScopeCriteriaFactory,
-        ProductPriceCriteriaFactory $productPriceCriteriaFactory
+        ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->websiteManager = $websiteManager;
