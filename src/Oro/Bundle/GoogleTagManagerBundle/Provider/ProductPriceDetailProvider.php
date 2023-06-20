@@ -8,6 +8,7 @@ use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
 use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
@@ -35,6 +36,8 @@ class ProductPriceDetailProvider
     /** @var ProductPriceScopeCriteriaFactoryInterface */
     private $priceScopeCriteriaFactory;
 
+    private ?ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory = null;
+
     public function __construct(
         TokenStorageInterface $tokenStorage,
         WebsiteManager $websiteManager,
@@ -49,12 +52,24 @@ class ProductPriceDetailProvider
         $this->priceScopeCriteriaFactory = $priceScopeCriteriaFactory;
     }
 
+    public function setProductPriceCriteriaFactory(
+        ?ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory
+    ): void {
+        $this->productPriceCriteriaFactory = $productPriceCriteriaFactory;
+    }
+
     public function getPrice(Product $product, ProductUnit $productUnit, float $qty): ?Price
     {
         $website = $this->websiteManager->getCurrentWebsite();
         $currency = $this->userCurrencyManager->getUserCurrency($website);
 
-        $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
+        if ($this->productPriceCriteriaFactory === null) {
+            // BC fallback.
+            $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
+        } else {
+            $priceCriteria = $this->productPriceCriteriaFactory->create($product, $productUnit, $qty, $currency);
+        }
+
         $scopeCriteria = $this->priceScopeCriteriaFactory->create($website, $this->getCustomer());
 
         $prices = $this->productPriceProvider->getMatchedPrices([$priceCriteria], $scopeCriteria);

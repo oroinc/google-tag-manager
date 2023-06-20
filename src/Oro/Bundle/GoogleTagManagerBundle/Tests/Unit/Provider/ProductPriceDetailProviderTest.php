@@ -10,6 +10,7 @@ use Oro\Bundle\CustomerBundle\Security\Token\AnonymousCustomerUserToken;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\PricingBundle\Manager\UserCurrencyManager;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactory;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
@@ -19,6 +20,7 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
 use Oro\Bundle\WebsiteBundle\Manager\WebsiteManager;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
@@ -26,23 +28,19 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
 
-    /** @var TokenStorageInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $tokenStorage;
+    private TokenStorageInterface&\PHPUnit\Framework\MockObject\MockObject $tokenStorage;
 
-    /** @var WebsiteManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $websiteManager;
+    private WebsiteManager&\PHPUnit\Framework\MockObject\MockObject $websiteManager;
 
-    /** @var UserCurrencyManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $userCurrencyManager;
+    private UserCurrencyManager&\PHPUnit\Framework\MockObject\MockObject $userCurrencyManager;
 
-    /** @var ProductPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $productPriceProvider;
+    private ProductPriceProviderInterface&\PHPUnit\Framework\MockObject\MockObject $productPriceProvider;
 
-    /** @var ProductPriceScopeCriteriaFactoryInterface */
-    private $priceScopeCriteriaFactory;
+    private ProductPriceScopeCriteriaFactoryInterface|MockObject $priceScopeCriteriaFactory;
 
-    /** @var ProductPriceDetailProvider */
-    private $provider;
+    private ProductPriceDetailProvider $provider;
+
+    private ProductPriceCriteriaFactoryInterface|MockObject $productPriceCriteriaFactory;
 
     protected function setUp(): void
     {
@@ -51,6 +49,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->userCurrencyManager = $this->createMock(UserCurrencyManager::class);
         $this->productPriceProvider = $this->createMock(ProductPriceProviderInterface::class);
         $this->priceScopeCriteriaFactory = new ProductPriceScopeCriteriaFactory();
+        $this->productPriceCriteriaFactory = $this->createMock(ProductPriceCriteriaFactoryInterface::class);
 
         $this->provider = new ProductPriceDetailProvider(
             $this->tokenStorage,
@@ -59,9 +58,70 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->productPriceProvider,
             $this->priceScopeCriteriaFactory
         );
+        $this->provider->setProductPriceCriteriaFactory($this->productPriceCriteriaFactory);
     }
 
     public function testGetPrice(): void
+    {
+        /** @var Product $product */
+        $product = $this->getEntity(Product::class, ['id' => 42]);
+
+        $productUnit = new ProductUnit();
+        $productUnit->setCode('unit');
+
+        $qty = 5.5;
+        $currency = 'USD';
+        $website = new Website();
+
+        $customerUser = new CustomerUser();
+        $customerUser->setCustomer(new Customer());
+
+        $this->websiteManager->expects($this->once())
+            ->method('getCurrentWebsite')
+            ->willReturn($website);
+
+        $this->userCurrencyManager->expects($this->any())
+            ->method('getUserCurrency')
+            ->with($website)
+            ->willReturn($currency);
+
+        $this->tokenStorage->expects($this->once())
+            ->method('getToken')
+            ->willReturn(new UsernamePasswordToken($customerUser, '', 'test'));
+
+        $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
+
+        $this->productPriceCriteriaFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($product, $productUnit, $qty, $currency)
+            ->willReturn($priceCriteria);
+
+        $scopeCriteria = new ProductPriceScopeCriteria();
+        $scopeCriteria->setWebsite($website);
+        $scopeCriteria->setCustomer($customerUser->getCustomer());
+
+        $this->productPriceProvider->expects($this->once())
+            ->method('getMatchedPrices')
+            ->with(
+                [$priceCriteria],
+                $scopeCriteria
+            )
+            ->willReturn(
+                [
+                    'no_data' => null,
+                    '42-unit-5.5-USD' => Price::create(1.1, 'USD'),
+                    'price1' => Price::create(2.2, 'USD'),
+                ]
+            );
+
+        $this->assertEquals(
+            Price::create(1.1, 'USD'),
+            $this->provider->getPrice($product, $productUnit, $qty)
+        );
+    }
+
+    public function testGetPriceWhenNoProductPriceCriteriaFactory(): void
     {
         /** @var Product $product */
         $product = $this->getEntity(Product::class, ['id' => 42]);
@@ -105,9 +165,11 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
                 [
                     'no_data' => null,
                     '42-unit-5.5-USD' => Price::create(1.1, 'USD'),
-                    'price1' => Price::create(2.2, 'USD')
+                    'price1' => Price::create(2.2, 'USD'),
                 ]
             );
+
+        $this->provider->setProductPriceCriteriaFactory(null);
 
         $this->assertEquals(
             Price::create(1.1, 'USD'),
@@ -148,6 +210,12 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
+        $this->productPriceCriteriaFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($product, $productUnit, $qty, $currency)
+            ->willReturn($priceCriteria);
+
         $scopeCriteria = new ProductPriceScopeCriteria();
         $scopeCriteria->setWebsite($website);
         $scopeCriteria->setCustomer($customerUser->getCustomer());
@@ -161,7 +229,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(
                 [
                     'no_data' => null,
-                    'price1' => Price::create(2.2, 'USD')
+                    'price1' => Price::create(2.2, 'USD'),
                 ]
             );
 

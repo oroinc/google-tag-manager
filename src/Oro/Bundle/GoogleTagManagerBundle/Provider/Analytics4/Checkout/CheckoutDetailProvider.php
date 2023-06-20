@@ -7,6 +7,7 @@ use Oro\Bundle\CheckoutBundle\Entity\CheckoutLineItem;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
 use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
 use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
+use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
@@ -29,6 +30,8 @@ class CheckoutDetailProvider
 
     private int $batchSize;
 
+    private ?ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory = null;
+
     public function __construct(
         ProductDetailProvider $productDataProvider,
         ProductPriceProviderInterface $productPriceProvider,
@@ -43,6 +46,12 @@ class CheckoutDetailProvider
         $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
         $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
         $this->batchSize = $batchSize;
+    }
+
+    public function setProductPriceCriteriaFactory(
+        ?ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory
+    ): void {
+        $this->productPriceCriteriaFactory = $productPriceCriteriaFactory;
     }
 
     public function getBeginCheckoutData(Checkout $checkout): array
@@ -148,29 +157,34 @@ class CheckoutDetailProvider
             return $item->getPrice() ? (float)$item->getPrice()->getValue() : 0.0;
         }
 
-        $criteria = $this->prepareProductsPriceCriteria($item, $currency);
-        if (!$criteria) {
+        $productCriteria = $this->prepareProductsPriceCriteria($item, $currency);
+        if (!$productCriteria) {
             return 0.0;
         }
 
-        $prices = $this->productPriceProvider->getMatchedPrices([$criteria], $scope);
+        $prices = $this->productPriceProvider->getMatchedPrices([$productCriteria], $scope);
 
-        return isset($prices[$criteria->getIdentifier()])
-            ? (float)$prices[$criteria->getIdentifier()]->getValue()
+        return isset($prices[$productCriteria->getIdentifier()])
+            ? (float)$prices[$productCriteria->getIdentifier()]->getValue()
             : 0.0;
     }
 
     private function prepareProductsPriceCriteria(CheckoutLineItem $item, string $currency): ?ProductPriceCriteria
     {
-        if (!$item->getProduct() || !$item->getProductUnit() || !$item->getQuantity()) {
-            return null;
+        if ($this->productPriceCriteriaFactory === null) {
+            // BC fallback.
+            if (!$item->getProduct() || !$item->getProductUnit() || !$item->getQuantity()) {
+                return null;
+            }
+
+            return new ProductPriceCriteria(
+                $item->getProduct(),
+                $item->getProductUnit(),
+                (float)$item->getQuantity(),
+                $item->getCurrency() ?: $currency
+            );
         }
 
-        return new ProductPriceCriteria(
-            $item->getProduct(),
-            $item->getProductUnit(),
-            (float)$item->getQuantity(),
-            $item->getCurrency() ?: $currency
-        );
+        return $this->productPriceCriteriaFactory->createFromProductLineItem($item, $currency);
     }
 }

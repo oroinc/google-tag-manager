@@ -43,6 +43,8 @@ services:
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - ['setProductPriceCriteriaFactory', ['@oro_pricing.product_price_criteria_factory']]
 
     oro_google_tag_manager.provider.analytics4.purchase_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider'
@@ -113,6 +115,8 @@ services:
             - '@oro_pricing.user_currency_manager'
             - '@oro_pricing.provider.product_price'
             - '@oro_pricing.model.product_price_scope_criteria_factory'
+        calls:
+            - ['setProductPriceCriteriaFactory', ['@oro_pricing.product_price_criteria_factory']]
 
     oro_google_tag_manager.event_listener.analytics4.shopping_list_line_item:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ShoppingListLineItemEventListener'
