@@ -87,8 +87,6 @@ Oro\Bundle\CMSBundle\Entity\ImageSlide:
 Oro\Bundle\CMSBundle\Entity\TextContentVariant:
     text_content_variant:
         contentBlock: '@content_block'
-        __calls:
-            - addScope: ['@default_scope']
         content: >
             <div data-title="image-slider" data-type="image_slider" class="content-widget content-placeholder">{{ widget("image-slider") }}</div>
 
