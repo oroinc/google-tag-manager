@@ -44,7 +44,6 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->onWebsiteSearchIndex($event);
     }
 
-
     /**
      * @dataProvider validContextDataProvider
      */

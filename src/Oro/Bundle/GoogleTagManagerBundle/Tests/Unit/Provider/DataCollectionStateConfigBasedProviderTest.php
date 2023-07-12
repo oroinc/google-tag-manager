@@ -31,7 +31,6 @@ class DataCollectionStateConfigBasedProviderTest extends \PHPUnit\Framework\Test
             ->with(Configuration::getConfigKeyByName('enabled_data_collection_types'), false, false, $website)
             ->willReturn($enabledTypes);
 
-
         self::assertSame($expected, $this->provider->isEnabled('sample_type', $website));
     }
 
