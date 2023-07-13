@@ -21,8 +21,6 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider isEnabledDataProvider
-     *
-     * @param bool $isEnabled
      */
     public function testIsEnabled(bool $isEnabled, ?Website $website): void
     {
