@@ -43,6 +43,7 @@ Feature: GTM events on checkout and purchase
         "event": "begin_checkout",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "items": [
             {
               "item_id": "SKU123",
@@ -65,6 +66,7 @@ Feature: GTM events on checkout and purchase
         "event": "begin_checkout",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "items": [
             {
               "item_id": "SKU123",
@@ -87,6 +89,7 @@ Feature: GTM events on checkout and purchase
         "event": "begin_checkout",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "items": [
             {
               "item_id": "SKU123",
@@ -110,6 +113,7 @@ Feature: GTM events on checkout and purchase
         "event": "add_shipping_info",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "shipping_tier": "Flat Rate",
           "items": [
             {
@@ -132,6 +136,7 @@ Feature: GTM events on checkout and purchase
         "event": "add_shipping_info",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "shipping_tier": "Flat Rate Two",
           "items": [
             {
@@ -154,6 +159,7 @@ Feature: GTM events on checkout and purchase
         "event": "add_payment_info",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "payment_type": "Payment Term",
           "items": [
             {
@@ -176,6 +182,7 @@ Feature: GTM events on checkout and purchase
         "event": "add_payment_info",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "payment_type": "Payment Term Two",
           "items": [
             {
@@ -252,6 +259,7 @@ Feature: GTM events on checkout and purchase
         "event": "remove_from_cart",
         "ecommerce": {
           "currency": "USD",
+          "value": 27.28,
           "items": [
             {
               "item_id": "SKU123",

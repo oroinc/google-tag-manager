@@ -11,6 +11,7 @@ use Oro\Bundle\PricingBundle\Model\ProductPriceCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
+use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\SubtotalProviderInterface;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 
 /**
@@ -31,6 +32,8 @@ class CheckoutDetailProvider
     private int $batchSize;
 
     private ?ProductPriceCriteriaFactoryInterface $productPriceCriteriaFactory = null;
+
+    private ?SubtotalProviderInterface $checkoutSubtotalProvider = null;
 
     public function __construct(
         ProductDetailProvider $productDataProvider,
@@ -54,17 +57,26 @@ class CheckoutDetailProvider
         $this->productPriceCriteriaFactory = $productPriceCriteriaFactory;
     }
 
+    public function setCheckoutSubtotalProvider(?SubtotalProviderInterface $checkoutSubtotalProvider): void
+    {
+        $this->checkoutSubtotalProvider = $checkoutSubtotalProvider;
+    }
+
     public function getBeginCheckoutData(Checkout $checkout): array
     {
         $data = [
             'event' => 'begin_checkout',
             'ecommerce' => [
-                'currency' => $checkout->getCurrency(),
                 'items' => $this->getItems($checkout),
             ],
         ];
 
-        return $this->splitInChunks($data);
+        $chunks = $this->splitInChunks($data);
+
+        // First chunk must contain the most complete event data.
+        $this->addAdditionalData($checkout, $chunks[0]);
+
+        return $chunks;
     }
 
     public function getShippingInfoData(Checkout $checkout): array
@@ -72,7 +84,6 @@ class CheckoutDetailProvider
         $data = [
             'event' => 'add_shipping_info',
             'ecommerce' => [
-                'currency' => $checkout->getCurrency(),
                 'items' => $this->getItems($checkout),
             ],
         ];
@@ -82,7 +93,12 @@ class CheckoutDetailProvider
                 ->formatShippingMethodWithTypeLabel($checkout->getShippingMethod(), $checkout->getShippingMethodType());
         }
 
-        return $this->splitInChunks($data);
+        $chunks = $this->splitInChunks($data);
+
+        // First chunk must contain the most complete event data.
+        $this->addAdditionalData($checkout, $chunks[0]);
+
+        return $chunks;
     }
 
     public function getPaymentInfoData(Checkout $checkout): array
@@ -90,7 +106,6 @@ class CheckoutDetailProvider
         $data = [
             'event' => 'add_payment_info',
             'ecommerce' => [
-                'currency' => $checkout->getCurrency(),
                 'items' => $this->getItems($checkout),
             ],
         ];
@@ -100,7 +115,12 @@ class CheckoutDetailProvider
                 ->formatPaymentMethodLabel($checkout->getPaymentMethod());
         }
 
-        return $this->splitInChunks($data);
+        $chunks = $this->splitInChunks($data);
+
+        // First chunk must contain the most complete event data.
+        $this->addAdditionalData($checkout, $chunks[0]);
+
+        return $chunks;
     }
 
     private function splitInChunks(array $data): array
@@ -186,5 +206,20 @@ class CheckoutDetailProvider
         }
 
         return $this->productPriceCriteriaFactory->createFromProductLineItem($item, $currency);
+    }
+
+    /**
+     * @param Checkout $checkout
+     * @param array $data GTM data layer data
+     */
+    private function addAdditionalData(Checkout $checkout, array &$data): void
+    {
+        $data['ecommerce']['currency'] = $checkout->getCurrency();
+        $data['ecommerce']['value'] = 0.0;
+
+        if ($this->checkoutSubtotalProvider !== null) {
+            $subtotal = $this->checkoutSubtotalProvider->getSubtotal($checkout);
+            $data['ecommerce']['value'] = (float)$subtotal?->getAmount();
+        }
     }
 }
