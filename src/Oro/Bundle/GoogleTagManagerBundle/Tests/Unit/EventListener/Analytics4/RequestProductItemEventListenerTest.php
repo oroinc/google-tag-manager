@@ -2,50 +2,40 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\EventListener\Analytics4;
 
-use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
-use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
+use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\RequestProductItemEventListener;
-use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
-use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\RFPBundle\Entity\RequestProduct;
 use Oro\Bundle\RFPBundle\Entity\RequestProductItem;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
+class RequestProductItemEventListenerTest extends TestCase
 {
     use EntityTrait;
 
-    private FrontendHelper|\PHPUnit\Framework\MockObject\MockObject $frontendHelper;
+    private FrontendHelper|MockObject $frontendHelper;
 
-    private DataLayerManager|\PHPUnit\Framework\MockObject\MockObject $dataLayerManager;
+    private DataCollectionStateProviderInterface|MockObject $dataCollectionStateProvider;
 
-    private ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productDetailProvider;
-
-    private ProductPriceDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productPriceDetailProvider;
-
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
+    private ProductLineItemCartHandler|MockObject $productLineItemCartHandler;
 
     private RequestProductItemEventListener $listener;
 
     protected function setUp(): void
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);
-        $this->dataLayerManager = $this->createMock(DataLayerManager::class);
-        $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
-        $this->productPriceDetailProvider = $this->createMock(ProductPriceDetailProvider::class);
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
+        $this->productLineItemCartHandler = $this->createMock(ProductLineItemCartHandler::class);
 
         $this->listener = new RequestProductItemEventListener(
             $this->frontendHelper,
-            $this->dataLayerManager,
-            $this->productDetailProvider,
-            $this->productPriceDetailProvider,
             $this->dataCollectionStateProvider,
-            1
+            $this->productLineItemCartHandler
         );
     }
 
@@ -59,28 +49,41 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
             ->method('isEnabled')
             ->willReturn(false);
 
-        $this->productPriceDetailProvider->expects(self::never())
-            ->method(self::anything());
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('addToCart');
 
-        $this->dataLayerManager->expects(self::never())
-            ->method(self::anything());
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
 
         $this->listener->prePersist($this->getRequestProductItem(1001));
+        $this->listener->postFlush();
     }
 
     public function testPrePersistWithoutProduct(): void
     {
+        $item = new RequestProductItem();
+
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->willReturn(true);
+
         $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->productPriceDetailProvider->expects(self::never())
-            ->method(self::anything());
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('addToCart')
+            ->with($item);
 
-        $this->dataLayerManager->expects(self::never())
-            ->method(self::anything());
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
 
-        $this->listener->prePersist(new RequestProductItem());
+        $this->listener->prePersist($item);
+        $this->listener->postFlush();
     }
 
     public function testPrePersistWhenNotFrontend(): void
@@ -89,13 +92,16 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
             ->method('isFrontendRequest')
             ->willReturn(false);
 
-        $this->productPriceDetailProvider->expects(self::never())
-            ->method(self::anything());
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('addToCart');
 
-        $this->dataLayerManager->expects(self::never())
-            ->method(self::anything());
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
 
         $this->listener->prePersist($this->getRequestProductItem(1001));
+        $this->listener->postFlush();
     }
 
     public function testPrePersist(): void
@@ -111,84 +117,14 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $item1 = $this->getRequestProductItem(1001);
         $item2 = $this->getRequestProductItem(2002, 'set');
 
-        $this->productDetailProvider->expects(self::exactly(2))
-            ->method('getData')
-            ->willReturnMap(
-                [
-                    [
-                        $item1->getProduct(),
-                        null,
-                        [
-                            'item_id' => 'sku123',
-                            'item_name' => 'Product 1',
-                            'item_category' => 'Category 1',
-                            'item_brand' => 'Brand 1',
-                        ],
-                    ],
-                    [
-                        $item2->getProduct(),
-                        null,
-                        [
-                            'item_id' => 'sku456',
-                            'item_name' => 'Product 2',
-                            'item_category' => 'Category 2',
-                            'item_brand' => 'Brand 2',
-                        ],
-                    ],
-                ]
-            );
+        $this->productLineItemCartHandler
+            ->expects(self::exactly(2))
+            ->method('addToCart')
+            ->withConsecutive([$item1], [$item2]);
 
-        $this->productPriceDetailProvider->expects(self::exactly(2))
-            ->method('getPrice')
-            ->willReturnMap(
-                [
-                    [$item1->getProduct(), $item1->getProductUnit(), $item1->getQuantity(), Price::create(10.1, 'USD')],
-                    [$item2->getProduct(), $item2->getProductUnit(), $item2->getQuantity(), Price::create(50.5, 'USD')],
-                ]
-            );
-
-        $this->dataLayerManager->expects(self::exactly(2))
-            ->method('append')
-            ->withConsecutive(
-                [
-                    [
-                        'event' => 'add_to_cart',
-                        'ecommerce' => [
-                            'currency' => 'USD',
-                            'items' => [
-                                [
-                                    'item_id' => 'sku123',
-                                    'item_name' => 'Product 1',
-                                    'item_category' => 'Category 1',
-                                    'item_brand' => 'Brand 1',
-                                    'item_variant' => 'item',
-                                    'quantity' => 5.5,
-                                    'price' => 10.1,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    [
-                        'event' => 'add_to_cart',
-                        'ecommerce' => [
-                            'currency' => 'USD',
-                            'items' => [
-                                [
-                                    'item_id' => 'sku456',
-                                    'item_name' => 'Product 2',
-                                    'item_category' => 'Category 2',
-                                    'item_brand' => 'Brand 2',
-                                    'item_variant' => 'set',
-                                    'quantity' => 5.5,
-                                    'price' => 50.5,
-                                ],
-                            ],
-                        ],
-                    ],
-                ]
-            );
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
 
         $this->listener->prePersist($item1);
         $this->listener->prePersist($item2);

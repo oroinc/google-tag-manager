@@ -5,12 +5,9 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityClearEvent;
 use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
-use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
-use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
-use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
+use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
-use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
@@ -23,37 +20,26 @@ class ShoppingListLineItemEventListener
 {
     private FrontendHelper $frontendHelper;
 
-    private DataLayerManager $dataLayerManager;
-
-    private ProductDetailProvider $productDetailProvider;
-
-    private ProductPriceDetailProvider $productPriceDetailProvider;
-
     private DataCollectionStateProviderInterface $dataCollectionStateProvider;
 
-    private int $batchSize;
-
-    private array $added = [];
-
-    private array $removed = [];
+    private ProductLineItemCartHandler $productLineItemCartHandler;
 
     /** @var int[] */
     private array $skipRemovingInShoppingListIds = [];
 
     public function __construct(
         FrontendHelper $frontendHelper,
-        DataLayerManager $dataLayerManager,
-        ProductDetailProvider $productDetailProvider,
-        ProductPriceDetailProvider $productPriceDetailProvider,
         DataCollectionStateProviderInterface $dataCollectionStateProvider,
-        int $batchSize = 30
+        ProductLineItemCartHandler $productLineItemCartHandler
     ) {
         $this->frontendHelper = $frontendHelper;
-        $this->dataLayerManager = $dataLayerManager;
-        $this->productDetailProvider = $productDetailProvider;
-        $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->dataCollectionStateProvider = $dataCollectionStateProvider;
-        $this->batchSize = $batchSize;
+        $this->productLineItemCartHandler = $productLineItemCartHandler;
+    }
+
+    public function setProductLineItemCartHandler(?ProductLineItemCartHandler $productLineItemCartHandler): void
+    {
+        $this->productLineItemCartHandler = $productLineItemCartHandler;
     }
 
     public function prePersist(LineItem $item): void
@@ -127,64 +113,23 @@ class ShoppingListLineItemEventListener
 
     public function postFlush(): void
     {
-        foreach ($this->added as $currency => $added) {
-            foreach (array_chunk($added, $this->batchSize) as $chunk) {
-                $this->dataLayerManager->append(
-                    [
-                        'event' => 'add_to_cart',
-                        'ecommerce' => [
-                            'currency' => $currency,
-                            'items' => $chunk,
-                        ],
-                    ]
-                );
-            }
-        }
-
-        foreach ($this->removed as $currency => $removed) {
-            foreach (array_chunk($removed, $this->batchSize) as $chunk) {
-                $this->dataLayerManager->append(
-                    [
-                        'event' => 'remove_from_cart',
-                        'ecommerce' => [
-                            'currency' => $currency,
-                            'items' => $chunk,
-                        ],
-                    ]
-                );
-            }
-        }
-
+        $this->productLineItemCartHandler->flush();
         $this->onClear();
     }
 
     public function onClear(): void
     {
-        $this->added = [];
-        $this->removed = [];
+        $this->productLineItemCartHandler->reset();
         $this->skipRemovingInShoppingListIds = [];
     }
 
     private function storeProductData(LineItem $item, ProductUnit $unit, float $qty, bool $add = true): void
     {
-        $data = $this->productDetailProvider->getData($item->getProduct());
-        $data['item_variant'] = $unit->getCode();
-        $data['quantity'] = $qty;
-
-        $price = $this->productPriceDetailProvider->getPrice($item->getProduct(), $unit, $item->getQuantity());
-        $currency = null;
-
-        if ($price instanceof Price) {
-            $data['price'] = $price->getValue();
-            $currency = $price->getCurrency();
-        }
-
+        $currency = $item->getShoppingList()->getCurrency();
         if ($add) {
-            if (empty($this->added[$currency]) || !in_array($data, $this->added[$currency], true)) {
-                $this->added[$currency][] = $data;
-            }
-        } elseif (empty($this->removed[$currency]) || !in_array($data, $this->removed[$currency], true)) {
-            $this->removed[$currency][] = $data;
+            $this->productLineItemCartHandler->addToCart($item, $unit, $qty, $currency);
+        } else {
+            $this->productLineItemCartHandler->removeFromCart($item, $unit, $qty, $currency);
         }
     }
 

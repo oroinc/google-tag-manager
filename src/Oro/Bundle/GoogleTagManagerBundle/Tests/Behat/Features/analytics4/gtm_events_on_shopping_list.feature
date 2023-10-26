@@ -20,6 +20,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 10.46,
             "items": [
               {
                 "item_id": "SKU1",
@@ -43,6 +44,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 10.46,
             "items": [
               {
                 "item_id": "SKU1",
@@ -68,6 +70,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 20.91,
             "items": [
               {
                 "item_id": "SKU1",
@@ -92,6 +95,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 10.46,
             "items": [
               {
                 "item_id": "SKU1",
@@ -117,6 +121,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.12,
             "items": [
               {
                 "item_id": "SKU2",
@@ -142,6 +147,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 101.36,
             "items": [
               {
                 "item_id": "SKU2",
@@ -161,6 +167,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.12,
             "items": [
               {
                 "item_id": "SKU2",
@@ -176,16 +183,38 @@ Feature: GTM events on shopping list
       """
 
   Scenario: Change notes
+    Given I reload the page
     When I click "Add Shopping List item Note" on row "SKU2" in grid
     And I fill in "Shopping List Product Note" with "My notes"
     And I click "Add"
     Then I should see "Line item note has been successfully updated" flash message and I close it
-    And last message in the GTM data layer should be:
+    And GTM data layer must not contain the following message:
+      """
+        {
+          "event": "add_to_cart",
+          "ecommerce": {
+            "currency": "USD",
+            "value": 101.36,
+            "items": [
+              {
+                "item_id": "SKU2",
+                "item_name": "Product 2",
+                "item_category": "NewCategory",
+                "item_variant": "set",
+                "quantity": 2,
+                "price": 50.6789
+              }
+            ]
+          }
+        }
+      """
+    And GTM data layer must not contain the following message:
       """
         {
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.12,
             "items": [
               {
                 "item_id": "SKU2",
@@ -211,6 +240,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 122.27,
             "items": [
               {
                 "item_id": "SKU1",
@@ -242,6 +272,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 20.91,
             "items": [
               {
                 "item_id": "SKU1",
@@ -267,6 +298,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 122.27,
             "items": [
               {
                 "item_id": "SKU1",

@@ -80,10 +80,18 @@ define(function(require) {
          * @private
          */
         _onViewItem: function(viewItemData, currencyCode, listName, clear = true) {
+            let subtotalValue = 0.0;
+            for (const {price} of [...viewItemData]) {
+                if (price) {
+                    subtotalValue += price;
+                }
+            }
+
             const data = {
                 event: 'view_item',
                 ecommerce: {
                     currency: currencyCode,
+                    value: subtotalValue,
                     items: viewItemData
                 }
             };
