@@ -12,11 +12,16 @@ use Oro\Bundle\PricingBundle\Model\ProductPriceCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteria;
 use Oro\Bundle\PricingBundle\Model\ProductPriceScopeCriteriaFactoryInterface;
 use Oro\Bundle\PricingBundle\Provider\ProductPriceProviderInterface;
+use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\Subtotal;
+use Oro\Bundle\PricingBundle\SubtotalProcessor\Model\SubtotalProviderInterface;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Component\Testing\Unit\EntityTrait;
 
+/**
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ */
 class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
 {
     use EntityTrait;
@@ -65,6 +70,8 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     private CheckoutDetailProvider $provider;
 
+    private SubtotalProviderInterface|\PHPUnit\Framework\MockObject\MockObject $checkoutSubtotalProvider;
+
     protected function setUp(): void
     {
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
@@ -72,6 +79,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         $this->priceScopeCriteriaFactory = $this->createMock(ProductPriceScopeCriteriaFactoryInterface::class);
         $this->shippingMethodLabelFormatter = $this->createMock(ShippingMethodLabelFormatter::class);
         $this->paymentMethodLabelFormatter = $this->createMock(PaymentMethodLabelFormatter::class);
+        $this->checkoutSubtotalProvider = $this->createMock(SubtotalProviderInterface::class);
 
         $this->provider = new CheckoutDetailProvider(
             $this->productDetailProvider,
@@ -81,6 +89,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $this->paymentMethodLabelFormatter,
             1
         );
+        $this->provider->setCheckoutSubtotalProvider($this->checkoutSubtotalProvider);
     }
 
     /**
@@ -137,6 +146,13 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $subtotal = (new Subtotal())->setAmount(123.4567);
+        $this->checkoutSubtotalProvider
+            ->expects(self::once())
+            ->method('getSubtotal')
+            ->with($checkout)
+            ->willReturn($subtotal);
+
         self::assertEquals(
             [
                 [
@@ -144,21 +160,189 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => $subtotal->getAmount(),
                     ],
                 ],
                 [
                     'event' => 'begin_checkout',
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU3],
-                        'currency' => 'USD',
                     ],
                 ],
                 [
                     'event' => 'begin_checkout',
                     'ecommerce' => [
                         'items' => [self::ITEM_FREE_FORM],
+                    ],
+                ],
+            ],
+            $this->provider->getBeginCheckoutData($checkout)
+        );
+    }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    public function testGetBeginCheckoutDataWhenNotEnoughData(): void
+    {
+        [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
+
+        $scopeCriteria = new ProductPriceScopeCriteria();
+
+        $this->priceScopeCriteriaFactory->expects(self::once())
+            ->method('createByContext')
+            ->with($checkout)
+            ->willReturn($scopeCriteria);
+
+        $this->productDetailProvider->expects(self::exactly(3))
+            ->method('getData')
+            ->withConsecutive(
+                [self::identicalTo($lineItem1->getProduct())],
+                [self::identicalTo($lineItem2->getProduct())],
+                [self::identicalTo($lineItem3->getProduct())]
+            )
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [
+                    'item_id' => 'sku2',
+                    'item_name' => 'Product 2',
+                    'item_brand' => 'Brand 2',
+                    'item_category' => 'Category 2',
+                ],
+                [
+                    'item_id' => 'sku3',
+                    'item_name' => 'Product 3',
+                    'item_brand' => 'Brand 3',
+                    'item_category' => 'Category 3',
+                ]
+            );
+
+        $priceCriteria = new ProductPriceCriteria(
+            $lineItem2->getProduct(),
+            $lineItem2->getProductUnit(),
+            $lineItem2->getQuantity(),
+            $lineItem2->getCurrency()
+        );
+
+        $this->productPriceProvider->expects(self::once())
+            ->method('getMatchedPrices')
+            ->with([$priceCriteria], $scopeCriteria)
+            ->willReturn(
+                [
+                    '2002-item-5.5-USD' => Price::create(10.10, 'USD'),
+                    'test' => Price::create(11.11, 'USD'),
+                ]
+            );
+
+        $this->checkoutSubtotalProvider
+            ->expects(self::once())
+            ->method('getSubtotal')
+            ->with($checkout)
+            ->willReturn(null);
+
+        self::assertEquals(
+            [
+                [
+                    'event' => 'begin_checkout',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => 0.0,
+                    ],
+                ],
+                [
+                    'event' => 'begin_checkout',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU3],
+                    ],
+                ],
+                [
+                    'event' => 'begin_checkout',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_FREE_FORM],
+                    ],
+                ],
+            ],
+            $this->provider->getBeginCheckoutData($checkout)
+        );
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    public function testGetBeginCheckoutDataWhenNoCheckoutSubtotalProvider(): void
+    {
+        [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
+
+        $scopeCriteria = new ProductPriceScopeCriteria();
+
+        $this->priceScopeCriteriaFactory->expects(self::once())
+            ->method('createByContext')
+            ->with($checkout)
+            ->willReturn($scopeCriteria);
+
+        $this->productDetailProvider->expects(self::exactly(3))
+            ->method('getData')
+            ->withConsecutive(
+                [self::identicalTo($lineItem1->getProduct())],
+                [self::identicalTo($lineItem2->getProduct())],
+                [self::identicalTo($lineItem3->getProduct())]
+            )
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [
+                    'item_id' => 'sku2',
+                    'item_name' => 'Product 2',
+                    'item_brand' => 'Brand 2',
+                    'item_category' => 'Category 2',
+                ],
+                [
+                    'item_id' => 'sku3',
+                    'item_name' => 'Product 3',
+                    'item_brand' => 'Brand 3',
+                    'item_category' => 'Category 3',
+                ]
+            );
+
+        $priceCriteria = new ProductPriceCriteria(
+            $lineItem2->getProduct(),
+            $lineItem2->getProductUnit(),
+            $lineItem2->getQuantity(),
+            $lineItem2->getCurrency()
+        );
+
+        $this->productPriceProvider->expects(self::once())
+            ->method('getMatchedPrices')
+            ->with([$priceCriteria], $scopeCriteria)
+            ->willReturn(
+                [
+                    '2002-item-5.5-USD' => Price::create(10.10, 'USD'),
+                    'test' => Price::create(11.11, 'USD'),
+                ]
+            );
+
+        $this->provider->setCheckoutSubtotalProvider(null);
+
+        self::assertEquals(
+            [
+                [
+                    'event' => 'begin_checkout',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU2],
+                        'currency' => 'USD',
+                        'value' => 0.0,
+                    ],
+                ],
+                [
+                    'event' => 'begin_checkout',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU3],
+                    ],
+                ],
+                [
+                    'event' => 'begin_checkout',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_FREE_FORM],
                     ],
                 ],
             ],
@@ -225,6 +409,12 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $this->checkoutSubtotalProvider
+            ->expects(self::once())
+            ->method('getSubtotal')
+            ->with($checkout)
+            ->willReturn(null);
+
         self::assertEquals(
             [
                 [
@@ -232,20 +422,19 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => 0.0,
                     ],
                 ],
                 [
                     'event' => 'add_shipping_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU3],
-                        'currency' => 'USD',
                     ],
                 ],
                 [
                     'event' => 'add_shipping_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_FREE_FORM],
-                        'currency' => 'USD',
                     ],
                 ],
             ],
@@ -321,6 +510,13 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $subtotal = (new Subtotal())->setAmount(123.4567);
+        $this->checkoutSubtotalProvider
+            ->expects(self::once())
+            ->method('getSubtotal')
+            ->with($checkout)
+            ->willReturn($subtotal);
+
         self::assertEquals(
             [
                 [
@@ -328,6 +524,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => $subtotal->getAmount(),
                         'shipping_tier' => $shippingMethodLabel,
                     ],
                 ],
@@ -335,7 +532,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'event' => 'add_shipping_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU3],
-                        'currency' => 'USD',
                         'shipping_tier' => $shippingMethodLabel,
                     ],
                 ],
@@ -343,7 +539,106 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'event' => 'add_shipping_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_FREE_FORM],
+                        'shipping_tier' => $shippingMethodLabel,
+                    ],
+                ],
+            ],
+            $this->provider->getShippingInfoData($checkout)
+        );
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    public function testGetShippingInfoDataWhenNoCheckoutSubtotalProvider(): void
+    {
+        /** @var Checkout $checkout */
+        [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
+
+        $shippingMethod = 'sample_method';
+        $shippingMethodType = 'sample_method_type';
+        $checkout
+            ->setShippingMethod($shippingMethod)
+            ->setShippingMethodType($shippingMethodType);
+
+        $shippingMethodLabel = 'Sample Method';
+        $this->shippingMethodLabelFormatter
+            ->expects(self::once())
+            ->method('formatShippingMethodWithTypeLabel')
+            ->with($shippingMethod, $shippingMethodType)
+            ->willReturn($shippingMethodLabel);
+
+        $scopeCriteria = new ProductPriceScopeCriteria();
+
+        $this->priceScopeCriteriaFactory->expects(self::once())
+            ->method('createByContext')
+            ->with($checkout)
+            ->willReturn($scopeCriteria);
+
+        $this->productDetailProvider->expects(self::exactly(3))
+            ->method('getData')
+            ->withConsecutive(
+                [self::identicalTo($lineItem1->getProduct())],
+                [self::identicalTo($lineItem2->getProduct())],
+                [self::identicalTo($lineItem3->getProduct())]
+            )
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [
+                    'item_id' => 'sku2',
+                    'item_name' => 'Product 2',
+                    'item_brand' => 'Brand 2',
+                    'item_category' => 'Category 2',
+                ],
+                [
+                    'item_id' => 'sku3',
+                    'item_name' => 'Product 3',
+                    'item_brand' => 'Brand 3',
+                    'item_category' => 'Category 3',
+                ]
+            );
+
+        $priceCriteria = new ProductPriceCriteria(
+            $lineItem2->getProduct(),
+            $lineItem2->getProductUnit(),
+            $lineItem2->getQuantity(),
+            $lineItem2->getCurrency()
+        );
+
+        $this->productPriceProvider->expects(self::once())
+            ->method('getMatchedPrices')
+            ->with([$priceCriteria], $scopeCriteria)
+            ->willReturn(
+                [
+                    '2002-item-5.5-USD' => Price::create(10.10, 'USD'),
+                    'test' => Price::create(11.11, 'USD'),
+                ]
+            );
+
+        $this->provider->setCheckoutSubtotalProvider(null);
+
+        self::assertEquals(
+            [
+                [
+                    'event' => 'add_shipping_info',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => 0.0,
+                        'shipping_tier' => $shippingMethodLabel,
+                    ],
+                ],
+                [
+                    'event' => 'add_shipping_info',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU3],
+                        'shipping_tier' => $shippingMethodLabel,
+                    ],
+                ],
+                [
+                    'event' => 'add_shipping_info',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_FREE_FORM],
                         'shipping_tier' => $shippingMethodLabel,
                     ],
                 ],
@@ -411,6 +706,12 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $this->checkoutSubtotalProvider
+            ->expects(self::once())
+            ->method('getSubtotal')
+            ->with($checkout)
+            ->willReturn(null);
+
         self::assertEquals(
             [
                 [
@@ -418,20 +719,19 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => 0.0,
                     ],
                 ],
                 [
                     'event' => 'add_payment_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU3],
-                        'currency' => 'USD',
                     ],
                 ],
                 [
                     'event' => 'add_payment_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_FREE_FORM],
-                        'currency' => 'USD',
                     ],
                 ],
             ],
@@ -504,6 +804,13 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
+        $subtotal = (new Subtotal())->setAmount(123.4567);
+        $this->checkoutSubtotalProvider
+            ->expects(self::once())
+            ->method('getSubtotal')
+            ->with($checkout)
+            ->willReturn($subtotal);
+
         self::assertEquals(
             [
                 [
@@ -511,6 +818,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => $subtotal->getAmount(),
                         'payment_type' => $paymentMethodLabel,
                     ],
                 ],
@@ -518,7 +826,6 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'event' => 'add_payment_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_SKU3],
-                        'currency' => 'USD',
                         'payment_type' => $paymentMethodLabel,
                     ],
                 ],
@@ -526,7 +833,103 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                     'event' => 'add_payment_info',
                     'ecommerce' => [
                         'items' => [self::ITEM_FREE_FORM],
+                        'payment_type' => $paymentMethodLabel,
+                    ],
+                ],
+            ],
+            $this->provider->getPaymentInfoData($checkout)
+        );
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    public function testGetPaymentInfoDataWhenNoCheckoutSubtotalProvider(): void
+    {
+        /** @var Checkout $checkout */
+        [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
+
+        $paymentMethod = 'sample_method';
+        $checkout->setPaymentMethod($paymentMethod);
+
+        $paymentMethodLabel = 'Sample Method';
+        $this->paymentMethodLabelFormatter
+            ->expects(self::once())
+            ->method('formatPaymentMethodLabel')
+            ->with($paymentMethod)
+            ->willReturn($paymentMethodLabel);
+
+        $scopeCriteria = new ProductPriceScopeCriteria();
+
+        $this->priceScopeCriteriaFactory->expects(self::once())
+            ->method('createByContext')
+            ->with($checkout)
+            ->willReturn($scopeCriteria);
+
+        $this->productDetailProvider->expects(self::exactly(3))
+            ->method('getData')
+            ->withConsecutive(
+                [self::identicalTo($lineItem1->getProduct())],
+                [self::identicalTo($lineItem2->getProduct())],
+                [self::identicalTo($lineItem3->getProduct())]
+            )
+            ->willReturnOnConsecutiveCalls(
+                [],
+                [
+                    'item_id' => 'sku2',
+                    'item_name' => 'Product 2',
+                    'item_brand' => 'Brand 2',
+                    'item_category' => 'Category 2',
+                ],
+                [
+                    'item_id' => 'sku3',
+                    'item_name' => 'Product 3',
+                    'item_brand' => 'Brand 3',
+                    'item_category' => 'Category 3',
+                ]
+            );
+
+        $priceCriteria = new ProductPriceCriteria(
+            $lineItem2->getProduct(),
+            $lineItem2->getProductUnit(),
+            $lineItem2->getQuantity(),
+            $lineItem2->getCurrency()
+        );
+
+        $this->productPriceProvider->expects(self::once())
+            ->method('getMatchedPrices')
+            ->with([$priceCriteria], $scopeCriteria)
+            ->willReturn(
+                [
+                    '2002-item-5.5-USD' => Price::create(10.10, 'USD'),
+                    'test' => Price::create(11.11, 'USD'),
+                ]
+            );
+
+        $this->provider->setCheckoutSubtotalProvider(null);
+
+        self::assertEquals(
+            [
+                [
+                    'event' => 'add_payment_info',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU2],
                         'currency' => 'USD',
+                        'value' => 0.0,
+                        'payment_type' => $paymentMethodLabel,
+                    ],
+                ],
+                [
+                    'event' => 'add_payment_info',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_SKU3],
+                        'payment_type' => $paymentMethodLabel,
+                    ],
+                ],
+                [
+                    'event' => 'add_payment_info',
+                    'ecommerce' => [
+                        'items' => [self::ITEM_FREE_FORM],
                         'payment_type' => $paymentMethodLabel,
                     ],
                 ],

@@ -34,6 +34,7 @@ Feature: GTM events for large product lists
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "items": [
               {
                 "item_id": "SKU1",
@@ -254,7 +255,6 @@ Feature: GTM events for large product lists
         {
           "event": "add_to_cart",
           "ecommerce": {
-            "currency": "USD",
             "items": [
               {
                 "item_id": "SKU31",
@@ -307,6 +307,7 @@ Feature: GTM events for large product lists
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "items": [
               {
                 "item_id": "SKU1",
@@ -527,7 +528,6 @@ Feature: GTM events for large product lists
         {
           "event": "add_to_cart",
           "ecommerce": {
-            "currency": "USD",
             "items": [
               {
                 "item_id": "SKU31",
@@ -580,6 +580,7 @@ Feature: GTM events for large product lists
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "items": [
               {
                 "item_id": "SKU1",
@@ -800,7 +801,6 @@ Feature: GTM events for large product lists
         {
           "event": "remove_from_cart",
           "ecommerce": {
-            "currency": "USD",
             "items": [
               {
                 "item_id": "SKU31",
@@ -895,6 +895,7 @@ Feature: GTM events for large product lists
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "items": [
               {
                 "item_id": "SKU1",
@@ -1115,7 +1116,6 @@ Feature: GTM events for large product lists
         {
           "event": "add_to_cart",
           "ecommerce": {
-            "currency": "USD",
             "items": [
               {
                 "item_id": "SKU31",
@@ -1166,6 +1166,7 @@ Feature: GTM events for large product lists
           "event": "begin_checkout",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "items": [
               {
                 "index": 1,
@@ -1417,7 +1418,6 @@ Feature: GTM events for large product lists
         {
           "event": "begin_checkout",
           "ecommerce": {
-            "currency": "USD",
             "items": [
               {
                 "index": 31,
@@ -1472,6 +1472,7 @@ Feature: GTM events for large product lists
           "event": "add_shipping_info",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "shipping_tier": "Flat Rate",
             "items": [
               {
@@ -1724,7 +1725,6 @@ Feature: GTM events for large product lists
         {
           "event": "add_shipping_info",
           "ecommerce": {
-            "currency": "USD",
             "shipping_tier": "Flat Rate",
             "items": [
               {
@@ -1779,6 +1779,7 @@ Feature: GTM events for large product lists
           "event": "add_payment_info",
           "ecommerce": {
             "currency": "USD",
+            "value": 350,
             "payment_type": "Payment Term",
             "items": [
               {
@@ -2031,7 +2032,6 @@ Feature: GTM events for large product lists
         {
           "event": "add_payment_info",
           "ecommerce": {
-            "currency": "USD",
             "payment_type": "Payment Term",
             "items": [
               {
@@ -2088,6 +2088,7 @@ Feature: GTM events for large product lists
           "ecommerce": {
             "affiliation": "Default",
             "currency": "USD",
+            "value": 353,
             "items": [
               {
                 "index": 1,
@@ -2334,8 +2335,7 @@ Feature: GTM events for large product lists
             "shipping": 3,
             "shipping_tier": "Flat Rate",
             "tax": 0,
-            "transaction_id": "1",
-            "value": 353
+            "transaction_id": "1"
           }
         }
       """
@@ -2345,7 +2345,6 @@ Feature: GTM events for large product lists
         {
           "event": "purchase",
           "ecommerce": {
-            "currency": "USD",
             "items": [
               {
                 "index": 31,

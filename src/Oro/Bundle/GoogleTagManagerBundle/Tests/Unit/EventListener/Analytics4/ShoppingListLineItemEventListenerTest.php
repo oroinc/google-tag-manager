@@ -8,6 +8,7 @@ use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityClearEvent;
 use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
+use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ShoppingListLineItemEventListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
@@ -18,14 +19,22 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Oro\Component\Testing\ReflectionUtil;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
+/**
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ */
+class ShoppingListLineItemEventListenerTest extends TestCase
 {
-    private DataLayerManager|\PHPUnit\Framework\MockObject\MockObject $dataLayerManager;
+    private DataLayerManager|MockObject $dataLayerManager;
 
-    private ProductPriceDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productPriceDetailProvider;
+    private ProductPriceDetailProvider|MockObject $productPriceDetailProvider;
 
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
+    private DataCollectionStateProviderInterface|MockObject $dataCollectionStateProvider;
+
+    private ProductLineItemCartHandler|MockObject $productLineItemCartHandler;
 
     private ShoppingListLineItemEventListener $listener;
 
@@ -34,6 +43,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);
         $this->productPriceDetailProvider = $this->createMock(ProductPriceDetailProvider::class);
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
+        $this->productLineItemCartHandler = $this->createMock(ProductLineItemCartHandler::class);
 
         $frontendHelper = $this->createMock(FrontendHelper::class);
         $frontendHelper->expects(self::any())
@@ -61,6 +71,26 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             $this->dataCollectionStateProvider,
             1
         );
+
+        $this->listener->setProductLineItemCartHandler($this->productLineItemCartHandler);
+    }
+
+    public function testPrePersistNotApplicableWhenNoProductLineItemCartHandler(): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->willReturn(false);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->prePersist($this->getLineItem());
+        $this->listener->postFlush();
     }
 
     public function testPrePersistNotApplicable(): void
@@ -70,17 +100,27 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
             ->willReturn(false);
 
         $this->productPriceDetailProvider->expects(self::never())
-            ->method('getPrice');
+            ->method(self::anything());
 
         $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('addToCart');
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
 
         $this->listener->prePersist($this->getLineItem());
         $this->listener->postFlush();
     }
 
-    public function testPrePersist(): void
+    public function testPrePersistWhenNoProductLineItemCartHandler(): void
     {
+        $this->listener->setProductLineItemCartHandler(null);
+
         $this->dataCollectionStateProvider->expects(self::any())
             ->method('isEnabled')
             ->willReturn(true);
@@ -123,11 +163,40 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
+    public function testPrePersist(): void
+    {
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem();
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('addToCart')
+            ->with($item, $item->getUnit(), $item->getQuantity());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $this->listener->prePersist($item);
+        $this->listener->postFlush();
+    }
+
     /**
      * @dataProvider preUpdateDataProvider
      */
-    public function testPreUpdateNotApplicable(array $changeSet): void
+    public function testPreUpdateNotApplicableWhenNoProductLineItemCartHandler(array $changeSet): void
     {
+        $this->listener->setProductLineItemCartHandler(null);
+
         $this->dataCollectionStateProvider->expects(self::any())
             ->method('isEnabled')
             ->willReturn(false);
@@ -135,7 +204,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $item = $this->getLineItem($changeSet['unit'][1] ?? null);
 
         $this->productPriceDetailProvider->expects(self::never())
-            ->method('getPrice');
+            ->method(self::anything());
 
         $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
@@ -149,8 +218,41 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider preUpdateDataProvider
      */
-    public function testPreUpdate(array $changeSet, array $expected): void
+    public function testPreUpdateNotApplicable(array $changeSet): void
     {
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(false);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('addToCart');
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    /**
+     * @dataProvider preUpdateDataProvider
+     */
+    public function testPreUpdateWhenNoProductLineItemCartHandler(array $changeSet, array $expected): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
         $this->dataCollectionStateProvider->expects(self::any())
             ->method('isEnabled')
             ->willReturn(true);
@@ -340,14 +442,205 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function testPreRemoveNotApplicable(): void
+    public function testPreUpdateWhenQuantityIncreased(): void
     {
+        $changeSet = ['quantity' => [10, 30]];
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $setUnit = new ProductUnit();
+        $setUnit->setCode('set');
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('addToCart')
+            ->with($item, $item->getUnit(), 20);
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateWhenQuantityDecreased(): void
+    {
+        $changeSet = ['quantity' => [30, 10]];
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $setUnit = new ProductUnit();
+        $setUnit->setCode('set');
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item, $item->getUnit(), 20);
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateWhenUnitChanged(): void
+    {
+        $itemUnit = (new ProductUnit())->setCode('item');
+        $setUnit = (new ProductUnit())->setCode('set');
+
+        $changeSet = ['unit' => [$itemUnit, $setUnit]];
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $setUnit = new ProductUnit();
+        $setUnit->setCode('set');
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item, $itemUnit, $item->getQuantity());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('addToCart')
+            ->with($item, $setUnit, $item->getQuantity());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateWhenUnitAndQuantityChanged(): void
+    {
+        $itemUnit = (new ProductUnit())->setCode('item');
+        $setUnit = (new ProductUnit())->setCode('set');
+
+        $changeSet = ['unit' => [$itemUnit, $setUnit], 'quantity' => [10, 30]];
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem($changeSet['unit'][1] ?? null);
+
+        $setUnit = new ProductUnit();
+        $setUnit->setCode('set');
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item, $itemUnit, 10);
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('addToCart')
+            ->with($item, $setUnit, 30);
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreUpdateWhenUnitAndQuantityNotChanged(): void
+    {
+        $changeSet = [];
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem();
+
+        $setUnit = new ProductUnit();
+        $setUnit->setCode('set');
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('removeFromCart');
+
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('addToCart');
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $objectManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveNotApplicableWhenNoProductLineItemCartHandler(): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
         $this->dataCollectionStateProvider->expects(self::once())
             ->method('isEnabled')
             ->willReturn(false);
 
         $this->productPriceDetailProvider->expects(self::never())
-            ->method('getPrice');
+            ->method(self::anything());
 
         $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
@@ -356,8 +649,34 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
-    public function testPreRemove(): void
+    public function testPreRemoveNotApplicable(): void
     {
+        $this->dataCollectionStateProvider->expects(self::once())
+            ->method('isEnabled')
+            ->willReturn(false);
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::never())
+            ->method('addToCart');
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $this->listener->preRemove($this->getLineItem());
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveWhenNoProductLineItemCartHandler(): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
         $this->dataCollectionStateProvider->expects(self::any())
             ->method('isEnabled')
             ->willReturn(true);
@@ -400,8 +719,37 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
-    public function testPreRemoveForDifferentUnits(): void
+    public function testPreRemove(): void
     {
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem();
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item, $item->getUnit(), $item->getQuantity());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveForDifferentUnitsWhenNoProductLineItemCartHandler(): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
         $this->dataCollectionStateProvider->expects(self::any())
             ->method('isEnabled')
             ->willReturn(true);
@@ -464,6 +812,64 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
+    public function testPreRemoveForDifferentUnits(): void
+    {
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $item = $this->getLineItem();
+        $item1 = $this->getLineItem();
+        $item1->setUnit((new ProductUnit())->setCode('box'));
+
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::exactly(2))
+            ->method('removeFromCart')
+            ->withConsecutive(
+                [$item, $item->getUnit(), $item->getQuantity()],
+                [$item1, $item1->getUnit(), $item1->getQuantity()],
+            );
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('flush');
+
+        $this->listener->preRemove($item);
+        $this->listener->preRemove($item1);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveAfterCheckoutSourceEntityIsRemovedWhenNoProductLineItemCartHandler(): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $shoppingListId = 2;
+
+        $shoppingList = $this->getShoppingList($shoppingListId);
+        $event = new CheckoutSourceEntityRemoveEvent($shoppingList);
+        $this->listener->onCheckoutSourceEntityClearOrRemove($event);
+
+        $item = $this->getLineItem(null, $shoppingListId);
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
     public function testPreRemoveAfterCheckoutSourceEntityIsRemoved(): void
     {
         $this->dataCollectionStateProvider->expects(self::any())
@@ -478,7 +884,45 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $item = $this->getLineItem(null, $shoppingListId);
         $this->productPriceDetailProvider->expects(self::never())
-            ->method('getPrice');
+            ->method(self::anything());
+
+        $this->dataLayerManager->expects(self::never())
+            ->method(self::anything());
+
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item);
+
+        $this->productLineItemCartHandler
+            ->expects(self::exactly(2))
+            ->method('flush');
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+
+        // Checks that event "remove_from_cart" is triggered after listener is reset after postFlush.
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveAfterCheckoutSourceEntityIsClearedWhenNoProductLineItemCartHandler(): void
+    {
+        $this->listener->setProductLineItemCartHandler(null);
+
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $shoppingListId = 2;
+
+        $shoppingList = $this->getShoppingList($shoppingListId);
+        $event = new CheckoutSourceEntityClearEvent($shoppingList);
+        $this->listener->onCheckoutSourceEntityClearOrRemove($event);
+
+        $item = $this->getLineItem(null, $shoppingListId);
+        $this->productPriceDetailProvider->expects(self::never())
+            ->method(self::anything());
 
         $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
@@ -501,11 +945,24 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $item = $this->getLineItem(null, $shoppingListId);
         $this->productPriceDetailProvider->expects(self::never())
-            ->method('getPrice');
+            ->method(self::anything());
 
         $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
 
+        $this->productLineItemCartHandler
+            ->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item);
+
+        $this->productLineItemCartHandler
+            ->expects(self::exactly(2))
+            ->method('flush');
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+
+        // Checks that event "remove_from_cart" is triggered after listener is reset after postFlush.
         $this->listener->preRemove($item);
         $this->listener->postFlush();
     }

@@ -27,6 +27,7 @@ Feature: GTM events on product page
           "event": "view_item",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.1234,
             "items": [
               {
                 "item_id": "SKU2",

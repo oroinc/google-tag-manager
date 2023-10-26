@@ -84,6 +84,7 @@ Feature: GTM events on quick order form
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 157.19,
             "items": [
               {
                 "item_id": "SKU1",
@@ -184,6 +185,7 @@ Feature: GTM events on quick order form
           "event": "begin_checkout",
           "ecommerce": {
             "currency": "USD",
+            "value": 157.18,
             "items": [
               {
                 "item_id": "SKU1",
@@ -281,6 +283,7 @@ Feature: GTM events on quick order form
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 157.19,
             "items": [
               {
                 "item_id": "SKU1",

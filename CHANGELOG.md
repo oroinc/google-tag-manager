@@ -4,6 +4,19 @@ The current file describes significant changes in the code that may affect the u
 
 ## Changes in the Google Tag Manager package versions
 
+
+
+## UNRELEASED
+
+### Changed
+
+#### GoogleTagManagerBundle
+* Changed the GTM data layer payload of `add_to_cart`, `remove_from_cart`, `view_item`, `begin_checkout`, `add_shipping_info`, `add_payment_info` events:
+    * Added `value` element
+    * Removed `currency` element when `value` is not present - affects only chunked payloads (when an original payload is divided into chunks by 30 items each)
+
+
+
 ## 4.1.0 (2020-01-31)
 
 ### Removed

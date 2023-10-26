@@ -313,7 +313,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                         'event' => 'purchase',
                         'ecommerce' => [
                             'transaction_id' => 42,
-                            'currency' => 'USD',
                             'items' => [
                                 [
                                     'item_id' => 'sku3',
@@ -334,7 +333,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                         'event' => 'purchase',
                         'ecommerce' => [
                             'transaction_id' => 42,
-                            'currency' => 'USD',
                             'items' => [
                                 [
                                     'item_id' => 'FREE-FORM-SKU',
@@ -385,7 +383,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                         'event' => 'purchase',
                         'ecommerce' => [
                             'transaction_id' => 42,
-                            'currency' => 'USD',
                             'items' => [
                                 [
                                     'item_id' => 'sku3',
@@ -404,7 +401,6 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                         'event' => 'purchase',
                         'ecommerce' => [
                             'transaction_id' => 42,
-                            'currency' => 'USD',
                             'items' => [
                                 [
                                     'item_id' => 'FREE-FORM-SKU',

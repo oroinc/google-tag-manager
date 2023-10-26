@@ -50,6 +50,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 10.46,
             "items": [
               {
                 "item_id": "SKU1",
@@ -95,6 +96,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 10.46,
             "items": [
               {
                 "item_id": "SKU1",
@@ -143,6 +145,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 20.91,
             "items": [
               {
                 "item_id": "SKU1",
@@ -189,6 +192,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 10.46,
             "items": [
               {
                 "item_id": "SKU1",
@@ -236,6 +240,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.12,
             "items": [
               {
                 "item_id": "SKU2",
@@ -283,6 +288,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 101.36,
             "items": [
               {
                 "item_id": "SKU2",
@@ -323,6 +329,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.12,
             "items": [
               {
                 "item_id": "SKU2",
@@ -370,6 +377,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 15.12,
             "items": [
               {
                 "item_id": "SKU2",
@@ -425,6 +433,7 @@ Feature: GTM events on shopping list
           "event": "add_to_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 122.27,
             "items": [
               {
                 "item_id": "SKU1",
@@ -477,6 +486,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 20.91,
             "items": [
               {
                 "item_id": "SKU1",
@@ -532,6 +542,7 @@ Feature: GTM events on shopping list
           "event": "remove_from_cart",
           "ecommerce": {
             "currency": "USD",
+            "value": 122.27,
             "items": [
               {
                 "item_id": "SKU1",

@@ -206,6 +206,8 @@ services:
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - ['setCheckoutSubtotalProvider', ['@oro_checkout.provider.checkout_subtotal']]
 
     oro_google_tag_manager.provider.analytics4.purchase_detail:
         class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider'
@@ -255,6 +257,8 @@ services:
             - '@oro_google_tag_manager.provider.product_price_detail'
             - '@oro_google_tag_manager.provider.data_collection_state'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - [setProductLineItemCartHandler, ['@oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler']]
         tags:
             - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: onCheckoutSourceEntityClearOrRemove }
             - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_clear, method: onCheckoutSourceEntityClearOrRemove }
@@ -263,6 +267,18 @@ services:
             - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preRemove }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
+
+    oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler'
+        shared: false
+        arguments:
+            - '@oro_google_tag_manager.data_layer.manager'
+            - '@oro_google_tag_manager.provider.analytics4.product_detail'
+            - '@oro_google_tag_manager.provider.product_price_detail'
+            - '@oro_pricing.user_currency_manager'
+            - '@oro_currency.rounding.price_rounding_service'
+        calls:
+            - [setBatchSize, ['%oro_google_tag_manager.products.batch_size%']]
 
     oro_google_tag_manager.event_listener.analytics4.checkout_purchase:
         class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutPurchaseEventListener'
@@ -307,6 +323,8 @@ services:
             - '@oro_google_tag_manager.provider.product_price_detail'
             - '@oro_google_tag_manager.provider.data_collection_state'
             - '%oro_google_tag_manager.products.batch_size%'
+        calls:
+            - [setProductLineItemCartHandler, ['@oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler']]
         tags:
             - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\RFPBundle\Entity\RequestProductItem', event: prePersist }
             - { name: doctrine.event_listener, event: postFlush }

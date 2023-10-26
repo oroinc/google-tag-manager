@@ -4,6 +4,7 @@ namespace Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4;
 
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
+use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
@@ -25,6 +26,8 @@ class RequestProductItemEventListener
 
     private DataCollectionStateProviderInterface $dataCollectionStateProvider;
 
+    private ?ProductLineItemCartHandler $productLineItemCartHandler = null;
+
     private int $batchSize;
 
     private array $items = [];
@@ -45,11 +48,24 @@ class RequestProductItemEventListener
         $this->batchSize = $batchSize;
     }
 
+    public function setProductLineItemCartHandler(?ProductLineItemCartHandler $productLineItemCartHandler): void
+    {
+        $this->productLineItemCartHandler = $productLineItemCartHandler;
+    }
+
     public function prePersist(RequestProductItem $item): void
     {
         if (!$this->isApplicable()) {
             return;
         }
+
+        if ($this->productLineItemCartHandler !== null) {
+            $this->productLineItemCartHandler->addToCart($item);
+
+            return;
+        }
+
+        // BC layer below.
 
         $product = $item->getProduct();
         if ($product === null) {
@@ -76,6 +92,13 @@ class RequestProductItemEventListener
 
     public function postFlush(): void
     {
+        if ($this->productLineItemCartHandler !== null) {
+            $this->productLineItemCartHandler->flush();
+            return;
+        }
+
+        // BC layer below.
+
         foreach ($this->items as $currency => $products) {
             foreach (array_chunk($products, $this->batchSize) as $chunk) {
                 $this->dataLayerManager->append(
@@ -95,6 +118,13 @@ class RequestProductItemEventListener
 
     public function onClear(): void
     {
+        if ($this->productLineItemCartHandler !== null) {
+            $this->productLineItemCartHandler->reset();
+            return;
+        }
+
+        // BC layer below.
+
         $this->items = [];
     }
 

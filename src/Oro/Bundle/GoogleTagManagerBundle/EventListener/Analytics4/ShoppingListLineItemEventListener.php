@@ -7,6 +7,7 @@ use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityClearEvent;
 use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
+use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
@@ -31,6 +32,8 @@ class ShoppingListLineItemEventListener
 
     private DataCollectionStateProviderInterface $dataCollectionStateProvider;
 
+    private ?ProductLineItemCartHandler $productLineItemCartHandler = null;
+
     private int $batchSize;
 
     private array $added = [];
@@ -54,6 +57,11 @@ class ShoppingListLineItemEventListener
         $this->productPriceDetailProvider = $productPriceDetailProvider;
         $this->dataCollectionStateProvider = $dataCollectionStateProvider;
         $this->batchSize = $batchSize;
+    }
+
+    public function setProductLineItemCartHandler(?ProductLineItemCartHandler $productLineItemCartHandler): void
+    {
+        $this->productLineItemCartHandler = $productLineItemCartHandler;
     }
 
     public function prePersist(LineItem $item): void
@@ -127,6 +135,15 @@ class ShoppingListLineItemEventListener
 
     public function postFlush(): void
     {
+        if ($this->productLineItemCartHandler !== null) {
+            $this->productLineItemCartHandler->flush();
+            $this->onClear();
+
+            return;
+        }
+
+        // BC layer below.
+
         foreach ($this->added as $currency => $added) {
             foreach (array_chunk($added, $this->batchSize) as $chunk) {
                 $this->dataLayerManager->append(
@@ -160,6 +177,15 @@ class ShoppingListLineItemEventListener
 
     public function onClear(): void
     {
+        if ($this->productLineItemCartHandler !== null) {
+            $this->productLineItemCartHandler->reset();
+            $this->skipRemovingInShoppingListIds = [];
+
+            return;
+        }
+
+        // BC layer below.
+
         $this->added = [];
         $this->removed = [];
         $this->skipRemovingInShoppingListIds = [];
@@ -167,6 +193,19 @@ class ShoppingListLineItemEventListener
 
     private function storeProductData(LineItem $item, ProductUnit $unit, float $qty, bool $add = true): void
     {
+        if ($this->productLineItemCartHandler !== null) {
+            $currency = $item->getShoppingList()->getCurrency();
+            if ($add) {
+                $this->productLineItemCartHandler->addToCart($item, $unit, $qty, $currency);
+            } else {
+                $this->productLineItemCartHandler->removeFromCart($item, $unit, $qty, $currency);
+            }
+
+            return;
+        }
+
+        // BC layer below.
+
         $data = $this->productDetailProvider->getData($item->getProduct());
         $data['item_variant'] = $unit->getCode();
         $data['quantity'] = $qty;

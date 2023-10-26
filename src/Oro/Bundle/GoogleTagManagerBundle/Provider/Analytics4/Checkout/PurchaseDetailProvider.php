@@ -83,7 +83,6 @@ class PurchaseDetailProvider implements LoggerAwareInterface
             'event' => 'purchase',
             'ecommerce' => [
                 'transaction_id' => $order->getIdentifier(),
-                'currency' => $order->getCurrency(),
                 'items' => $this->getItems($order),
             ],
         ];
@@ -147,6 +146,7 @@ class PurchaseDetailProvider implements LoggerAwareInterface
     private function addAdditionalData(Order $order, array &$data): void
     {
         $data['ecommerce']['value'] = (float)$order->getTotal();
+        $data['ecommerce']['currency'] = $order->getCurrency();
 
         try {
             $result = $this->taxProviderRegistry
