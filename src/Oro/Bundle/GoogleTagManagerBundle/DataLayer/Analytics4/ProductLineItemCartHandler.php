@@ -17,15 +17,10 @@ use Symfony\Contracts\Service\ResetInterface;
 class ProductLineItemCartHandler implements ResetInterface
 {
     private DataLayerManager $dataLayerManager;
-
     private ProductDetailProvider $productDetailProvider;
-
     private ProductLineItemPriceProviderInterface $productLineItemPriceProvider;
-
     private UserCurrencyManager $userCurrencyManager;
-
     private int $batchSize = 30;
-
     /**
      * @var array<string,array{
      *     event: string,

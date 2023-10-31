@@ -11,35 +11,37 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterf
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
+use Oro\Component\Checkout\Entity\CheckoutSourceEntityInterface;
+use Psr\Container\ContainerInterface;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 /**
  * Adds "add_to_cart", "remove_from_cart" GA4 events to the GTM data layer when shopping list line items
  * are added/removed from a shopping list on storefront.
  */
-class ShoppingListLineItemEventListener
+class ShoppingListLineItemEventListener implements ServiceSubscriberInterface
 {
     private FrontendHelper $frontendHelper;
-
-    private DataCollectionStateProviderInterface $dataCollectionStateProvider;
-
-    private ProductLineItemCartHandler $productLineItemCartHandler;
-
+    private ContainerInterface $container;
+    private ?ProductLineItemCartHandler $productLineItemCartHandler = null;
     /** @var int[] */
     private array $skipRemovingInShoppingListIds = [];
 
-    public function __construct(
-        FrontendHelper $frontendHelper,
-        DataCollectionStateProviderInterface $dataCollectionStateProvider,
-        ProductLineItemCartHandler $productLineItemCartHandler
-    ) {
+    public function __construct(FrontendHelper $frontendHelper, ContainerInterface $container)
+    {
         $this->frontendHelper = $frontendHelper;
-        $this->dataCollectionStateProvider = $dataCollectionStateProvider;
-        $this->productLineItemCartHandler = $productLineItemCartHandler;
+        $this->container = $container;
     }
 
-    public function setProductLineItemCartHandler(?ProductLineItemCartHandler $productLineItemCartHandler): void
+    /**
+     * {@inheritDoc}
+     */
+    public static function getSubscribedServices(): array
     {
-        $this->productLineItemCartHandler = $productLineItemCartHandler;
+        return [
+            DataCollectionStateProviderInterface::class,
+            ProductLineItemCartHandler::class
+        ];
     }
 
     public function prePersist(LineItem $item): void
@@ -98,28 +100,33 @@ class ShoppingListLineItemEventListener
         $this->storeProductData($item, $item->getProductUnit(), $item->getQuantity(), false);
     }
 
-    public function onCheckoutSourceEntityClearOrRemove(
-        CheckoutSourceEntityRemoveEvent|CheckoutSourceEntityClearEvent $event
-    ): void {
+    public function onCheckoutSourceEntityBeforeRemove(CheckoutSourceEntityRemoveEvent $event): void
+    {
         if (!$this->isApplicable()) {
             return;
         }
 
-        $checkoutSourceEntity = $event->getCheckoutSourceEntity();
-        if ($checkoutSourceEntity instanceof ShoppingList) {
-            $this->skipRemovingInShoppingListIds[] = $checkoutSourceEntity->getId();
+        $this->handleCheckoutSourceEntity($event->getCheckoutSourceEntity());
+    }
+
+    public function onCheckoutSourceEntityClear(CheckoutSourceEntityClearEvent $event): void
+    {
+        if (!$this->isApplicable()) {
+            return;
         }
+
+        $this->handleCheckoutSourceEntity($event->getCheckoutSourceEntity());
     }
 
     public function postFlush(): void
     {
-        $this->productLineItemCartHandler->flush();
+        $this->getProductLineItemCartHandler()->flush();
         $this->onClear();
     }
 
     public function onClear(): void
     {
-        $this->productLineItemCartHandler->reset();
+        $this->getProductLineItemCartHandler()->reset();
         $this->skipRemovingInShoppingListIds = [];
     }
 
@@ -127,15 +134,39 @@ class ShoppingListLineItemEventListener
     {
         $currency = $item->getShoppingList()->getCurrency();
         if ($add) {
-            $this->productLineItemCartHandler->addToCart($item, $unit, $qty, $currency);
+            $this->getProductLineItemCartHandler()->addToCart($item, $unit, $qty, $currency);
         } else {
-            $this->productLineItemCartHandler->removeFromCart($item, $unit, $qty, $currency);
+            $this->getProductLineItemCartHandler()->removeFromCart($item, $unit, $qty, $currency);
+        }
+    }
+
+    private function handleCheckoutSourceEntity(CheckoutSourceEntityInterface $checkoutSourceEntity): void
+    {
+        if ($checkoutSourceEntity instanceof ShoppingList) {
+            $this->skipRemovingInShoppingListIds[] = $checkoutSourceEntity->getId();
         }
     }
 
     private function isApplicable(): bool
     {
-        return $this->frontendHelper->isFrontendRequest()
-            && $this->dataCollectionStateProvider->isEnabled('google_analytics4');
+        return
+            $this->frontendHelper->isFrontendRequest()
+            && $this->getDataCollectionStateProvider()->isEnabled('google_analytics4');
+    }
+
+    private function getDataCollectionStateProvider(): DataCollectionStateProviderInterface
+    {
+        return $this->container->get(DataCollectionStateProviderInterface::class);
+    }
+
+    private function getProductLineItemCartHandler(): ProductLineItemCartHandler
+    {
+        // need to store this service in a property because this service is not shared,
+        // so, each call of the container::get() created a new instance of it
+        if (null === $this->productLineItemCartHandler) {
+            $this->productLineItemCartHandler = $this->container->get(ProductLineItemCartHandler::class);
+        }
+
+        return $this->productLineItemCartHandler;
     }
 }

@@ -1,40 +1,39 @@
 services:
     oro_google_tag_manager.data_layer.manager:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager'
+        class: Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager
         arguments:
             - '@request_stack'
             - !tagged_iterator oro_google_tag_manager.data_layer.collector
 
     oro_google_tag_manager.provider.google_tag_manager_settings:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider
         arguments:
             - '@doctrine'
             - '@oro_config.manager'
 
     oro_google_tag_manager.provider.data_collection_state:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProvider
         arguments:
-            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
             - !tagged_iterator oro_google_tag_manager.data_collection_state_provider
-        calls:
-            - [setLogger, ['@logger']]
+            - '@oro_google_tag_manager.provider.google_tag_manager_settings'
+            - '@logger'
         tags:
             - { name: monolog.logger, channel: oro_google_tag_manager }
 
     oro_google_tag_manager.provider.data_collection_state.config_based:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateConfigBasedProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateConfigBasedProvider
         arguments:
             - '@oro_config.manager'
         tags:
             - { name: oro_google_tag_manager.data_collection_state_provider }
 
     oro_google_tag_manager.provider.analytics4.product_detail:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\ProductDetailProvider
         arguments:
             - '@doctrine'
 
     oro_google_tag_manager.provider.analytics4.checkout_detail:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider
         arguments:
             - '@oro_google_tag_manager.provider.analytics4.product_detail'
             - '@oro_pricing.provider.product_price'
@@ -46,7 +45,7 @@ services:
             - '%oro_google_tag_manager.products.batch_size%'
 
     oro_google_tag_manager.provider.analytics4.purchase_detail:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider
         arguments:
             - '@doctrine'
             - '@oro_google_tag_manager.provider.analytics4.product_detail'
@@ -54,19 +53,18 @@ services:
             - '@oro_google_tag_manager.provider.applied_promotions_names'
             - '@oro_shipping.formatter.shipping_method_label'
             - '@oro_payment.formatter.payment_method_label'
+            - '@logger'
             - '%oro_google_tag_manager.products.batch_size%'
-        calls:
-            - [setLogger, ['@logger']]
         tags:
             - { name: monolog.logger, channel: oro_google_tag_manager }
 
     oro_google_tag_manager.provider.page_type:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider
         arguments:
             - !tagged_iterator oro_google_tag_manager.page_type_guesser
 
     oro_google_tag_manager.page_type_guesser.by_request_route:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserByRequestRoute'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserByRequestRoute
         arguments:
             - '@request_stack'
             -
@@ -82,7 +80,7 @@ services:
             - { name: oro_google_tag_manager.page_type_guesser, priority: 100 }
 
     oro_google_tag_manager.event_listener.analytics4.website_search_index:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\WebsiteSearchIndexerListener'
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\WebsiteSearchIndexerListener
         arguments:
             - '@oro_website_search.manager.website_context_manager'
             - '@oro_google_tag_manager.provider.analytics4.product_detail'
@@ -106,8 +104,7 @@ services:
             - { name: kernel.event_listener, event: oro_product.product_list.build_result, method: onBuildResult }
 
     oro_google_tag_manager.provider.product_price_detail:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider'
-        public: false
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\ProductPriceDetailProvider
         arguments:
             - '@security.token_storage'
             - '@oro_website.manager'
@@ -117,22 +114,23 @@ services:
             - '@oro_pricing.product_price_criteria_factory'
 
     oro_google_tag_manager.event_listener.analytics4.shopping_list_line_item:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ShoppingListLineItemEventListener'
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ShoppingListLineItemEventListener
         arguments:
             - '@oro_frontend.request.frontend_helper'
-            - '@oro_google_tag_manager.provider.data_collection_state'
-            - '@oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler'
+            - '@Psr\Container\ContainerInterface'
         tags:
-            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: onCheckoutSourceEntityClearOrRemove }
-            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_clear, method: onCheckoutSourceEntityClearOrRemove }
-            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: prePersist }
-            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preUpdate }
-            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\ShoppingListBundle\Entity\LineItem', event: preRemove }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.provider.data_collection_state, key: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler, key: Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler }
+            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_remove.before, method: onCheckoutSourceEntityBeforeRemove }
+            - { name: kernel.event_listener, event: oro_checkout.checkout_source_entity_clear, method: onCheckoutSourceEntityClear }
+            - { name: doctrine.orm.entity_listener, entity: Oro\Bundle\ShoppingListBundle\Entity\LineItem, event: prePersist }
+            - { name: doctrine.orm.entity_listener, entity: Oro\Bundle\ShoppingListBundle\Entity\LineItem, event: preUpdate }
+            - { name: doctrine.orm.entity_listener, entity: Oro\Bundle\ShoppingListBundle\Entity\LineItem, event: preRemove }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 
     oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler'
+        class: Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler
         shared: false
         arguments:
             - '@oro_google_tag_manager.data_layer.manager'
@@ -143,31 +141,33 @@ services:
             - [setBatchSize, ['%oro_google_tag_manager.products.batch_size%']]
 
     oro_google_tag_manager.event_listener.analytics4.checkout_purchase:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutPurchaseEventListener'
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutPurchaseEventListener
         arguments:
             - '@oro_frontend.request.frontend_helper'
-            - '@oro_google_tag_manager.provider.data_collection_state'
-            - '@oro_google_tag_manager.data_layer.manager'
-            - '@oro_google_tag_manager.provider.analytics4.purchase_detail'
+            - '@Psr\Container\ContainerInterface'
         tags:
-            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\CheckoutBundle\Entity\Checkout', event: preUpdate }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.provider.data_collection_state, key: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.data_layer.manager, key: Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.provider.analytics4.purchase_detail, key: Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\PurchaseDetailProvider }
+            - { name: doctrine.orm.entity_listener, entity: Oro\Bundle\CheckoutBundle\Entity\Checkout, event: preUpdate }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 
     oro_google_tag_manager.event_listener.analytics.checkout_info:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutInfoEventListener'
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutInfoEventListener
         arguments:
             - '@oro_frontend.request.frontend_helper'
-            - '@oro_google_tag_manager.provider.data_collection_state'
-            - '@oro_google_tag_manager.data_layer.manager'
-            - '@oro_google_tag_manager.provider.analytics4.checkout_detail'
+            - '@Psr\Container\ContainerInterface'
         tags:
-            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\CheckoutBundle\Entity\Checkout', event: preUpdate }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.provider.data_collection_state, key: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.data_layer.manager, key: Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.provider.analytics4.checkout_detail, key: Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider }
+            - { name: doctrine.orm.entity_listener, entity: Oro\Bundle\CheckoutBundle\Entity\Checkout, event: preUpdate }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 
     oro_google_tag_manager.event_listener.analytics.begin_checkout:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\BeginCheckoutEventListener'
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\BeginCheckoutEventListener
         arguments:
             - '@oro_frontend.request.frontend_helper'
             - '@oro_google_tag_manager.provider.data_collection_state'
@@ -177,18 +177,19 @@ services:
             - { name: kernel.event_listener, event: extendable_condition.start_checkout, method: onStartCheckout }
 
     oro_google_tag_manager.event_listener.analytics4.request_product_item:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\RequestProductItemEventListener'
+        class: Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\RequestProductItemEventListener
         arguments:
             - '@oro_frontend.request.frontend_helper'
-            - '@oro_google_tag_manager.provider.data_collection_state'
-            - '@oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler'
+            - '@Psr\Container\ContainerInterface'
         tags:
-            - { name: doctrine.orm.entity_listener, entity: 'Oro\Bundle\RFPBundle\Entity\RequestProductItem', event: prePersist }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.provider.data_collection_state, key: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface }
+            - { name: container.service_subscriber, id: oro_google_tag_manager.data_layer.analytics4.product_line_item_cart_handler, key: Oro\Bundle\GoogleTagManagerBundle\DataLayer\Analytics4\ProductLineItemCartHandler }
+            - { name: doctrine.orm.entity_listener, entity: Oro\Bundle\RFPBundle\Entity\RequestProductItem, event: prePersist }
             - { name: doctrine.event_listener, event: postFlush }
             - { name: doctrine.event_listener, event: onClear }
 
     oro_google_tag_manager.provider.applied_promotions_names:
-        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider'
+        class: Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider
         arguments:
             - '@doctrine'
             - '@oro_promotion.provider.entity_coupons_provider'
