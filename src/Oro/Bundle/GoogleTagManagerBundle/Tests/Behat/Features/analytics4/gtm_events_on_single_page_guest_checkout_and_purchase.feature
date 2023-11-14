@@ -42,7 +42,7 @@ Feature: GTM events on single page guest checkout and purchase
 
   Scenario: Event "begin_checkout"
     When I open shopping list widget
-    And I click "View List"
+    And I click "Open List"
     And click on "Create Order"
     Then GTM data layer must contain the following message:
       """
@@ -196,7 +196,7 @@ Feature: GTM events on single page guest checkout and purchase
       """
 
     When I open shopping list widget
-    And I click "View List"
+    And I click "Open List"
     And click on "Create Order"
     Then GTM data layer must contain the following message:
       """
