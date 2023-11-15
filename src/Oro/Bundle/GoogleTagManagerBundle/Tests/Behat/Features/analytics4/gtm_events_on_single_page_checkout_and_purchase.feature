@@ -275,7 +275,7 @@ Feature: GTM events on single page checkout and purchase
       """
 
   Scenario: Event "view_item_list" on a previously purchased list
-    When I follow "Account"
+    And I click "Account Dropdown"
     And I click "Previously Purchased"
     Then GTM data layer must contain the following message:
       """
