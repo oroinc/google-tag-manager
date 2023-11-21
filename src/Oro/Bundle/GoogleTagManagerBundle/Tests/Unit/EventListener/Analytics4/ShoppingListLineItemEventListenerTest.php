@@ -15,20 +15,22 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Oro\Component\Testing\ReflectionUtil;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use Oro\Component\Testing\Unit\TestContainerBuilder;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class ShoppingListLineItemEventListenerTest extends TestCase
+class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 {
-    private DataCollectionStateProviderInterface|MockObject $dataCollectionStateProvider;
+    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $dataCollectionStateProvider;
 
-    private ProductLineItemCartHandler|MockObject $productLineItemCartHandler;
+    /** @var ProductLineItemCartHandler|\PHPUnit\Framework\MockObject\MockObject */
+    private $productLineItemCartHandler;
 
-    private ShoppingListLineItemEventListener $listener;
+    /** @var ShoppingListLineItemEventListener */
+    private $listener;
 
     protected function setUp(): void
     {
@@ -40,10 +42,52 @@ class ShoppingListLineItemEventListenerTest extends TestCase
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->listener = new ShoppingListLineItemEventListener(
-            $frontendHelper,
-            $this->dataCollectionStateProvider,
-            $this->productLineItemCartHandler
+        $container = TestContainerBuilder::create()
+            ->add(DataCollectionStateProviderInterface::class, $this->dataCollectionStateProvider)
+            ->add(ProductLineItemCartHandler::class, $this->productLineItemCartHandler)
+            ->getContainer($this);
+
+        $this->listener = new ShoppingListLineItemEventListener($frontendHelper, $container);
+    }
+
+    private function getProduct(int $id): Product
+    {
+        $product = new Product();
+        ReflectionUtil::setId($product, $id);
+
+        return $product;
+    }
+
+    private function getShoppingList(int $id): ShoppingList
+    {
+        $shoppingList = new ShoppingList();
+        ReflectionUtil::setId($shoppingList, $id);
+
+        return $shoppingList;
+    }
+
+    private function getLineItem(?ProductUnit $unit = null, int $shoppingListId = 1): LineItem
+    {
+        if (null === $unit) {
+            $unit = new ProductUnit();
+            $unit->setCode('item');
+        }
+
+        $item = new LineItem();
+        $item->setProduct($this->getProduct(42));
+        $item->setShoppingList($this->getShoppingList($shoppingListId));
+        $item->setUnit($unit);
+        $item->setQuantity(5.5);
+
+        return $item;
+    }
+
+    private function getPreUpdateEventArgs(LineItem $lineItem, array $changeSet): PreUpdateEventArgs
+    {
+        return new PreUpdateEventArgs(
+            $lineItem,
+            $this->createMock(EntityManagerInterface::class),
+            $changeSet
         );
     }
 
@@ -53,12 +97,10 @@ class ShoppingListLineItemEventListenerTest extends TestCase
             ->method('isEnabled')
             ->willReturn(false);
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('addToCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->prePersist($this->getLineItem());
@@ -73,13 +115,11 @@ class ShoppingListLineItemEventListenerTest extends TestCase
 
         $item = $this->getLineItem();
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('addToCart')
             ->with($item, $item->getUnit(), $item->getQuantity());
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->prePersist($item);
@@ -97,17 +137,13 @@ class ShoppingListLineItemEventListenerTest extends TestCase
 
         $item = $this->getLineItem($changeSet['unit'][1] ?? null);
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('addToCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
-        $objectManager = $this->createMock(EntityManagerInterface::class);
-
-        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->preUpdate($item, $this->getPreUpdateEventArgs($item, $changeSet));
         $this->listener->postFlush();
     }
 
@@ -265,18 +301,14 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         $setUnit = new ProductUnit();
         $setUnit->setCode('set');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('addToCart')
             ->with($item, $item->getUnit(), 20);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
-        $objectManager = $this->createMock(EntityManagerInterface::class);
-
-        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->preUpdate($item, $this->getPreUpdateEventArgs($item, $changeSet));
         $this->listener->postFlush();
     }
 
@@ -293,18 +325,14 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         $setUnit = new ProductUnit();
         $setUnit->setCode('set');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')
             ->with($item, $item->getUnit(), 20);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
-        $objectManager = $this->createMock(EntityManagerInterface::class);
-
-        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->preUpdate($item, $this->getPreUpdateEventArgs($item, $changeSet));
         $this->listener->postFlush();
     }
 
@@ -324,23 +352,18 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         $setUnit = new ProductUnit();
         $setUnit->setCode('set');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')
             ->with($item, $itemUnit, $item->getQuantity());
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('addToCart')
             ->with($item, $setUnit, $item->getQuantity());
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
-        $objectManager = $this->createMock(EntityManagerInterface::class);
-
-        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->preUpdate($item, $this->getPreUpdateEventArgs($item, $changeSet));
         $this->listener->postFlush();
     }
 
@@ -360,23 +383,18 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         $setUnit = new ProductUnit();
         $setUnit->setCode('set');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')
             ->with($item, $itemUnit, 10);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('addToCart')
             ->with($item, $setUnit, 30);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
-        $objectManager = $this->createMock(EntityManagerInterface::class);
-
-        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->preUpdate($item, $this->getPreUpdateEventArgs($item, $changeSet));
         $this->listener->postFlush();
     }
 
@@ -393,21 +411,16 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         $setUnit = new ProductUnit();
         $setUnit->setCode('set');
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('removeFromCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('addToCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
-        $objectManager = $this->createMock(EntityManagerInterface::class);
-
-        $this->listener->preUpdate($item, new PreUpdateEventArgs($item, $objectManager, $changeSet));
+        $this->listener->preUpdate($item, $this->getPreUpdateEventArgs($item, $changeSet));
         $this->listener->postFlush();
     }
 
@@ -417,12 +430,10 @@ class ShoppingListLineItemEventListenerTest extends TestCase
             ->method('isEnabled')
             ->willReturn(false);
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('addToCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->preRemove($this->getLineItem());
@@ -437,13 +448,11 @@ class ShoppingListLineItemEventListenerTest extends TestCase
 
         $item = $this->getLineItem();
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')
             ->with($item, $item->getUnit(), $item->getQuantity());
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->preRemove($item);
@@ -460,16 +469,14 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         $item1 = $this->getLineItem();
         $item1->setUnit((new ProductUnit())->setCode('box'));
 
-        $this->productLineItemCartHandler
-            ->expects(self::exactly(2))
+        $this->productLineItemCartHandler->expects(self::exactly(2))
             ->method('removeFromCart')
             ->withConsecutive(
                 [$item, $item->getUnit(), $item->getQuantity()],
                 [$item1, $item1->getUnit(), $item1->getQuantity()],
             );
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->preRemove($item);
@@ -487,17 +494,15 @@ class ShoppingListLineItemEventListenerTest extends TestCase
 
         $shoppingList = $this->getShoppingList($shoppingListId);
         $event = new CheckoutSourceEntityRemoveEvent($shoppingList);
-        $this->listener->onCheckoutSourceEntityClearOrRemove($event);
+        $this->listener->onCheckoutSourceEntityBeforeRemove($event);
 
         $item = $this->getLineItem(null, $shoppingListId);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')
             ->with($item);
 
-        $this->productLineItemCartHandler
-            ->expects(self::exactly(2))
+        $this->productLineItemCartHandler->expects(self::exactly(2))
             ->method('flush');
 
         $this->listener->preRemove($item);
@@ -518,17 +523,15 @@ class ShoppingListLineItemEventListenerTest extends TestCase
 
         $shoppingList = $this->getShoppingList($shoppingListId);
         $event = new CheckoutSourceEntityClearEvent($shoppingList);
-        $this->listener->onCheckoutSourceEntityClearOrRemove($event);
+        $this->listener->onCheckoutSourceEntityClear($event);
 
         $item = $this->getLineItem(null, $shoppingListId);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')
             ->with($item);
 
-        $this->productLineItemCartHandler
-            ->expects(self::exactly(2))
+        $this->productLineItemCartHandler->expects(self::exactly(2))
             ->method('flush');
 
         $this->listener->preRemove($item);
@@ -537,43 +540,5 @@ class ShoppingListLineItemEventListenerTest extends TestCase
         // Checks that event "remove_from_cart" is triggered after listener is reset after postFlush.
         $this->listener->preRemove($item);
         $this->listener->postFlush();
-    }
-
-    private function getProduct(int $id): Product
-    {
-        $product = new Product();
-        ReflectionUtil::setId($product, $id);
-
-        return $product;
-    }
-
-    private function getShoppingList(int $id): ShoppingList
-    {
-        $shoppingList = new ShoppingList();
-        ReflectionUtil::setId($shoppingList, $id);
-
-        return $shoppingList;
-    }
-
-    private function getLineItem(?ProductUnit $unit = null, int $shoppingListId = 1): LineItem
-    {
-        $product = $this->getProduct(42);
-
-        $shoppingList = $this->getShoppingList($shoppingListId);
-
-        if (!$unit) {
-            $unit = new ProductUnit();
-            $unit->setCode('item');
-        }
-
-        $qty = 5.5;
-
-        $item = new LineItem();
-        $item->setProduct($product)
-            ->setShoppingList($shoppingList)
-            ->setUnit($unit)
-            ->setQuantity($qty);
-
-        return $item;
     }
 }

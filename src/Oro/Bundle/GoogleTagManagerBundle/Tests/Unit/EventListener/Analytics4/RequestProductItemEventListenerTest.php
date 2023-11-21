@@ -10,21 +10,22 @@ use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\RFPBundle\Entity\RequestProduct;
 use Oro\Bundle\RFPBundle\Entity\RequestProductItem;
-use Oro\Component\Testing\Unit\EntityTrait;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use Oro\Component\Testing\ReflectionUtil;
+use Oro\Component\Testing\Unit\TestContainerBuilder;
 
-class RequestProductItemEventListenerTest extends TestCase
+class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
 {
-    use EntityTrait;
+    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
+    private $frontendHelper;
 
-    private FrontendHelper|MockObject $frontendHelper;
+    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $dataCollectionStateProvider;
 
-    private DataCollectionStateProviderInterface|MockObject $dataCollectionStateProvider;
+    /** @var ProductLineItemCartHandler|\PHPUnit\Framework\MockObject\MockObject */
+    private $productLineItemCartHandler;
 
-    private ProductLineItemCartHandler|MockObject $productLineItemCartHandler;
-
-    private RequestProductItemEventListener $listener;
+    /** @var RequestProductItemEventListener */
+    private $listener;
 
     protected function setUp(): void
     {
@@ -32,11 +33,31 @@ class RequestProductItemEventListenerTest extends TestCase
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
         $this->productLineItemCartHandler = $this->createMock(ProductLineItemCartHandler::class);
 
-        $this->listener = new RequestProductItemEventListener(
-            $this->frontendHelper,
-            $this->dataCollectionStateProvider,
-            $this->productLineItemCartHandler
-        );
+        $container = TestContainerBuilder::create()
+            ->add(DataCollectionStateProviderInterface::class, $this->dataCollectionStateProvider)
+            ->add(ProductLineItemCartHandler::class, $this->productLineItemCartHandler)
+            ->getContainer($this);
+
+        $this->listener = new RequestProductItemEventListener($this->frontendHelper, $container);
+    }
+
+    private function getRequestProductItem(int $id, string $unitCode = 'item'): RequestProductItem
+    {
+        $product = new Product();
+        ReflectionUtil::setId($product, $id);
+
+        $requestProduct = new RequestProduct();
+        $requestProduct->setProduct($product);
+
+        $unit = new ProductUnit();
+        $unit->setCode($unitCode);
+
+        $item = new RequestProductItem();
+        $item->setRequestProduct($requestProduct);
+        $item->setProductUnit($unit);
+        $item->setQuantity(5.5);
+
+        return $item;
     }
 
     public function testPrePersistWithoutEnabledIntegration(): void
@@ -49,12 +70,10 @@ class RequestProductItemEventListenerTest extends TestCase
             ->method('isEnabled')
             ->willReturn(false);
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('addToCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->prePersist($this->getRequestProductItem(1001));
@@ -73,13 +92,11 @@ class RequestProductItemEventListenerTest extends TestCase
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('addToCart')
             ->with($item);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->prePersist($item);
@@ -92,12 +109,10 @@ class RequestProductItemEventListenerTest extends TestCase
             ->method('isFrontendRequest')
             ->willReturn(false);
 
-        $this->productLineItemCartHandler
-            ->expects(self::never())
+        $this->productLineItemCartHandler->expects(self::never())
             ->method('addToCart');
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->prePersist($this->getRequestProductItem(1001));
@@ -117,36 +132,15 @@ class RequestProductItemEventListenerTest extends TestCase
         $item1 = $this->getRequestProductItem(1001);
         $item2 = $this->getRequestProductItem(2002, 'set');
 
-        $this->productLineItemCartHandler
-            ->expects(self::exactly(2))
+        $this->productLineItemCartHandler->expects(self::exactly(2))
             ->method('addToCart')
             ->withConsecutive([$item1], [$item2]);
 
-        $this->productLineItemCartHandler
-            ->expects(self::once())
+        $this->productLineItemCartHandler->expects(self::once())
             ->method('flush');
 
         $this->listener->prePersist($item1);
         $this->listener->prePersist($item2);
         $this->listener->postFlush();
-    }
-
-    private function getRequestProductItem(int $id, string $unitCode = 'item'): RequestProductItem
-    {
-        /** @var Product $product */
-        $product = $this->getEntity(Product::class, ['id' => $id]);
-
-        $unit = new ProductUnit();
-        $unit->setCode($unitCode);
-
-        $requestProduct = new RequestProduct();
-        $requestProduct->setProduct($product);
-
-        $item = new RequestProductItem();
-        $item->setRequestProduct($requestProduct)
-            ->setProductUnit($unit)
-            ->setQuantity(5.5);
-
-        return $item;
     }
 }

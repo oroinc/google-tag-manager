@@ -23,85 +23,85 @@ use Oro\Bundle\TaxBundle\Model\Result;
 use Oro\Bundle\TaxBundle\Model\ResultElement;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderInterface;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
-use Oro\Bundle\TestFrameworkBundle\Test\Logger\LoggerAwareTraitTestTrait;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use Psr\Log\LoggerInterface;
 
 class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
 {
-    use LoggerAwareTraitTestTrait;
+    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $productDetailProvider;
 
-    private ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productDetailProvider;
+    /** @var AppliedPromotionsNamesProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $appliedPromotionsNamesProvider;
 
-    private TaxProviderInterface|\PHPUnit\Framework\MockObject\MockObject $taxProvider;
+    /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $logger;
 
-    private AppliedPromotionsNamesProvider|\PHPUnit\Framework\MockObject\MockObject $appliedPromotionsNamesProvider;
+    /** @var TaxProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $taxProvider;
 
-    private PurchaseDetailProvider $provider;
+    /** @var OrderRepository|\PHPUnit\Framework\MockObject\MockObject */
+    private $orderRepository;
 
-    private OrderRepository|\PHPUnit\Framework\MockObject\MockObject $orderRepository;
+    /** @var PaymentTransactionRepository|\PHPUnit\Framework\MockObject\MockObject */
+    private $paymentTransactionRepository;
 
-    private PaymentTransactionRepository|\PHPUnit\Framework\MockObject\MockObject $paymentTransactionRepository;
+    /** @var PurchaseDetailProvider */
+    private $provider;
 
     protected function setUp(): void
     {
-        $managerRegistry = $this->createMock(ManagerRegistry::class);
-
+        $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
+        $this->taxProvider = $this->createMock(TaxProviderInterface::class);
+        $this->appliedPromotionsNamesProvider = $this->createMock(AppliedPromotionsNamesProvider::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->orderRepository = $this->createMock(OrderRepository::class);
         $this->paymentTransactionRepository = $this->createMock(PaymentTransactionRepository::class);
-        $managerRegistry
-            ->expects(self::any())
+
+        $doctrine = $this->createMock(ManagerRegistry::class);
+        $doctrine->expects(self::any())
             ->method('getRepository')
-            ->willReturnMap(
-                [
-                    [Order::class, null, $this->orderRepository],
-                    [PaymentTransaction::class, null, $this->paymentTransactionRepository],
-                ]
-            );
-
-        $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);
-
-        $this->taxProvider = $this->createMock(TaxProviderInterface::class);
+            ->willReturnMap([
+                [Order::class, null, $this->orderRepository],
+                [PaymentTransaction::class, null, $this->paymentTransactionRepository],
+            ]);
 
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry->expects(self::any())
             ->method('getEnabledProvider')
             ->willReturn($this->taxProvider);
 
-        $this->appliedPromotionsNamesProvider = $this->createMock(AppliedPromotionsNamesProvider::class);
-
         $shippingMethodLabelFormatter = $this->createMock(ShippingMethodLabelFormatter::class);
         $shippingMethodLabelFormatter->expects(self::any())
             ->method('formatShippingMethodWithTypeLabel')
-            ->willReturnCallback(
-                static function (string $shippingMethod, string $shippingType) {
-                    return $shippingMethod . ', ' . $shippingType . '_formatted';
-                }
-            );
+            ->willReturnCallback(static function (string $shippingMethod, string $shippingType) {
+                return $shippingMethod . ', ' . $shippingType . '_formatted';
+            });
 
         $paymentMethodLabelFormatter = $this->createMock(PaymentMethodLabelFormatter::class);
         $paymentMethodLabelFormatter->expects(self::any())
             ->method('formatPaymentMethodLabel')
-            ->willReturnCallback(static fn (string $paymentMethod) => $paymentMethod . '_formatted');
+            ->willReturnCallback(static function (string $paymentMethod) {
+                return $paymentMethod . '_formatted';
+            });
 
         $this->provider = new PurchaseDetailProvider(
-            $managerRegistry,
+            $doctrine,
             $this->productDetailProvider,
             $taxProviderRegistry,
             $this->appliedPromotionsNamesProvider,
             $shippingMethodLabelFormatter,
             $paymentMethodLabelFormatter,
+            $this->logger,
             1
         );
-
-        $this->setUpLoggerMock($this->provider);
     }
 
     public function testGetPurchaseDataWithoutOrder(): void
     {
         $id = 42;
 
-        $this->orderRepository
-            ->expects(self::once())
+        $this->orderRepository->expects(self::once())
             ->method('findOneBy')
             ->with(['id' => $id])
             ->willReturn(null);
@@ -169,8 +169,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $this->assertTaxProviderCalled($order, $taxAmount);
 
-        $this->appliedPromotionsNamesProvider
-            ->expects(self::once())
+        $this->appliedPromotionsNamesProvider->expects(self::once())
             ->method('getAppliedPromotionsNames')
             ->with($order)
             ->willReturn($promotionsNames);
@@ -235,16 +234,14 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->with($order)
             ->willThrowException($throwable);
 
-        $this->loggerMock
-            ->expects(self::once())
+        $this->logger->expects(self::once())
             ->method('error')
             ->with(
                 'Skipped adding tax to the GTM data layer due to an unexpected error: {message}',
                 ['order' => $order, 'throwable' => $throwable, 'message' => $throwable->getMessage()]
             );
 
-        $this->appliedPromotionsNamesProvider
-            ->expects(self::once())
+        $this->appliedPromotionsNamesProvider->expects(self::once())
             ->method('getAppliedPromotionsNames')
             ->with($order)
             ->willReturn($promotionsNames);
@@ -433,8 +430,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ->with($order)
                 ->willThrowException($exception);
 
-            $this->loggerMock
-                ->expects(self::once())
+            $this->logger->expects(self::once())
                 ->method('debug')
                 ->with(
                     'Skipped adding tax to the GTM data layer: taxation is disabled',

@@ -7,31 +7,32 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
-use Oro\Bundle\TestFrameworkBundle\Test\Logger\LoggerAwareTraitTestTrait;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use Psr\Log\LoggerInterface;
 
 class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
 {
-    use LoggerAwareTraitTestTrait;
+    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $provider1;
 
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider1;
+    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $provider2;
 
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $provider2;
-
-    private DataCollectionStateProvider $dataCollectionStateProvider;
+    /** @var DataCollectionStateProvider */
+    private $dataCollectionStateProvider;
 
     protected function setUp(): void
     {
         $this->googleTagManagerSettingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);
         $this->provider1 = $this->createMock(DataCollectionStateProviderInterface::class);
         $this->provider2 = $this->createMock(DataCollectionStateProviderInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->dataCollectionStateProvider = new DataCollectionStateProvider(
+            [$this->provider1, $this->provider2],
             $this->googleTagManagerSettingsProvider,
-            [$this->provider1, $this->provider2]
+            $this->logger
         );
-
-        $this->setUpLoggerMock($this->dataCollectionStateProvider);
     }
 
     /**
@@ -39,8 +40,7 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetGoogleTagManagerSettings(?Website $website, ?Transport $expected): void
     {
-        $this->googleTagManagerSettingsProvider
-            ->expects(self::once())
+        $this->googleTagManagerSettingsProvider->expects(self::once())
             ->method('getGoogleTagManagerSettings')
             ->with($website)
             ->willReturn($expected);
@@ -63,18 +63,15 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsEnabledWhenNoSettings(?Website $website, ?Transport $settings): void
     {
-        $this->googleTagManagerSettingsProvider
-            ->expects(self::once())
+        $this->googleTagManagerSettingsProvider->expects(self::once())
             ->method('getGoogleTagManagerSettings')
             ->with($website)
             ->willReturn($settings);
 
-        $this->provider1
-            ->expects(self::never())
+        $this->provider1->expects(self::never())
             ->method(self::anything());
 
-        $this->provider2
-            ->expects(self::never())
+        $this->provider2->expects(self::never())
             ->method(self::anything());
 
         self::assertFalse($this->dataCollectionStateProvider->isEnabled('sample_type', $website));
@@ -96,27 +93,23 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
         $gtmSettings = (new GoogleTagManagerSettings())
             ->setContainerId('sample-id');
 
-        $this->googleTagManagerSettingsProvider
-            ->expects(self::once())
+        $this->googleTagManagerSettingsProvider->expects(self::once())
             ->method('getGoogleTagManagerSettings')
             ->with($website)
             ->willReturn($gtmSettings);
 
         $dataCollectionType = 'sample_type';
-        $this->provider1
-            ->expects(self::once())
+        $this->provider1->expects(self::once())
             ->method('isEnabled')
             ->with($dataCollectionType, $website)
             ->willReturn(null);
 
-        $this->provider2
-            ->expects(self::once())
+        $this->provider2->expects(self::once())
             ->method('isEnabled')
             ->with($dataCollectionType, $website)
             ->willReturn(null);
 
-        $this->loggerMock
-            ->expects(self::once())
+        $this->logger->expects(self::once())
             ->method('error')
             ->with(
                 'Google Tag Manager data collection type "{type}" is not supported',
@@ -132,21 +125,18 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
         $gtmSettings = (new GoogleTagManagerSettings())
             ->setContainerId('sample-id');
 
-        $this->googleTagManagerSettingsProvider
-            ->expects(self::once())
+        $this->googleTagManagerSettingsProvider->expects(self::once())
             ->method('getGoogleTagManagerSettings')
             ->with($website)
             ->willReturn($gtmSettings);
 
         $dataCollectionType = 'sample_type';
-        $this->provider1
-            ->expects(self::once())
+        $this->provider1->expects(self::once())
             ->method('isEnabled')
             ->with($dataCollectionType, $website)
             ->willReturn(null);
 
-        $this->provider2
-            ->expects(self::once())
+        $this->provider2->expects(self::once())
             ->method('isEnabled')
             ->with($dataCollectionType, $website)
             ->willReturn(true);

@@ -14,24 +14,27 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ProductBundle\Model\ProductLineItem;
 use Oro\Bundle\ProductBundle\Tests\Unit\Stub\ProductStub;
 use PHPUnit\Framework\Constraint\IsType;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class ProductLineItemCartHandlerTest extends TestCase
+class ProductLineItemCartHandlerTest extends \PHPUnit\Framework\TestCase
 {
-    private DataLayerManager|MockObject $dataLayerManager;
+    /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
+    private $dataLayerManager;
 
-    private ProductDetailProvider|MockObject $productDetailProvider;
+    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
+    private $productDetailProvider;
 
-    private ProductLineItemPriceProviderInterface|MockObject $productLineItemPriceProvider;
+    /** @var ProductLineItemPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $productLineItemPriceProvider;
 
-    private UserCurrencyManager|MockObject $userCurrencyManager;
+    /** @var UserCurrencyManager|\PHPUnit\Framework\MockObject\MockObject */
+    private $userCurrencyManager;
 
-    private ProductLineItemCartHandler $handler;
+    /** @var ProductLineItemCartHandler */
+    private $handler;
 
     protected function setUp(): void
     {
@@ -52,12 +55,10 @@ class ProductLineItemCartHandlerTest extends TestCase
     {
         $lineItem = new ProductLineItem(42);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::never())
+        $this->productLineItemPriceProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->dataLayerManager
-            ->expects(self::never())
+        $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
 
         $this->handler->removeFromCart($lineItem);
@@ -70,12 +71,10 @@ class ProductLineItemCartHandlerTest extends TestCase
         $lineItem = (new ProductLineItem(42))
             ->setProduct(new Product());
 
-        $this->productLineItemPriceProvider
-            ->expects(self::never())
+        $this->productLineItemPriceProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->dataLayerManager
-            ->expects(self::never())
+        $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
 
         $this->handler->removeFromCart($lineItem);
@@ -89,12 +88,10 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setProduct(new Product())
             ->setQuantity(12.3456);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::never())
+        $this->productLineItemPriceProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->dataLayerManager
-            ->expects(self::never())
+        $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
 
         $this->handler->removeFromCart($lineItem);
@@ -110,37 +107,30 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn(null);
 
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getDefaultCurrency')
             ->willReturn($currency);
 
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn([]);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem) {
-                    self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem) {
+                self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [];
-                }
-            );
+                return [];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -168,36 +158,29 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn([]);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem) {
-                    self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem) {
+                self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [];
-                }
-            );
+                return [];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -225,37 +208,30 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem) {
-                    self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem) {
+                self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [];
-                }
-            );
+                return [];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -283,18 +259,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -305,22 +278,18 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem, $lineItemPrice) {
-                    $hash = spl_object_hash(reset($lineItems));
-                    self::assertEquals([$hash => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem, $lineItemPrice) {
+                $hash = spl_object_hash(reset($lineItems));
+                self::assertEquals([$hash => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [$hash => $lineItemPrice];
-                }
-            );
+                return [$hash => $lineItemPrice];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -351,18 +320,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -373,22 +339,18 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem, $explicitQuantity, $lineItemPrice) {
-                    $hash = spl_object_hash(reset($lineItems));
-                    self::assertEquals([$hash => (clone $lineItem)->setQuantity($explicitQuantity)], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem, $explicitQuantity, $lineItemPrice) {
+                $hash = spl_object_hash(reset($lineItems));
+                self::assertEquals([$hash => (clone $lineItem)->setQuantity($explicitQuantity)], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [$hash => $lineItemPrice];
-                }
-            );
+                return [$hash => $lineItemPrice];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -420,18 +382,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -442,8 +401,7 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
             ->willReturnCallback(
@@ -460,8 +418,7 @@ class ProductLineItemCartHandlerTest extends TestCase
                 }
             );
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -494,13 +451,11 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method(self::anything());
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -511,8 +466,7 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $explicitCurrency)
             ->willReturnCallback(
@@ -529,8 +483,7 @@ class ProductLineItemCartHandlerTest extends TestCase
                 }
             );
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -559,25 +512,20 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
-        $this->productDetailProvider
-            ->expects(self::never())
+        $this->productDetailProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->productLineItemPriceProvider
-            ->expects(self::never())
+        $this->productLineItemPriceProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->dataLayerManager
-            ->expects(self::never())
+        $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
 
         $this->handler->addToCart($lineItem);
@@ -593,18 +541,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -615,22 +560,18 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem, $lineItemPrice) {
-                    $hash = spl_object_hash(reset($lineItems));
-                    self::assertEquals([$hash => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem, $lineItemPrice) {
+                $hash = spl_object_hash(reset($lineItems));
+                self::assertEquals([$hash => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [$hash => $lineItemPrice];
-                }
-            );
+                return [$hash => $lineItemPrice];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -670,19 +611,16 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('each'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::exactly(2))
+        $this->userCurrencyManager->expects(self::exactly(2))
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $product1Details = ['sample_key1' => 'sample_value1'];
         $product2Details = ['sample_key2' => 'sample_value2'];
-        $this->productDetailProvider
-            ->expects(self::exactly(2))
+        $this->productDetailProvider->expects(self::exactly(2))
             ->method('getData')
             ->willReturnMap([
                 [$lineItem1->getProduct(), null, $product1Details],
@@ -704,30 +642,26 @@ class ProductLineItemCartHandlerTest extends TestCase
         $expectedLineItems = [$lineItem1, $lineItem2];
         $expectedLineItemsPrices = [$lineItem1Price, $lineItem2Price];
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($expectedLineItems, $expectedLineItemsPrices) {
-                    $lineItemPrices = [];
-                    while ($expectedLineItem = array_shift($expectedLineItems)) {
-                        $expectedLineItemPrice = array_shift($expectedLineItemsPrices);
-                        $lineItem = array_shift($lineItems);
+            ->willReturnCallback(static function ($lineItems) use ($expectedLineItems, $expectedLineItemsPrices) {
+                $lineItemPrices = [];
+                while ($expectedLineItem = array_shift($expectedLineItems)) {
+                    $expectedLineItemPrice = array_shift($expectedLineItemsPrices);
+                    $lineItem = array_shift($lineItems);
 
-                        $hash = spl_object_hash($lineItem);
-                        self::assertEquals($expectedLineItem, $lineItem);
-                        self::assertNotSame($expectedLineItem, $lineItem);
+                    $hash = spl_object_hash($lineItem);
+                    self::assertEquals($expectedLineItem, $lineItem);
+                    self::assertNotSame($expectedLineItem, $lineItem);
 
-                        $lineItemPrices[$hash] = $expectedLineItemPrice;
-                    }
-
-                    return $lineItemPrices;
+                    $lineItemPrices[$hash] = $expectedLineItemPrice;
                 }
-            );
 
-        $this->dataLayerManager
-            ->expects(self::once())
+                return $lineItemPrices;
+            });
+
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'add_to_cart',
@@ -762,37 +696,30 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn(null);
 
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getDefaultCurrency')
             ->willReturn($currency);
 
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn([]);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem) {
-                    self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem) {
+                self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [];
-                }
-            );
+                return [];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -820,36 +747,29 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn([]);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem) {
-                    self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem) {
+                self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [];
-                }
-            );
+                return [];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -877,37 +797,30 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem) {
-                    self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem) {
+                self::assertEquals([spl_object_hash(reset($lineItems)) => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [];
-                }
-            );
+                return [];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -935,18 +848,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -957,22 +867,18 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem, $lineItemPrice) {
-                    $hash = spl_object_hash(reset($lineItems));
-                    self::assertEquals([$hash => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem, $lineItemPrice) {
+                $hash = spl_object_hash(reset($lineItems));
+                self::assertEquals([$hash => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [$hash => $lineItemPrice];
-                }
-            );
+                return [$hash => $lineItemPrice];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -1003,18 +909,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -1025,22 +928,18 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem, $explicitQuantity, $lineItemPrice) {
-                    $hash = spl_object_hash(reset($lineItems));
-                    self::assertEquals([$hash => (clone $lineItem)->setQuantity($explicitQuantity)], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem, $explicitQuantity, $lineItemPrice) {
+                $hash = spl_object_hash(reset($lineItems));
+                self::assertEquals([$hash => (clone $lineItem)->setQuantity($explicitQuantity)], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [$hash => $lineItemPrice];
-                }
-            );
+                return [$hash => $lineItemPrice];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -1072,18 +971,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -1094,8 +990,7 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
             ->willReturnCallback(
@@ -1112,8 +1007,7 @@ class ProductLineItemCartHandlerTest extends TestCase
                 }
             );
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -1146,13 +1040,11 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method(self::anything());
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -1163,8 +1055,7 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $explicitCurrency)
             ->willReturnCallback(
@@ -1181,8 +1072,7 @@ class ProductLineItemCartHandlerTest extends TestCase
                 }
             );
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -1211,25 +1101,20 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
-        $this->productDetailProvider
-            ->expects(self::never())
+        $this->productDetailProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->productLineItemPriceProvider
-            ->expects(self::never())
+        $this->productLineItemPriceProvider->expects(self::never())
             ->method(self::anything());
 
-        $this->dataLayerManager
-            ->expects(self::never())
+        $this->dataLayerManager->expects(self::never())
             ->method(self::anything());
 
         $this->handler->removeFromCart($lineItem);
@@ -1245,18 +1130,15 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('item'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::once())
+        $this->userCurrencyManager->expects(self::once())
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $productDetails = ['sample_key' => 'sample_value'];
-        $this->productDetailProvider
-            ->expects(self::once())
+        $this->productDetailProvider->expects(self::once())
             ->method('getData')
             ->with($lineItem->getProduct())
             ->willReturn($productDetails);
@@ -1267,22 +1149,18 @@ class ProductLineItemCartHandlerTest extends TestCase
             1524.15
         );
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
             ->with(self::isType(IsType::TYPE_ITERABLE), null, $currency)
-            ->willReturnCallback(
-                static function ($lineItems) use ($lineItem, $lineItemPrice) {
-                    $hash = spl_object_hash(reset($lineItems));
-                    self::assertEquals([$hash => $lineItem], $lineItems);
-                    self::assertNotSame($lineItem, reset($lineItems));
+            ->willReturnCallback(static function ($lineItems) use ($lineItem, $lineItemPrice) {
+                $hash = spl_object_hash(reset($lineItems));
+                self::assertEquals([$hash => $lineItem], $lineItems);
+                self::assertNotSame($lineItem, reset($lineItems));
 
-                    return [$hash => $lineItemPrice];
-                }
-            );
+                return [$hash => $lineItemPrice];
+            });
 
-        $this->dataLayerManager
-            ->expects(self::once())
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
@@ -1322,19 +1200,16 @@ class ProductLineItemCartHandlerTest extends TestCase
             ->setUnit((new ProductUnit())->setCode('each'));
 
         $currency = 'USD';
-        $this->userCurrencyManager
-            ->expects(self::exactly(2))
+        $this->userCurrencyManager->expects(self::exactly(2))
             ->method('getUserCurrency')
             ->willReturn($currency);
 
-        $this->userCurrencyManager
-            ->expects(self::never())
+        $this->userCurrencyManager->expects(self::never())
             ->method('getDefaultCurrency');
 
         $product1Details = ['sample_key1' => 'sample_value1'];
         $product2Details = ['sample_key2' => 'sample_value2'];
-        $this->productDetailProvider
-            ->expects(self::exactly(2))
+        $this->productDetailProvider->expects(self::exactly(2))
             ->method('getData')
             ->willReturnMap([
                 [$lineItem1->getProduct(), null, $product1Details],
@@ -1356,29 +1231,25 @@ class ProductLineItemCartHandlerTest extends TestCase
         $expectedLineItems = [$lineItem1, $lineItem2];
         $expectedLineItemsPrices = [$lineItem1Price, $lineItem2Price];
 
-        $this->productLineItemPriceProvider
-            ->expects(self::once())
+        $this->productLineItemPriceProvider->expects(self::once())
             ->method('getProductLineItemsPrices')
-            ->willReturnCallback(
-                static function ($lineItems) use ($expectedLineItems, $expectedLineItemsPrices) {
-                    $lineItemPrices = [];
-                    while ($expectedLineItem = array_shift($expectedLineItems)) {
-                        $expectedLineItemPrice = array_shift($expectedLineItemsPrices);
-                        $lineItem = array_shift($lineItems);
+            ->willReturnCallback(static function ($lineItems) use ($expectedLineItems, $expectedLineItemsPrices) {
+                $lineItemPrices = [];
+                while ($expectedLineItem = array_shift($expectedLineItems)) {
+                    $expectedLineItemPrice = array_shift($expectedLineItemsPrices);
+                    $lineItem = array_shift($lineItems);
 
-                        $hash = spl_object_hash($lineItem);
-                        self::assertEquals($expectedLineItem, $lineItem);
-                        self::assertNotSame($expectedLineItem, $lineItem);
+                    $hash = spl_object_hash($lineItem);
+                    self::assertEquals($expectedLineItem, $lineItem);
+                    self::assertNotSame($expectedLineItem, $lineItem);
 
-                        $lineItemPrices[$hash] = $expectedLineItemPrice;
-                    }
-
-                    return $lineItemPrices;
+                    $lineItemPrices[$hash] = $expectedLineItemPrice;
                 }
-            );
 
-        $this->dataLayerManager
-            ->expects(self::once())
+                return $lineItemPrices;
+            });
+
+        $this->dataLayerManager->expects(self::once())
             ->method('append')
             ->with([
                 'event' => 'remove_from_cart',
