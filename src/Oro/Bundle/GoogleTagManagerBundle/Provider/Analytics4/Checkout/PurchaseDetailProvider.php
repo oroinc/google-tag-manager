@@ -14,49 +14,40 @@ use Oro\Bundle\PaymentBundle\Formatter\PaymentMethodLabelFormatter;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Bundle\TaxBundle\Exception\TaxationDisabledException;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 /**
  * Returns data for checkout steps (Checkout events) and success page (Purchase event).
  */
-class PurchaseDetailProvider implements LoggerAwareInterface
+class PurchaseDetailProvider
 {
-    use LoggerAwareTrait;
-
-    private ManagerRegistry $managerRegistry;
-
+    private ManagerRegistry $doctrine;
     private ProductDetailProvider $productDetailProvider;
-
     private TaxProviderRegistry $taxProviderRegistry;
-
     private AppliedPromotionsNamesProvider $appliedPromotionsNamesProvider;
-
     private ShippingMethodLabelFormatter $shippingMethodLabelFormatter;
-
     private PaymentMethodLabelFormatter $paymentMethodLabelFormatter;
-
+    private LoggerInterface $logger;
     private int $batchSize;
 
     public function __construct(
-        ManagerRegistry $managerRegistry,
+        ManagerRegistry $doctrine,
         ProductDetailProvider $productDetailProvider,
         TaxProviderRegistry $taxProviderRegistry,
         AppliedPromotionsNamesProvider $appliedPromotionsNamesProvider,
         ShippingMethodLabelFormatter $shippingMethodLabelFormatter,
         PaymentMethodLabelFormatter $paymentMethodLabelFormatter,
+        LoggerInterface $logger,
         int $batchSize = 30
     ) {
-        $this->managerRegistry = $managerRegistry;
+        $this->doctrine = $doctrine;
         $this->productDetailProvider = $productDetailProvider;
         $this->taxProviderRegistry = $taxProviderRegistry;
         $this->appliedPromotionsNamesProvider = $appliedPromotionsNamesProvider;
         $this->shippingMethodLabelFormatter = $shippingMethodLabelFormatter;
         $this->paymentMethodLabelFormatter = $paymentMethodLabelFormatter;
+        $this->logger = $logger;
         $this->batchSize = $batchSize;
-
-        $this->logger = new NullLogger();
     }
 
     public function getData(Checkout $checkout): array
@@ -190,9 +181,7 @@ class PurchaseDetailProvider implements LoggerAwareInterface
     {
         $orderData = $checkout->getCompletedData()->getOrderData();
 
-        return $this->managerRegistry
-            ->getRepository(Order::class)
-            ->findOneBy($orderData['entityId']);
+        return $this->doctrine->getRepository(Order::class)->findOneBy($orderData['entityId']);
     }
 
     private function formatPrice(?Price $price): float
@@ -202,9 +191,8 @@ class PurchaseDetailProvider implements LoggerAwareInterface
 
     private function getPaymentMethod(Order $order): ?string
     {
-        $repository = $this->managerRegistry->getRepository(PaymentTransaction::class);
-
         /** @var PaymentTransactionRepository $repository */
+        $repository = $this->doctrine->getRepository(PaymentTransaction::class);
         $methods = $repository->getPaymentMethods(Order::class, [$order->getId()]);
         if (!isset($methods[$order->getId()])) {
             return null;

@@ -5,32 +5,28 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Provider;
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 /**
  * Provides states for the data collection types supported by inner providers.
  */
 class DataCollectionStateProvider implements
     GoogleTagManagerSettingsProviderInterface,
-    DataCollectionStateProviderInterface,
-    LoggerAwareInterface
+    DataCollectionStateProviderInterface
 {
-    use LoggerAwareTrait;
-
-    private GoogleTagManagerSettingsProviderInterface $googleTagManagerSettingsProvider;
-
     /** @var iterable<DataCollectionStateProviderInterface> */
     private iterable $providers;
+    private GoogleTagManagerSettingsProviderInterface $googleTagManagerSettingsProvider;
+    private LoggerInterface $logger;
 
     public function __construct(
+        iterable $providers,
         GoogleTagManagerSettingsProviderInterface $googleTagManagerSettingsProvider,
-        iterable $providers
+        LoggerInterface $logger
     ) {
         $this->googleTagManagerSettingsProvider = $googleTagManagerSettingsProvider;
         $this->providers = $providers;
-        $this->logger = new NullLogger();
+        $this->logger = $logger;
     }
 
     public function getGoogleTagManagerSettings(?Website $website = null): ?Transport

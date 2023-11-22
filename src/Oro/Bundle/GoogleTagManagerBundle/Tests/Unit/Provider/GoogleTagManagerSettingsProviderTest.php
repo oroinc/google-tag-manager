@@ -14,25 +14,27 @@ class GoogleTagManagerSettingsProviderTest extends \PHPUnit\Framework\TestCase
 {
     private const CONFIG_KEY = 'oro_google_tag_manager.integration';
 
-    private ChannelRepository|\PHPUnit\Framework\MockObject\MockObject $repository;
+    /** @var ConfigManager|\PHPUnit\Framework\MockObject\MockObject */
+    private $configManager;
 
-    private ConfigManager|\PHPUnit\Framework\MockObject\MockObject $configManager;
+    /** @var ChannelRepository|\PHPUnit\Framework\MockObject\MockObject */
+    private $repository;
 
-    private GoogleTagManagerSettingsProvider $provider;
+    /** @var GoogleTagManagerSettingsProvider */
+    private $provider;
 
     protected function setUp(): void
     {
+        $this->configManager = $this->createMock(ConfigManager::class);
         $this->repository = $this->createMock(ChannelRepository::class);
 
-        $registry = $this->createMock(ManagerRegistry::class);
-        $registry->expects(self::any())
+        $doctrine = $this->createMock(ManagerRegistry::class);
+        $doctrine->expects(self::any())
             ->method('getRepository')
             ->with(Channel::class)
             ->willReturn($this->repository);
 
-        $this->configManager = $this->createMock(ConfigManager::class);
-
-        $this->provider = new GoogleTagManagerSettingsProvider($registry, $this->configManager);
+        $this->provider = new GoogleTagManagerSettingsProvider($doctrine, $this->configManager);
     }
 
     public function testGetGoogleTagManagerSettingsWithEmptyConfig(): void

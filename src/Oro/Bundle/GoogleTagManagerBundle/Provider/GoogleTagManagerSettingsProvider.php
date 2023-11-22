@@ -16,18 +16,18 @@ use Oro\Bundle\WebsiteBundle\Entity\Website;
  */
 class GoogleTagManagerSettingsProvider implements GoogleTagManagerSettingsProviderInterface
 {
-    private ManagerRegistry $registry;
-
+    private ManagerRegistry $doctrine;
     private ConfigManager $configManager;
 
-    public function __construct(ManagerRegistry $registry, ConfigManager $configManager)
+    public function __construct(ManagerRegistry $doctrine, ConfigManager $configManager)
     {
-        $this->registry = $registry;
+        $this->doctrine = $doctrine;
         $this->configManager = $configManager;
     }
 
     /**
      * @param Website|null $website
+     *
      * @return GoogleTagManagerSettings|null
      */
     public function getGoogleTagManagerSettings(?Website $website = null): ?Transport
@@ -49,6 +49,6 @@ class GoogleTagManagerSettingsProvider implements GoogleTagManagerSettingsProvid
 
     private function getChannelRepository(): ChannelRepository
     {
-        return $this->registry->getRepository(Channel::class);
+        return $this->doctrine->getRepository(Channel::class);
     }
 }

@@ -125,7 +125,7 @@ Feature: GTM events on product lists
       """
 
     When do not change page on link click
-    And I follow "View Details"
+    And I click "Product Name Link"
     Then last message in the GTM data layer should be:
       """
         {
