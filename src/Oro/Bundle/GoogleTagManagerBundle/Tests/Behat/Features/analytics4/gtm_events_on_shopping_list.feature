@@ -188,6 +188,7 @@ Feature: GTM events on shopping list
     And I fill in "Shopping List Product Note" with "My notes"
     And I click "Add"
     Then I should see "Line item note has been successfully updated" flash message and I close it
+    And reload the page
     And GTM data layer must not contain the following message:
       """
         {
