@@ -1,0 +1,16 @@
+layout:
+    imports:
+        -
+            id: oro_product_list_gtm_analytics4
+            root: content_widget_container
+            namespace: product_segment
+
+    actions:
+        - '@setOption':
+            id: product_segment_gtm_analytics4_product_list
+            optionName: visible
+            optionValue: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'
+        - '@setOption':
+            id: product_segment_gtm_analytics4_product_list
+            optionName: 'vars.embeddedBlockName'
+            optionValue: '=data["contentWidgetName"]'
