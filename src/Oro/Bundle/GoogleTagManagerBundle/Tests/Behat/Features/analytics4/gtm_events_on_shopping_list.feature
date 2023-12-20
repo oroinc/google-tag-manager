@@ -265,6 +265,7 @@ Feature: GTM events on shopping list
       """
 
   Scenario: Remove item in shopping list
+    And I click on empty space
     When I click Delete SKU1 in grid
     And I click "Yes, Delete" in modal window
     Then last message in the GTM data layer should be:
