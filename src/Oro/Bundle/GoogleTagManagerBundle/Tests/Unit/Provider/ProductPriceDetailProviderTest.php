@@ -84,7 +84,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $this->tokenStorage->expects($this->once())
             ->method('getToken')
-            ->willReturn(new UsernamePasswordToken($customerUser, '', 'test'));
+            ->willReturn(new UsernamePasswordToken($customerUser, 'test'));
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
@@ -147,7 +147,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $this->tokenStorage->expects($this->once())
             ->method('getToken')
-            ->willReturn(new AnonymousCustomerUserToken('', [], $customerVisitor));
+            ->willReturn(new AnonymousCustomerUserToken($customerVisitor));
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
