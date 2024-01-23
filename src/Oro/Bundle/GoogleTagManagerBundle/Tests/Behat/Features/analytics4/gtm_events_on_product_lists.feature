@@ -78,7 +78,6 @@ Feature: GTM events on product lists
     And I should see "$10.4555 / item" in the "Product Price Your" element
     And I should see "$10.4555 / item" in the "Product Price Listed" element
 
-    When I click "Catalog Switcher Toggle"
     And I click "Gallery View"
     Then GTM data layer must contain the following message:
       """
@@ -101,8 +100,7 @@ Feature: GTM events on product lists
         }
       """
 
-    When I click "Catalog Switcher Toggle"
-    And I click "No Image View"
+    And I click "Compact View"
     Then GTM data layer must contain the following message:
       """
         {
@@ -155,7 +153,6 @@ Feature: GTM events on product lists
   Scenario: Check product events on products index page
     Given I reload the page
     And I click "All Products"
-    And I click "Catalog Switcher Toggle"
     And I click "List View"
     And I sort frontend grid "Product Frontend Grid" by "Price (Low to High)"
     And GTM data layer must contain the following message:

@@ -72,7 +72,6 @@ Feature: GTM events on product in catalog
     And I should see "$10.4555 / item" in the "Product Price Your" element
     And I should see "$10.4555 / item" in the "Product Price Listed" element
 
-    When I click "Catalog Switcher Toggle"
     And I click "Gallery View"
     Then GTM data layer must contain the following message:
       """
@@ -95,8 +94,7 @@ Feature: GTM events on product in catalog
         }
       """
 
-    When I click "Catalog Switcher Toggle"
-    And I click "No Image View"
+    And I click "Compact View"
     Then GTM data layer must contain the following message:
       """
         {
