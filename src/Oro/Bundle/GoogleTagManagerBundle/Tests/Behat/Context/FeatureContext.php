@@ -70,8 +70,9 @@ class FeatureContext extends OroFeatureContext
 
         self::fail(
             sprintf(
-                'The expected message is not present in the data layer. Current messages are: %s',
-                json_encode($dataLayer, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+                'The expected message is not present in the data layer %s . Current messages are: %s',
+                json_encode($expectedMessage, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR),
+                json_encode($dataLayer, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR),
             )
         );
     }

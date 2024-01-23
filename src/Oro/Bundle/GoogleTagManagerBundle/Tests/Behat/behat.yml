@@ -4,19 +4,25 @@ oro_behat_extension:
             selector: 'div[data-type="image_slider"] .slick-dots li:nth-child(1) button'
 
         Call To Action On First Slide:
-            selector: 'div[data-type="image_slider"] .slick-slide:nth-child(1) [data-role="slide-content"] a'
+            selector: 'div[data-type="image_slider"] .slick-slide:nth-child(1) [data-role="slide-content"] .btn'
 
         Third Dot On Home Page Slider:
             selector: 'div[data-type="image_slider"] .slick-dots li:nth-child(3) button'
 
         Featured Products Next Button:
-            selector: 'div[data-page-component-name="featured-products-list"] button.slick-next'
+            selector:
+                type: 'xpath'
+                locator: '//div[@data-page-component-name="featured-products-list"]/../div/div/button[contains(@class, "slick-next")]'
 
         Top Selling Products Next Button:
-            selector: 'div[data-page-component-name="top-selling-list"] button.slick-next'
+            selector:
+                type: 'xpath'
+                locator: '//div[@data-page-component-name="top-selling-list"]/../div/div/button[contains(@class, "slick-next")]'
 
         New Arrivals Next Button:
-            selector: 'div[data-page-component-name="new-arrivals-list"] button.slick-next'
+            selector:
+                type: 'xpath'
+                locator: '//div[@data-page-component-name="new-arrivals-list"]/../div/div/button[contains(@class, "slick-next")]'
 
         First Image Slider:
             selector: '.cms-page>[data-type="image_slider"]'
