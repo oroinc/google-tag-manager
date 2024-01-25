@@ -15,6 +15,7 @@ Feature: GTM events for large product lists
     When I type "" in "search"
     And I click "Search Button"
     And I select 50 records per page in "ProductFrontendGrid"
+    And I scroll to top
     And I check All Visible records in "ProductFrontendGrid"
     And I wait for products to load
     And I click "Create New Shopping List" in "ProductFrontendMassPanelInBottomSticky" element
