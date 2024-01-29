@@ -11,6 +11,24 @@ services:
             - '@doctrine'
             - '@oro_config.manager'
 
+    # Component added back for theme layout BC from version 5.0
+    oro_google_tag_manager.provider.product_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider'
+        public: false
+        arguments:
+            - '@oro_entity.doctrine_helper'
+
+    # Component added back for theme layout BC from version 5.0
+    Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider:
+        alias: oro_google_tag_manager.provider.product_detail
+
+    # Component added back for theme layout BC from version 5.0
+    oro_google_tag_manager.provider.checkout_step:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutStepProvider'
+        arguments:
+            - '@oro_workflow.manager'
+            - ['enter_credentials_step', 'customer_consents']
+
     oro_google_tag_manager.provider.data_collection_state:
         class: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProvider
         arguments:
@@ -19,6 +37,16 @@ services:
             - '@logger'
         tags:
             - { name: monolog.logger, channel: oro_google_tag_manager }
+
+    # Component added back for theme layout BC from version 5.0
+    oro_google_tag_manager.provider.checkout_detail:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.product_detail'
+            - '@oro_google_tag_manager.provider.checkout_step'
+            - '@oro_pricing.provider.product_price'
+            - '@oro_pricing.model.product_price_scope_criteria_factory'
+            - '%oro_google_tag_manager.products.batch_size%'
 
     oro_google_tag_manager.provider.data_collection_state.config_based:
         class: Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateConfigBasedProvider
