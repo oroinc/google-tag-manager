@@ -8,7 +8,8 @@ The current file describes significant changes in the code that may affect the u
 - [4.1.0](#410-2020-01-31)
 
 
-## UNRELEASED
+## 6.0.0-BETA (2024-01-08)
+[Show detailed list of changes](incompatibilities-6-0-beta.md)
 
 ### Changed
 

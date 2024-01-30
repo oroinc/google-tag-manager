@@ -1,14 +1,14 @@
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    newArrivalsProductUnitPrecision{1..5}:
+    newArrivalsProductUnitPrecision{1..6}:
         unit: '@item'
         precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    newArrivalsLocalProductName{1..5}:
+    newArrivalsLocalProductName{1..6}:
         string: 'New Arrival Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    newArrivalsProduct{1..5}:
+    newArrivalsProduct{1..6}:
         type: 'simple'
         sku: 'NEWARRIVAL<current()>'
         primaryUnitPrecision: '@newArrivalsProductUnitPrecision<current()>'
@@ -23,7 +23,7 @@ Oro\Bundle\ProductBundle\Entity\Product:
         newArrival: true
 
 Oro\Bundle\PricingBundle\Entity\ProductPrice:
-    price{1..5}:
+    price{1..6}:
         product: '@newArrivalsProduct<current()>'
         priceList: '@defaultPriceList'
         currency: 'USD'
@@ -32,6 +32,6 @@ Oro\Bundle\PricingBundle\Entity\ProductPrice:
         value: '<(1.6789 * $current)>'
 
 Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
-    priceRelation{1..5}:
+    priceRelation{1..6}:
         product: '@newArrivalsProduct<current()>'
         priceList: '@defaultPriceList'

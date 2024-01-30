@@ -66,6 +66,15 @@ Feature: GTM events on top selling products slider
     And click on cat1.jpg in grid
     When I save and close form
     Then I should see "Product has been saved" flash message
+    And I go to Products / Products
+    And I click edit "TopSelling6" in grid
+    And I set Images with:
+      | Main | Listing | Additional |
+      | 1    | 1       | 1          |
+    And I click on "Digital Asset Choose"
+    And click on cat1.jpg in grid
+    When I save and close form
+    Then I should see "Product has been saved" flash message
 
   Scenario: Check product events for top selling products
     Given I go to homepage
@@ -110,6 +119,13 @@ Feature: GTM events on top selling products slider
                 "item_list_name": "top-selling",
                 "item_name": "Top Selling Product 4",
                 "price": 5.8268
+              },
+              {
+                "index": 4,
+                "item_id": "TopSelling5",
+                "item_list_name": "top-selling",
+                "item_name": "Top Selling Product 5",
+                "price": 7.2835
               }
             ]
           },
@@ -127,11 +143,11 @@ Feature: GTM events on top selling products slider
             "currency": "USD",
             "items": [
               {
-                "item_id": "TopSelling5",
-                "item_name": "Top Selling Product 5",
+                "item_id": "TopSelling6",
+                "item_name": "Top Selling Product 6",
                 "item_list_name": "top-selling",
-                "index": 4,
-                "price": 7.2835
+                "index": 5,
+                "price": 8.7402
               }
             ]
           }
@@ -144,6 +160,7 @@ Feature: GTM events on top selling products slider
       | TopSelling3 | $4.3701 / item     | $4.3701 / item       |
       | TopSelling4 | $5.8268 / item     | $5.8268 / item       |
       | TopSelling5 | $7.2835 / item     | $7.2835 / item       |
+      | TopSelling6 | $8.7402 / item     | $8.7402 / item       |
 
   Scenario: Check event on click on top selling item in the slider
     Given I click "Top Selling Product 5"

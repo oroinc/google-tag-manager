@@ -33,7 +33,7 @@ define(function(require) {
          */
         _getModel($item) {
             return {
-                name: $item.find(this.options.nameSelector).attr('alt')
+                name: $item.find(this.options.nameSelector).attr('data-item-name')
             };
         },
 
