@@ -1,14 +1,14 @@
 Oro\Bundle\ProductBundle\Entity\ProductUnitPrecision:
-    topSellingProductUnitPrecision{1..5}:
+    topSellingProductUnitPrecision{1..6}:
         unit: '@item'
         precision: '1'
 
 Oro\Bundle\ProductBundle\Entity\ProductName:
-    topSellingLocalProductName{1..5}:
+    topSellingLocalProductName{1..6}:
         string: 'Top Selling Product <current()>'
 
 Oro\Bundle\ProductBundle\Entity\Product:
-    topSellingProduct{1..5}:
+    topSellingProduct{1..6}:
         type: 'simple'
         sku: 'TopSelling<current()>'
         primaryUnitPrecision: '@topSellingProductUnitPrecision<current()>'
@@ -21,7 +21,7 @@ Oro\Bundle\ProductBundle\Entity\Product:
         status: 'enabled'
 
 Oro\Bundle\PricingBundle\Entity\ProductPrice:
-    price{1..5}:
+    price{1..6}:
         product: '@topSellingProduct<current()>'
         priceList: '@defaultPriceList'
         currency: 'USD'
@@ -30,6 +30,6 @@ Oro\Bundle\PricingBundle\Entity\ProductPrice:
         value: '<(1.4567 * $current)>'
 
 Oro\Bundle\PricingBundle\Entity\PriceListToProduct:
-    priceRelation{1..5}:
+    priceRelation{1..6}:
         product: '@topSellingProduct<current()>'
         priceList: '@defaultPriceList'

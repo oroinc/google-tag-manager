@@ -11,19 +11,23 @@ Feature: Configurable image slider with enabled GTM
     Given sessions active:
       | Admin | first_session  |
       | Buyer | second_session |
-    And I enable GTM integration
+    Given I enable GTM integration
 
   Scenario: Create content widget
     Given I login as administrator
     When I go to Marketing/ Content Widgets
     And click edit "home-page-slider" in grid
+    And fill "Content Widget Form" with:
+      | Enable Autoplay | false |
     And fill "Image Slider Form" with:
       | Target 1 | New Window |
     And I save and close form
     Then I should see "Content widget has been saved" flash message
     And I should see next rows in "Slides" table
-      | Slide Order | URL       | Title         | Text Alignment | Target Window |
-      | 1           | /product/ | Seasonal Sale | Right          | New Window    |
+      | Slide Order | URL                                             | ALT IMAGE TEXT               | Text Alignment | Target Window |
+      | 1           | /product/                                       | Seasonal Sale                | Left           | New Window    |
+      | 2           | /navigation-root/new-arrivals/lighting-products | Bright New Day In Lighting   | Center         | Same Window   |
+      | 3           | /medical/medical-apparel                        | Best-Priced Medical Supplies | Right          | Same Window   |
 
   Scenario: Check content widget of storefront
     Given I proceed as the Buyer
@@ -46,7 +50,7 @@ Feature: Configurable image slider with enabled GTM
         {
           "event": "select_promotion",
           "eventCallback": {
-              "cancel": []
+            "cancel": []
           },
           "ecommerce": {
             "items": [{"creative_name": "home-page-slider", "item_name": "Seasonal Sale", "index": 0}]

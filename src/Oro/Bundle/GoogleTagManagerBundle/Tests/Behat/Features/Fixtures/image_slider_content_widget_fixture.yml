@@ -57,32 +57,41 @@ Oro\Bundle\CMSBundle\Entity\ImageSlide:
         slideOrder: '1'
         url: '/'
         displayInSameWindow: true
-        title: 'first slide'
+        altImageText: 'first slide'
         text: 'first slide text'
         textAlignment: 'center'
         contentWidget: '@image_slide_content_widget'
         organization: '@organization'
-        mainImage: '@digital_asset_file1'
+        extraLargeImage: '@digital_asset_file1'
+        largeImage: '@digital_asset_file1'
+        mediumImage: '@digital_asset_file1'
+        smallImage: '@digital_asset_file1'
     cms_image_slide2:
         slideOrder: '2'
         url: '/'
         displayInSameWindow: true
-        title: 'second slide'
+        altImageText: 'second slide'
         text: 'second slide text'
         textAlignment: 'center'
         contentWidget: '@image_slide_content_widget'
         organization: '@organization'
-        mainImage: '@digital_asset_file2'
+        extraLargeImage: '@digital_asset_file2'
+        largeImage: '@digital_asset_file2'
+        mediumImage: '@digital_asset_file2'
+        smallImage: '@digital_asset_file2'
     cms_image_slide3:
         slideOrder: '3'
         url: '/'
         displayInSameWindow: true
-        title: 'third slide'
+        altImageText: 'third slide'
         text: 'third slide text'
         textAlignment: 'center'
         contentWidget: '@image_slide_content_widget'
         organization: '@organization'
-        mainImage: '@digital_asset_file3'
+        extraLargeImage: '@digital_asset_file3'
+        largeImage: '@digital_asset_file3'
+        mediumImage: '@digital_asset_file3'
+        smallImage: '@digital_asset_file3'
 
 Oro\Bundle\CMSBundle\Entity\TextContentVariant:
     text_content_variant:

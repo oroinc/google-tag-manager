@@ -25,6 +25,14 @@ services:
         tags:
             - { name: layout.data_provider, alias: 'oro_google_tag_manager_data_layer' }
 
+    # Component added back for theme layout BC from version 5.0
+    oro_google_tag_manager.layout.data_provider.checkout_data:
+        class: 'Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\CheckoutDataProvider'
+        arguments:
+            - '@oro_google_tag_manager.provider.checkout_detail'
+        tags:
+            - { name: layout.data_provider, alias: 'oro_google_tag_manager_checkout_data' }
+
     oro_google_tag_manager.layout.block.type.google_tag_manager_checkout:
         parent: oro_layout.block_type.abstract_configurable_container
         calls:

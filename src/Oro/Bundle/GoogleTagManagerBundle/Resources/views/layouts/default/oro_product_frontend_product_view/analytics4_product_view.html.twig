@@ -1,7 +1,7 @@
 {% block _google_tag_manager_analytics4_product_view_widget %}
     {% set productDetail = oro_google_tag_manager_analytics4_product_detail(product) %}
     {% if productDetail is not empty %}
-        {% if not is_price_hidden(product, matrixFormType == 'none') %}
+        {% if not is_price_hidden(product, matrixFormType|default('') == 'none') %}
             {% set productDetail = productDetail|merge({price: (productPrices|default([])|first).price|default(0)}) %}
         {% endif %}
 
