@@ -5,7 +5,7 @@ layout:
 
         - '@add':
             id: google_tag_manager_analytics4_product_view
-            parentId: product_view_primary_wrapper
+            parentId: product_view_primary_container
             blockType: block
             options:
                 visible: '=data["oro_google_tag_manager_data_collection_state"].isEnabled("google_analytics4")'
