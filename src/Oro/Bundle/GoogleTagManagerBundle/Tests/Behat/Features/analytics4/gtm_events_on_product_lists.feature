@@ -130,9 +130,7 @@ Feature: GTM events on product lists
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [
               {
@@ -232,9 +230,7 @@ Feature: GTM events on product lists
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [
               {
