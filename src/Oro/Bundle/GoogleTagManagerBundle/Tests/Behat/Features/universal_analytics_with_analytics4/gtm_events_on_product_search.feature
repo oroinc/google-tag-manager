@@ -139,9 +139,7 @@ Feature: GTM events on product search
       """
         {
           "event": "productClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "currencyCode": "USD",
             "click": {
@@ -167,9 +165,7 @@ Feature: GTM events on product search
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [
               {
@@ -335,9 +331,7 @@ Feature: GTM events on product search
       """
         {
           "event": "productClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "currencyCode": "USD",
             "click": {
@@ -363,9 +357,7 @@ Feature: GTM events on product search
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [
               {

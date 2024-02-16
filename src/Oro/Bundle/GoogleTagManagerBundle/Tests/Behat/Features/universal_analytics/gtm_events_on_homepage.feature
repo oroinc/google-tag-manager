@@ -90,9 +90,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "promotionClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "promoClick": {"promotions": [{"name": "Lorem ipsum", "creative": "home-page-slider", "position": 0}]}
           }
@@ -174,9 +172,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "productClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
               "currencyCode": "USD",
               "click": {
@@ -278,9 +274,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "productClick",
-          "eventCallback": {
-            "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "currencyCode": "USD",
             "click": {

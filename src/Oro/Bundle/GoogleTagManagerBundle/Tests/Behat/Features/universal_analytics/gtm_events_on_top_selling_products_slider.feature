@@ -167,8 +167,6 @@ Feature: GTM events on top selling products slider
               }
             }
           },
-          "eventCallback": {
-              "cancel": []
-          }
+          "eventCallback": {}
         }
       """
