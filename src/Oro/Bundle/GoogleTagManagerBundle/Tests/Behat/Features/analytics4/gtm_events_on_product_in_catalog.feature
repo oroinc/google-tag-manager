@@ -129,9 +129,7 @@ Feature: GTM events on product in catalog
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [
               {

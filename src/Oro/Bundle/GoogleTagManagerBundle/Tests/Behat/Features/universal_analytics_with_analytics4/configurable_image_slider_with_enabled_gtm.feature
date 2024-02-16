@@ -62,9 +62,7 @@ Feature: Configurable image slider with enabled GTM
       """
         {
           "event": "promotionClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "promoClick": {"promotions": [{"name": "Lorem ipsum", "creative": "home-page-slider", "position": 0}]}
           }
@@ -75,9 +73,7 @@ Feature: Configurable image slider with enabled GTM
       """
         {
           "event": "select_promotion",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 0}]
           }

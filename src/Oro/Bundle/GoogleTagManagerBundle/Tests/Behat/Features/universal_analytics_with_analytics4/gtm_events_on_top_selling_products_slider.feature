@@ -233,9 +233,7 @@ Feature: GTM events on top selling products slider
               }
             }
           },
-          "eventCallback": {
-              "cancel": []
-          }
+          "eventCallback": {}
         }
       """
 
@@ -255,8 +253,6 @@ Feature: GTM events on top selling products slider
             ],
             "item_list_name": "top-selling"
           },
-          "eventCallback": {
-              "cancel": []
-          }
+          "eventCallback": {}
         }
       """

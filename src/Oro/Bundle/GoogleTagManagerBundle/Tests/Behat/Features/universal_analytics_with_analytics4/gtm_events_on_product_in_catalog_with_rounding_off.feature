@@ -194,9 +194,7 @@ Feature: GTM events on product in catalog with rounding off
       """
         {
           "event": "productClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "currencyCode": "USD",
             "click": {
@@ -222,9 +220,7 @@ Feature: GTM events on product in catalog with rounding off
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [
               {

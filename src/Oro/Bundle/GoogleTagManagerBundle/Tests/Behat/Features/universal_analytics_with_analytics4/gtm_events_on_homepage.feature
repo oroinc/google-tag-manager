@@ -117,9 +117,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "promotionClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "promoClick": {"promotions": [{"name": "Lorem ipsum", "creative": "home-page-slider", "position": 0}]}
           }
@@ -130,9 +128,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "select_promotion",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [{"creative_name": "home-page-slider", "item_name": "Lorem ipsum", "index": 0}]
           }
@@ -280,9 +276,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "productClick",
-          "eventCallback": {
-            "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "currencyCode": "USD",
             "click": {
@@ -306,9 +300,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "item_list_name": "featured-products",
             "items": [
@@ -464,9 +456,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "productClick",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "currencyCode": "USD",
             "click": {
@@ -490,9 +480,7 @@ Feature: GTM events on homepage
       """
         {
           "event": "select_item",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "item_list_name": "new-arrivals",
             "items": [
