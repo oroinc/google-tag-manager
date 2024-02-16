@@ -17,6 +17,8 @@ Feature: Configurable image slider with enabled GTM
     Given I login as administrator
     When I go to Marketing/ Content Widgets
     And click edit "home-page-slider" in grid
+    And fill "Content Widget Form" with:
+      | Autoplay Speed (milliseconds) | 7000 |
     And fill "Image Slider Form" with:
       | Target 1 | New Window |
     And I save and close form
@@ -45,9 +47,7 @@ Feature: Configurable image slider with enabled GTM
       """
         {
           "event": "select_promotion",
-          "eventCallback": {
-              "cancel": []
-          },
+          "eventCallback": {},
           "ecommerce": {
             "items": [{"creative_name": "home-page-slider", "item_name": "Seasonal Sale", "index": 0}]
           }
