@@ -8,7 +8,7 @@ Feature: GTM events on landing page with image sliders
   Scenario: Feature background
     Given I enable GTM integration
     When I go to homepage
-    And I click "Image Sliders CMS Page"
+    And I click "Image Sliders CMS Page" in hamburger menu
     Then GTM data layer must contain the following message:
       """
         {

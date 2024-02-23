@@ -15,7 +15,7 @@ Feature: GTM events on product lists
           "catalogPath": "All Products"
         }
       """
-    And I click "NewCategory"
+    And I click "NewCategory" in hamburger menu
     When I sort frontend grid "Product Frontend Grid" by "Price (Low to High)"
     Then GTM data layer must contain the following message:
       """

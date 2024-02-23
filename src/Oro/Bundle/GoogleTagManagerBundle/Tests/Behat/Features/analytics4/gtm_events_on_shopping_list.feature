@@ -188,6 +188,7 @@ Feature: GTM events on shopping list
     And I fill in "Shopping List Product Note" with "My notes"
     And I click "Add"
     Then I should see "Line item note has been successfully updated" flash message and I close it
+    And reload the page
     And GTM data layer must not contain the following message:
       """
         {
@@ -264,6 +265,7 @@ Feature: GTM events on shopping list
       """
 
   Scenario: Remove item in shopping list
+    And I click on empty space
     When I click Delete SKU1 in grid
     And I click "Yes, Delete" in modal window
     Then last message in the GTM data layer should be:
