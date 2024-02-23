@@ -34,7 +34,7 @@ Feature: GTM events on product in catalog
           "catalogPath": "Root Node"
         }
       """
-    And I follow "All Products"
+    And I click "All Products" in hamburger menu
     And GTM data layer must contain the following message:
       """
         {

@@ -32,8 +32,9 @@ Feature: GTM events on product page
         }
       """
 
-    And I should see the following prices on "Default Page":
-      | Item | $15.1234 |
+    Then I should see next rows in "Default Page Prices" table in the exact order
+      | QTY | Item     | Set      |
+      | 1+  | $15.1234 | $50.6789 |
 
     And GTM data layer must contain the following message:
       """

@@ -14,7 +14,7 @@ Feature: GTM events on quick order form
     And I signed in as AmandaRCole@example.org on the store frontend
 
   Scenario: Check add to cart events on quick order form
-    Given I click "Quick Order Form"
+    Given I click "Quick Order"
     And I fill "Quick Order Form" with:
       | SKU1 | SKU1 |
     And I wait for products to load
@@ -70,7 +70,8 @@ Feature: GTM events on quick order form
       """
 
   Scenario: Check create order events on quick order form
-    Given I click "Quick Order Form"
+    Given I click on "Flash Message Close Button"
+    And I click "Quick Order"
     And I fill "Quick Order Form" with:
       | SKU1 | SKU1 |
     And I wait for products to load
@@ -129,7 +130,7 @@ Feature: GTM events on quick order form
       """
 
   Scenario: Check add to cart events on request quote
-    Given I click "Quick Order Form"
+    Given I click "Quick Order"
     And I fill "Quick Order Form" with:
       | SKU1 | SKU1 |
     And I wait for products to load
