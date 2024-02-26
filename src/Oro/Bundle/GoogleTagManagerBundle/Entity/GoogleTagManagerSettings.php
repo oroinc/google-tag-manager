@@ -2,23 +2,19 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Inherits Transport Integration.
- *
- * @ORM\Entity()
  */
+#[ORM\Entity]
 class GoogleTagManagerSettings extends Transport
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="gtm_container_id", type="string", length=30)
-     */
-    private $containerId;
+    #[ORM\Column(name: 'gtm_container_id', type: Types::STRING, length: 30)]
+    private ?string $containerId = null;
 
     /**
      * @var ParameterBag
