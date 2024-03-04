@@ -8,30 +8,27 @@ use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 
 /**
- * Provides the list of names of the applied promotions for the specified entity.
+ * Provides the list of names of the applied promotions for a specific entity.
  */
 class AppliedPromotionsNamesProvider
 {
-    private ManagerRegistry $managerRegistry;
-
+    private ManagerRegistry $doctrine;
     private EntityCouponsProviderInterface $entityCouponsProvider;
 
     public function __construct(
-        ManagerRegistry $managerRegistry,
+        ManagerRegistry $doctrine,
         EntityCouponsProviderInterface $entityCouponsProvider
     ) {
-        $this->managerRegistry = $managerRegistry;
+        $this->doctrine = $doctrine;
         $this->entityCouponsProvider = $entityCouponsProvider;
     }
 
     /**
-     * @return array
-     *  [
-     *      42 => 'Sample Promotion Name',
-     *      // ...
-     *  ]
+     * @param object $entity
+     *
+     * @return string[] [promotion id => promotion name, ...]
      */
-    public function getAppliedPromotionsNames($entity): array
+    public function getAppliedPromotionsNames(object $entity): array
     {
         /** @var Coupon[] $coupons */
         $coupons = $this->entityCouponsProvider->getCoupons($entity)->toArray();
@@ -42,14 +39,12 @@ class AppliedPromotionsNamesProvider
         $promotionIds = [];
         foreach ($coupons as $coupon) {
             $promotion = $coupon->getPromotion();
-            if (!$promotion || !$promotion->getId()) {
-                continue;
+            if (null !== $promotion && $promotion->getId()) {
+                $promotionIds[] = $promotion->getId();
             }
-
-            $promotionIds[] = $promotion->getId();
         }
 
-        $promotionsNames = $this->managerRegistry
+        $promotionsNames = $this->doctrine
             ->getRepository(Promotion::class)
             ->getPromotionsNamesByIds($promotionIds);
         $promotionsNames = array_values(array_unique(array_filter($promotionsNames)));

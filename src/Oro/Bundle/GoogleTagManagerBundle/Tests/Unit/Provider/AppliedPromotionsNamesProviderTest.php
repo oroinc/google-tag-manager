@@ -5,36 +5,36 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider;
-use Oro\Bundle\PaymentBundle\Entity\Repository\PaymentTransactionRepository;
 use Oro\Bundle\PromotionBundle\Entity\Coupon;
 use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Entity\Repository\PromotionRepository;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
-use Oro\Bundle\PromotionBundle\Tests\Unit\Entity\Stub\PromotionStub;
 use Oro\Bundle\PromotionBundle\Tests\Unit\Stub\AppliedCouponsAwareStub;
+use Oro\Component\Testing\ReflectionUtil;
 
 class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
 {
-    private EntityCouponsProviderInterface|\PHPUnit\Framework\MockObject\MockObject $entityCouponsProvider;
+    /** @var EntityCouponsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $entityCouponsProvider;
 
-    private PromotionRepository|\PHPUnit\Framework\MockObject\MockObject $promotionRepository;
+    /** @var PromotionRepository|\PHPUnit\Framework\MockObject\MockObject */
+    private $promotionRepository;
 
-    private AppliedPromotionsNamesProvider $provider;
+    /** @var AppliedPromotionsNamesProvider */
+    private $provider;
 
     protected function setUp(): void
     {
-        $managerRegistry = $this->createMock(ManagerRegistry::class);
         $this->entityCouponsProvider = $this->createMock(EntityCouponsProviderInterface::class);
-
         $this->promotionRepository = $this->createMock(PromotionRepository::class);
-        $this->paymentTransactionRepository = $this->createMock(PaymentTransactionRepository::class);
-        $managerRegistry
-            ->expects(self::any())
+
+        $doctrine = $this->createMock(ManagerRegistry::class);
+        $doctrine->expects(self::any())
             ->method('getRepository')
             ->with(Promotion::class)
             ->willReturn($this->promotionRepository);
 
-        $this->provider = new AppliedPromotionsNamesProvider($managerRegistry, $this->entityCouponsProvider);
+        $this->provider = new AppliedPromotionsNamesProvider($doctrine, $this->entityCouponsProvider);
     }
 
     public function testGetAppliedPromotionsNamesWhenNoCoupons(): void
@@ -59,8 +59,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
             ->with($entity)
             ->willReturn($coupons);
 
-        $this->promotionRepository
-            ->expects(self::once())
+        $this->promotionRepository->expects(self::once())
             ->method('getPromotionsNamesByIds')
             ->with([])
             ->willReturn([]);
@@ -80,8 +79,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
             ->with($entity)
             ->willReturn(new ArrayCollection([$coupon]));
 
-        $this->promotionRepository
-            ->expects(self::once())
+        $this->promotionRepository->expects(self::once())
             ->method('getPromotionsNamesByIds')
             ->with([])
             ->willReturn([]);
@@ -94,11 +92,13 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetAppliedPromotionsNames(array $promotionsNames, array $expected): void
     {
-        $promotion1 = new PromotionStub(42);
+        $promotion1 = new Promotion();
+        ReflectionUtil::setId($promotion1, 42);
         $coupon1 = new Coupon();
         $coupon1->setPromotion($promotion1);
 
-        $promotion2 = new PromotionStub(4242);
+        $promotion2 = new Promotion();
+        ReflectionUtil::setId($promotion2, 4242);
         $coupon2 = new Coupon();
         $coupon2->setPromotion($promotion2);
 
@@ -108,8 +108,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
             ->with($entity)
             ->willReturn(new ArrayCollection([$coupon1, $coupon2]));
 
-        $this->promotionRepository
-            ->expects(self::once())
+        $this->promotionRepository->expects(self::once())
             ->method('getPromotionsNamesByIds')
             ->with([$promotion1->getId(), $promotion2->getId()])
             ->willReturn($promotionsNames);
