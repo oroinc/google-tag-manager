@@ -8,7 +8,7 @@ Feature: GTM events on product page
   Scenario: Feature background
     Given I enable GTM integration
 
-  Scenario: Add product to shopping list
+  Scenario: Check product events on a product view page
     Given I am on homepage
     And I type "SKU2" in "search"
     And I click "Search Button"
@@ -148,6 +148,13 @@ Feature: GTM events on product page
                       "item_list_name": "similar-products",
                       "item_name": "Related Product 1",
                       "price": 1.1234
+                  },
+                  {
+                      "index": 4,
+                      "item_id": "RELATED3",
+                      "item_list_name": "similar-products",
+                      "item_name": "Related Product 3",
+                      "price": 3.3702
                   }
               ]
           },
