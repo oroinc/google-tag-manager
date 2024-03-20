@@ -1,7 +1,7 @@
 @regression
 @ticket-BB-21429
 @fixture-OroGoogleTagManagerBundle:integration.yml
-
+@fixture-OroGoogleTagManagerBundle:home_page_slider_content_widget_fixture.yml
 Feature: Configurable image slider with enabled GTM
   In order to have image sliders displayed on the storefront
   As an Administrator
@@ -11,23 +11,8 @@ Feature: Configurable image slider with enabled GTM
     Given sessions active:
       | Admin | first_session  |
       | Buyer | second_session |
-    Given I enable GTM integration
-
-  Scenario: Create content widget
-    Given I login as administrator
-    When I go to Marketing/ Content Widgets
-    And click edit "home-page-slider" in grid
-    And fill "Content Widget Form" with:
-      | Autoplay Speed (milliseconds) | 7000 |
-    And fill "Image Slider Form" with:
-      | Target 1 | New Window |
-    And I save and close form
-    Then I should see "Content widget has been saved" flash message
-    And I should see next rows in "Slides" table
-      | Slide Order | URL                                             | ALT IMAGE TEXT               | Text Alignment | Target Window |
-      | 1           | /product/                                       | Seasonal Sale                | Left           | New Window    |
-      | 2           | /navigation-root/new-arrivals/lighting-products | Bright New Day In Lighting   | Center         | Same Window   |
-      | 3           | /medical/medical-apparel                        | Best-Priced Medical Supplies | Right          | Same Window   |
+    And I enable GTM integration
+    And I add Home Page Slider widget before content for "Homepage" page
 
   Scenario: Check content widget of storefront
     Given I proceed as the Buyer
