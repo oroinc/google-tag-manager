@@ -10,9 +10,7 @@ oro_behat_extension:
             selector: 'div[data-type="image_slider"] .slick-dots li:nth-child(3) button'
 
         Featured Products Next Button:
-            selector:
-                type: 'xpath'
-                locator: '//div[@data-page-component-name="featured-products-list"]/../div/div/button[contains(@class, "slick-next")]'
+            selector: 'div[data-title="Featured Products"] button.slick-next'
 
         Top Selling Products Next Button:
             selector:
@@ -20,9 +18,7 @@ oro_behat_extension:
                 locator: '//div[@data-page-component-name="top-selling-list"]/../div/div/button[contains(@class, "slick-next")]'
 
         New Arrivals Next Button:
-            selector:
-                type: 'xpath'
-                locator: '//div[@data-page-component-name="new-arrivals-list"]/../div/div/button[contains(@class, "slick-next")]'
+            selector: 'div[data-title="New Arrivals"] button.slick-next'
 
         First Image Slider:
             selector: '.cms-page>[data-type="image_slider"]'
@@ -49,5 +45,6 @@ oro_behat_extension:
                 - Oro\Bundle\TestFrameworkBundle\Tests\Behat\Context\BrowserTabContext
                 - Oro\Bundle\ProductBundle\Tests\Behat\Context\FeatureContext
                 - Oro\Bundle\AttachmentBundle\Tests\Behat\Context\AttachmentImageContext
+                - Oro\Bundle\CMSBundle\Tests\Behat\Context\FeatureContext
             paths:
                 - '@OroGoogleTagManagerBundle/Tests/Behat/Features'

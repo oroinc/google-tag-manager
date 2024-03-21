@@ -3,18 +3,18 @@
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:featured_products.yml
 @fixture-OroGoogleTagManagerBundle:new_arrivals.yml
+@fixture-OroGoogleTagManagerBundle:home_page_slider_content_widget_fixture.yml
 
 Feature: GTM events on homepage
 
   Scenario: Feature background
     Given I enable GTM integration
     And I login as administrator
-    And go to Marketing/Content Widgets
-    And I click edit "home-page-slider" in grid
-    And fill "Content Widget Form" with:
-      | Enable Autoplay | false |
-    And I save and close form
-    And I should see "Content widget has been saved" flash message
+
+    And I enable GTM integration
+    And I add Home Page Slider widget before content for "Homepage" page
+    And I add New Arrivals widget after content for "Homepage" page
+    And I add Featured Products widget after content for "Homepage" page
 
     # Change Featured Products order
     And I go to Reports & Segments / Manage Segments
@@ -100,7 +100,7 @@ Feature: GTM events on homepage
     And I scroll to "Featured Products Next Button"
     Then I should see the following products in the "Featured Products Block":
       | SKU       | Product Price Your | Product Price Listed |
-      | FEATURED6 | $9.333 / item      | $9.333 / item       |
+      | FEATURED6 | $9.333 / item      | $9.333 / item        |
       | FEATURED5 | $7.7775 / item     | $7.7775 / item       |
       | FEATURED4 | $6.222 / item      | $6.222 / item        |
       | FEATURED3 | $4.6665 / item     | $4.6665 / item       |

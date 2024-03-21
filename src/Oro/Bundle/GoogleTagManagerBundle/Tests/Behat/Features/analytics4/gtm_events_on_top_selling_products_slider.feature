@@ -2,6 +2,7 @@
 @feature-BB-21298
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:top_selling_products.yml
+@fixture-OroCMSBundle:home_page_slider_content_widget_fixture.yml
 
 Feature: GTM events on top selling products slider
 
@@ -9,12 +10,8 @@ Feature: GTM events on top selling products slider
     Given I enable GTM integration
     And I login as administrator
 
-    And go to Marketing/Content Widgets
-    And I click edit "home-page-slider" in grid
-    When fill "Content Widget Form" with:
-      | Enable Autoplay | false |
-    And I save and close form
-    Then I should see "Content widget has been saved" flash message
+    And I enable GTM integration
+    And I add Home Page Slider widget before content for "Homepage" page
 
   Scenario: Configure Top selling products
     Given I go to Products / Products
@@ -76,6 +73,8 @@ Feature: GTM events on top selling products slider
     When I save and close form
     Then I should see "Product has been saved" flash message
 
+  @skip
+  # unskip and apply after adding Top Selling Items content block
   Scenario: Check product events for top selling products
     Given I go to homepage
     And do not change page on link click
@@ -133,6 +132,8 @@ Feature: GTM events on top selling products slider
         }
       """
 
+  @skip
+  # unskip and apply after adding Top Selling Items content block
   Scenario: Check product event on top selling slider click
     Given I click "Top Selling Products Next Button"
     Then last message in the GTM data layer should be:
@@ -162,6 +163,8 @@ Feature: GTM events on top selling products slider
       | TopSelling5 | $7.2835 / item     | $7.2835 / item       |
       | TopSelling6 | $8.7402 / item     | $8.7402 / item       |
 
+  @skip
+  # unskip and apply after adding Top Selling Items content block
   Scenario: Check event on click on top selling item in the slider
     Given I click "Top Selling Product 5"
     Then last message in the GTM data layer should be:
