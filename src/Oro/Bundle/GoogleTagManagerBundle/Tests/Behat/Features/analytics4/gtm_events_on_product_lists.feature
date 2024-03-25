@@ -1,7 +1,7 @@
 @feature-BB-21298
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:products.yml
-
+@regression
 Feature: GTM events on product lists
 
   Scenario: Feature background
