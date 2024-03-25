@@ -75,8 +75,7 @@ Feature: GTM events on product lists
           }
         }
       """
-    And I should see "$10.4555 / item" in the "Product Price Your" element
-    And I should see "$10.4555 / item" in the "Product Price Listed" element
+    And I should see "$10.4555" in the "Product Price Your" element
 
     And I click "Gallery View"
     Then GTM data layer must contain the following message:
@@ -145,8 +144,7 @@ Feature: GTM events on product lists
           }
         }
       """
-    And I should see "$10.4555 / item" in the "Product Price Your" element
-    And I should see "$10.4555 / item" in the "Product Price Listed" element
+    And I should see "$10.4555" in the "Product Price Your" element
 
   Scenario: Check product events on products index page
     Given I reload the page
@@ -218,8 +216,7 @@ Feature: GTM events on product lists
         }
       """
 
-    And I should see "$10.4555 / item" in the "Product Price Your" element
-    And I should see "$10.4555 / item" in the "Product Price Listed" element
+    And I should see "$10.4555" in the "Product Price Your" element
 
     When do not change page on link click
     And I follow "Product 1"

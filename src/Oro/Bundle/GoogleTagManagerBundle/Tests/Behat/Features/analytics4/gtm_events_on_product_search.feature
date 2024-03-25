@@ -72,8 +72,7 @@ Feature: GTM events on product search
         }
       """
 
-    And I should see "$10.4555 / item" in the "Product Price Your" element
-    And I should see "$10.4555 / item" in the "Product Price Listed" element
+    And I should see "$10.4555" in the "Product Price Your" element
 
     When do not change page on link click
     And I follow "Product 1"
@@ -175,8 +174,7 @@ Feature: GTM events on product search
         }
       """
 
-    And I should see "$10.4555 / item" in the "Product Price Your" element
-    And I should see "$10.4555 / item" in the "Product Price Listed" element
+    And I should see "$10.4555" in the "Product Price Your" element
 
     When do not change page on link click
     And I click "Product Name Link"

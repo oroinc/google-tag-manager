@@ -70,10 +70,10 @@ Feature: GTM events on product page
       """
 
     And I should see the following products in the "Related Products Block":
-      | SKU      | Product Price Your | Product Price Listed |
-      | RELATED1 | $1.1234 / item     | $1.1234 / item       |
-      | RELATED2 | $2.2468 / item     | $2.2468 / item       |
-      | RELATED3 | $3.3702 / item     | $3.3702 / item       |
+      | SKU      | Product Price Your |
+      | RELATED1 | $1.1234            |
+      | RELATED2 | $2.2468            |
+      | RELATED3 | $3.3702            |
 
     And GTM data layer must contain the following message:
       """
@@ -109,10 +109,10 @@ Feature: GTM events on product page
       """
 
     And I should see the following products in the "Upsell Products Block":
-      | SKU     | Product Price Your | Product Price Listed |
-      | UPSELL1 | $1.5678 / item     | $1.5678 / item       |
-      | UPSELL2 | $3.1356 / item     | $3.1356 / item       |
-      | UPSELL3 | $4.7034 / item     | $4.7034 / item       |
+      | SKU     | Product Price Your |
+      | UPSELL1 | $1.5678            |
+      | UPSELL2 | $3.1356            |
+      | UPSELL3 | $4.7034            |
 
     And GTM data layer must contain the following message:
       """
@@ -163,8 +163,8 @@ Feature: GTM events on product page
       """
 
     And I should see the following products in the "Similar Products Block":
-      | SKU      | Product Price Your | Product Price Listed |
-      | SKU1     | $10.4555 / item    | $10.4555 / item      |
-      | RELATED2 | $2.2468 / item     | $2.2468 / item       |
-      | UPSELL2  | $3.1356 / item     | $3.1356 / item       |
-      | RELATED1 | $1.1234 / item     | $1.1234 / item       |
+      | SKU      | Product Price Your |
+      | SKU1     | $10.4555           |
+      | RELATED2 | $2.2468            |
+      | UPSELL2  | $3.1356            |
+      | RELATED1 | $1.1234            |

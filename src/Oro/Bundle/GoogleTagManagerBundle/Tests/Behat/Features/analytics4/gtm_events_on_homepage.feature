@@ -99,12 +99,12 @@ Feature: GTM events on homepage
     And do not change page on link click
     And I scroll to "Featured Products Next Button"
     Then I should see the following products in the "Featured Products Block":
-      | SKU       | Product Price Your | Product Price Listed |
-      | FEATURED6 | $9.333 / item      | $9.333 / item        |
-      | FEATURED5 | $7.7775 / item     | $7.7775 / item       |
-      | FEATURED4 | $6.222 / item      | $6.222 / item        |
-      | FEATURED3 | $4.6665 / item     | $4.6665 / item       |
-      | FEATURED2 | $3.111 / item      | $3.111 / item        |
+      | SKU       | Product Price Your |
+      | FEATURED6 | $9.333             |
+      | FEATURED5 | $7.7775            |
+      | FEATURED4 | $6.222             |
+      | FEATURED3 | $4.6665            |
+      | FEATURED2 | $3.111             |
     And GTM data layer must contain the following message:
       """
         {
@@ -172,12 +172,12 @@ Feature: GTM events on homepage
         }
       """
     And I should see the following products in the "Featured Products Block":
-      | SKU       | Product Price Your | Product Price Listed |
-      | FEATURED5 | $7.7775 / item     | $7.7775 / item       |
-      | FEATURED4 | $6.222 / item      | $6.222 / item        |
-      | FEATURED3 | $4.6665 / item     | $4.6665 / item       |
-      | FEATURED2 | $3.111 / item      | $3.111 / item        |
-      | FEATURED1 | $1.5555 / item     | $1.5555 / item       |
+      | SKU       | Product Price Your |
+      | FEATURED5 | $7.7775            |
+      | FEATURED4 | $6.222             |
+      | FEATURED3 | $4.6665            |
+      | FEATURED2 | $3.111             |
+      | FEATURED1 | $1.5555            |
 
     When I click "Featured Product 1"
     Then last message in the GTM data layer should be:
@@ -206,12 +206,12 @@ Feature: GTM events on homepage
     And I scroll to "New Arrivals Next Button"
 
     Then I should see the following products in the "New Arrivals Block":
-      | SKU         | Product Price Your | Product Price Listed |
-      | NEWARRIVAL6 | $10.0734 / item    | $10.0734 / item      |
-      | NEWARRIVAL5 | $8.3945 / item     | $8.3945 / item       |
-      | NEWARRIVAL4 | $6.7156 / item     | $6.7156 / item       |
-      | NEWARRIVAL3 | $5.0367 / item     | $5.0367 / item       |
-      | NEWARRIVAL2 | $3.3578 / item     | $3.3578 / item       |
+      | SKU         | Product Price Your |
+      | NEWARRIVAL6 | $10.0734           |
+      | NEWARRIVAL5 | $8.3945            |
+      | NEWARRIVAL4 | $6.7156            |
+      | NEWARRIVAL3 | $5.0367            |
+      | NEWARRIVAL2 | $3.3578            |
     And GTM data layer must contain the following message:
       """
         {
@@ -279,11 +279,11 @@ Feature: GTM events on homepage
         }
       """
     And I should see the following products in the "New Arrivals Block":
-      | SKU         | Product Price Your | Product Price Listed |
-      | NEWARRIVAL4 | $6.7156 / item     | $6.7156 / item       |
-      | NEWARRIVAL3 | $5.0367 / item     | $5.0367 / item       |
-      | NEWARRIVAL2 | $3.3578 / item     | $3.3578 / item       |
-      | NEWARRIVAL1 | $1.6789 / item     | $1.6789 / item       |
+      | SKU         | Product Price Your |
+      | NEWARRIVAL4 | $6.7156            |
+      | NEWARRIVAL3 | $5.0367            |
+      | NEWARRIVAL2 | $3.3578            |
+      | NEWARRIVAL1 | $1.6789            |
 
     When I click "New Arrival Product 1"
     Then last message in the GTM data layer should be:

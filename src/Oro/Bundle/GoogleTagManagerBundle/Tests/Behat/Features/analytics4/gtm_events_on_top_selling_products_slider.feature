@@ -80,11 +80,11 @@ Feature: GTM events on top selling products slider
     And do not change page on link click
     And I scroll to "Top Selling Products Next Button"
     Then I should see the following products in the "Top Selling Items Block":
-      | SKU         | Product Price Your | Product Price Listed |
-      | TopSelling1 | $1.4567 / item     | $1.4567 / item       |
-      | TopSelling2 | $2.9134 / item     | $2.9134 / item       |
-      | TopSelling3 | $4.3701 / item     | $4.3701 / item       |
-      | TopSelling4 | $5.8268 / item     | $5.8268 / item       |
+      | SKU         | Product Price Your |
+      | TopSelling1 | $1.4567            |
+      | TopSelling2 | $2.9134            |
+      | TopSelling3 | $4.3701            |
+      | TopSelling4 | $5.8268            |
     And GTM data layer must contain the following message:
       """
         {
@@ -156,12 +156,12 @@ Feature: GTM events on top selling products slider
       """
 
     And I should see the following products in the "Top Selling Items Block":
-      | SKU         | Product Price Your | Product Price Listed |
-      | TopSelling2 | $2.9134 / item     | $2.9134 / item       |
-      | TopSelling3 | $4.3701 / item     | $4.3701 / item       |
-      | TopSelling4 | $5.8268 / item     | $5.8268 / item       |
-      | TopSelling5 | $7.2835 / item     | $7.2835 / item       |
-      | TopSelling6 | $8.7402 / item     | $8.7402 / item       |
+      | SKU         | Product Price Your |
+      | TopSelling2 | $2.9134            |
+      | TopSelling3 | $4.3701            |
+      | TopSelling4 | $5.8268            |
+      | TopSelling5 | $7.2835            |
+      | TopSelling6 | $8.7402            |
 
   @skip
   # unskip and apply after adding Top Selling Items content block
