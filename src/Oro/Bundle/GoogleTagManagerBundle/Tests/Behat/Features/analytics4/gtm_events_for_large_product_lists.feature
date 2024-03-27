@@ -837,7 +837,7 @@ Feature: GTM events for large product lists
 
   Scenario: Batch events on quick order
     Given I click "Quick Order"
-    And I click "Get Directions"
+    And I click "What File Structure Is Accepted"
     And I should see that "UiDialog Title" contains "Import Excel .CSV File"
     And I download "the CSV template"
     And I close ui dialog
