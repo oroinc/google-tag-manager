@@ -136,7 +136,7 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
             ->willReturn([$beginCheckoutData]);
 
         $context = new ActionData();
-        $context->set('checkout', new $checkout);
+        $context->set('checkout', $checkout);
         $this->listener->onStartCheckout(new ExtendableConditionEvent($context));
 
         self::assertSame([$beginCheckoutData, self::INITIAL_DATA], $this->dataLayerManager->collectAll());
