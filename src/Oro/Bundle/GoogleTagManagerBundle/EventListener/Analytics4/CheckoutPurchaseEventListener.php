@@ -54,7 +54,7 @@ class CheckoutPurchaseEventListener implements ServiceSubscriberInterface
 
     public function postFlush(): void
     {
-        $dataLayerManager  =$this->getDataLayerManager();
+        $dataLayerManager  = $this->getDataLayerManager();
         foreach ($this->data as $data) {
             $dataLayerManager->append($data);
         }
