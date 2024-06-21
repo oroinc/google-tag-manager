@@ -1,7 +1,7 @@
 @feature-BB-21298
 @fixture-OroGoogleTagManagerBundle:integration.yml
 @fixture-OroGoogleTagManagerBundle:related_products.yml
-
+@elasticsearch
 Feature: GTM events on product page
 
   Scenario: Feature background
