@@ -7,7 +7,7 @@ Feature: GTM events on product page
   Scenario: Feature background
     Given I enable GTM integration
 
-  Scenario: Add product to shopping list
+  Scenario: Check product events on a product view page
     Given I am on homepage
     And I type "SKU2" in "search"
     And I click "Search Button"
