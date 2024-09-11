@@ -184,7 +184,7 @@ Feature: GTM events on shopping list
 
   Scenario: Change notes
     Given I reload the page
-    When I click "Add Shopping List item Note" on row "SKU2" in grid
+    When I click "Add a note" on row "SKU2" in grid
     And I fill in "Shopping List Product Note" with "My notes"
     And I click "Add"
     Then I should see "Line item note has been successfully updated" flash message and I close it
