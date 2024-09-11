@@ -291,7 +291,6 @@ Feature: GTM events for large product lists
 
   Scenario: Batch events on request for quote
     When I open page with shopping list Shopping List
-    And I click "More Actions"
     And I click "Request Quote"
     And I click "Submit Request"
     Then GTM data layer must contain the following message:
