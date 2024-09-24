@@ -12,9 +12,7 @@ class Configuration implements ConfigurationInterface
 {
     public const ROOT_NAME = 'oro_google_tag_manager';
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder(self::ROOT_NAME);

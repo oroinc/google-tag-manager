@@ -19,6 +19,7 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
     /** @var GoogleTagManagerSettingsType */
     private $formType;
 
+    #[\Override]
     protected function setUp(): void
     {
         $transport = $this->createMock(TransportInterface::class);
@@ -78,9 +79,7 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
         $this->formType->configureOptions($optionResolver);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     protected function getExtensions(): array
     {
         return [

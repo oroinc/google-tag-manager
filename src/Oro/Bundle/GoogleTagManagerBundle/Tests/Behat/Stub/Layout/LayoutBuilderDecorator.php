@@ -12,9 +12,7 @@ use Oro\Component\Layout\LayoutBuilder;
  */
 class LayoutBuilderDecorator extends LayoutBuilder
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     protected function processBlockViewData(
         BlockView $blockView,
         ContextInterface $context,

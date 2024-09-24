@@ -25,9 +25,7 @@ class PageTypeGuesserByRequestRoute implements PageTypeGuesserInterface
         $this->routeToPageTypeMap = $routeToPageTypeMap;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getType(): ?string
     {
         return $this->routeToPageTypeMap[$this->getRouteName()] ?? null;

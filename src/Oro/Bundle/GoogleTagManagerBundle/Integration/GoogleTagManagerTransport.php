@@ -12,32 +12,24 @@ use Oro\Bundle\IntegrationBundle\Provider\TransportInterface;
  */
 class GoogleTagManagerTransport implements TransportInterface
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function init(Transport $transportEntity)
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getLabel(): string
     {
         return 'oro.google_tag_manager.integration.transport.label';
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getSettingsFormType(): string
     {
         return GoogleTagManagerSettingsType::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getSettingsEntityFQCN(): string
     {
         return GoogleTagManagerSettings::class;

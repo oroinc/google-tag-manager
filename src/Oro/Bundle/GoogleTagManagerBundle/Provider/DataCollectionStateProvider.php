@@ -29,11 +29,13 @@ class DataCollectionStateProvider implements
         $this->logger = $logger;
     }
 
+    #[\Override]
     public function getGoogleTagManagerSettings(?Website $website = null): ?Transport
     {
         return $this->googleTagManagerSettingsProvider->getGoogleTagManagerSettings($website);
     }
 
+    #[\Override]
     public function isEnabled(string $dataCollectionType, ?Website $website = null): ?bool
     {
         $gtmSettings = $this->googleTagManagerSettingsProvider->getGoogleTagManagerSettings($website);

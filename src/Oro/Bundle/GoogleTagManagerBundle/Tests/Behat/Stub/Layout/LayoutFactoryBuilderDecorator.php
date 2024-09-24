@@ -44,57 +44,43 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
         $this->blockViewCache = $blockViewCache;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function addExtension(ExtensionInterface $extension)
     {
         return $this->inner->addExtension($extension);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function addType(BlockTypeInterface $type)
     {
         return $this->inner->addType($type);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function addTypeExtension(BlockTypeExtensionInterface $typeExtension)
     {
         return $this->inner->addTypeExtension($typeExtension);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function addLayoutUpdate($id, LayoutUpdateInterface $layoutUpdate)
     {
         return $this->inner->addLayoutUpdate($id, $layoutUpdate);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function addRenderer($name, LayoutRendererInterface $renderer)
     {
         return $this->inner->addRenderer($name, $renderer);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function setDefaultRenderer($name)
     {
         return $this->inner->setDefaultRenderer($name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getLayoutFactory()
     {
         if ($this->applicationState->isInstalled() && $this->gtmSettingsProvider->isReady()) {

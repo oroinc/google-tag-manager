@@ -23,6 +23,7 @@ class PageVariablesCollectorTest extends \PHPUnit\Framework\TestCase
     /** @var PageVariablesCollector */
     private $collector;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->pageTypeProvider = $this->createMock(PageTypeProvider::class);

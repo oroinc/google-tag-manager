@@ -13,6 +13,7 @@ class DataCollectionStateConfigBasedProviderTest extends \PHPUnit\Framework\Test
 
     private DataCollectionStateConfigBasedProvider $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->configManager = $this->createMock(ConfigManager::class);

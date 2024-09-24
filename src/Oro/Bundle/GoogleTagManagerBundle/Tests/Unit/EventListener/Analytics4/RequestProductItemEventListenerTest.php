@@ -27,6 +27,7 @@ class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
     /** @var RequestProductItemEventListener */
     private $listener;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);

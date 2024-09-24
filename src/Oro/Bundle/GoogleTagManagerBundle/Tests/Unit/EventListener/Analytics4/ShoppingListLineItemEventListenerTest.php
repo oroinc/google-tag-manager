@@ -32,6 +32,7 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
     /** @var ShoppingListLineItemEventListener */
     private $listener;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);

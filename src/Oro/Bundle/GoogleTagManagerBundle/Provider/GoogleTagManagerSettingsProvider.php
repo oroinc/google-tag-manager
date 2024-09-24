@@ -30,6 +30,7 @@ class GoogleTagManagerSettingsProvider implements GoogleTagManagerSettingsProvid
      *
      * @return GoogleTagManagerSettings|null
      */
+    #[\Override]
     public function getGoogleTagManagerSettings(?Website $website = null): ?Transport
     {
         $integrationId = $this->configManager->get(

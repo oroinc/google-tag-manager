@@ -28,9 +28,7 @@ class PageVariablesCollector implements CollectorInterface
         $this->localizationHelper = $localizationHelper;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function handle(Collection $data): void
     {
         $localization = $this->localizationHelper->getCurrentLocalization();

@@ -38,9 +38,7 @@ class CatalogDetailCollector implements CollectorInterface
         $this->categoryBreadcrumbProvider = $categoryBreadcrumbProvider;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function handle(Collection $data): void
     {
         $items = $this->getWebCatalogBreadcrumbs() ?: $this->getCategoryBreadcrumbs();
