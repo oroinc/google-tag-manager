@@ -33,9 +33,7 @@ class GoogleTagManagerSettings extends Transport
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getSettingsBag(): ParameterBag
     {
         if (!$this->settings) {

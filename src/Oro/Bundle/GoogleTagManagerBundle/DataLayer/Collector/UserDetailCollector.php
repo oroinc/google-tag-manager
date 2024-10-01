@@ -22,9 +22,7 @@ class UserDetailCollector implements CollectorInterface
         $this->tokenAccessor = $tokenAccessor;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function handle(Collection $data): void
     {
         $user = $this->tokenAccessor->getUser();

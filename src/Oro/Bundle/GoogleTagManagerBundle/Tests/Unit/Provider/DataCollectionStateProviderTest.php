@@ -21,6 +21,7 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
     /** @var DataCollectionStateProvider */
     private $dataCollectionStateProvider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->googleTagManagerSettingsProvider = $this->createMock(GoogleTagManagerSettingsProviderInterface::class);

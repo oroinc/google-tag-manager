@@ -35,6 +35,7 @@ class CheckoutPurchaseEventListenerTest extends \PHPUnit\Framework\TestCase
     /** @var CheckoutPurchaseEventListener */
     private $listener;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->frontendHelper = $this->createMock(FrontendHelper::class);

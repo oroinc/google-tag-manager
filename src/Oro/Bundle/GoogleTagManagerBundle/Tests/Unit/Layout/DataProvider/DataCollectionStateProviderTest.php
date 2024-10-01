@@ -12,6 +12,7 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
 
     private DataCollectionStateProvider $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);

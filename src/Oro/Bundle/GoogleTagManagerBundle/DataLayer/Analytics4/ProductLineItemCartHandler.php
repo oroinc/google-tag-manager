@@ -43,6 +43,7 @@ class ProductLineItemCartHandler implements ResetInterface
         $this->userCurrencyManager = $userCurrencyManager;
     }
 
+    #[\Override]
     public function reset(): void
     {
         $this->lineItemsDataByCurrency = [];

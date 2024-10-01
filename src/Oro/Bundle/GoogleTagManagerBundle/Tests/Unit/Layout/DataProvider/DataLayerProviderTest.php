@@ -17,6 +17,7 @@ class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
     /** @var DataLayerProvider */
     private $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);

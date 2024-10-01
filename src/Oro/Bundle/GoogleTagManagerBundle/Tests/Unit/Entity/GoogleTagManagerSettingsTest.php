@@ -13,6 +13,7 @@ class GoogleTagManagerSettingsTest extends \PHPUnit\Framework\TestCase
     /** @var GoogleTagManagerSettings */
     private $entity;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->entity = new GoogleTagManagerSettings();

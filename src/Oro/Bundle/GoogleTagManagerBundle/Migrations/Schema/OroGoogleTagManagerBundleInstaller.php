@@ -8,17 +8,13 @@ use Oro\Bundle\MigrationBundle\Migration\QueryBag;
 
 class OroGoogleTagManagerBundleInstaller implements Installation
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getMigrationVersion(): string
     {
         return 'v1_1';
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function up(Schema $schema, QueryBag $queries): void
     {
         $table = $schema->getTable('oro_integration_transport');

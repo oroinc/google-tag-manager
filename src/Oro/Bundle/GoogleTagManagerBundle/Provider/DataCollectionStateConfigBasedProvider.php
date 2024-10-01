@@ -18,6 +18,7 @@ class DataCollectionStateConfigBasedProvider implements DataCollectionStateProvi
         $this->configManager = $configManager;
     }
 
+    #[\Override]
     public function isEnabled(string $dataCollectionType, ?Website $website = null): ?bool
     {
         $enabledTypes = (array) $this->configManager->get(

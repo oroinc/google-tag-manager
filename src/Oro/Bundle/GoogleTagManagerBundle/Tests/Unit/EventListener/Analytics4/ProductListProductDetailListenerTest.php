@@ -16,6 +16,7 @@ class ProductListProductDetailListenerTest extends \PHPUnit\Framework\TestCase
 
     private ProductListProductDetailListener $listener;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);

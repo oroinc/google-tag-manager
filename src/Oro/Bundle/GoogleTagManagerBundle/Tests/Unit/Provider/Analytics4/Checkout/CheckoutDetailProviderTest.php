@@ -76,6 +76,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     private SubtotalProviderInterface|MockObject $checkoutSubtotalProvider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);

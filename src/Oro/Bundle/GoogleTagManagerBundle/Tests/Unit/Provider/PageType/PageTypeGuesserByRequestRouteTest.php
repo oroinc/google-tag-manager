@@ -14,6 +14,7 @@ class PageTypeGuesserByRequestRouteTest extends \PHPUnit\Framework\TestCase
     /** @var PageTypeGuesserByRequestRoute */
     private $guesser;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->request = new Request();

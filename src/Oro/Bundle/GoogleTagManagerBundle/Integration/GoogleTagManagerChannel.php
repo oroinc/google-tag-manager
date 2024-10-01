@@ -10,17 +10,13 @@ use Oro\Bundle\IntegrationBundle\Provider\IconAwareIntegrationInterface;
  */
 class GoogleTagManagerChannel implements ChannelInterface, IconAwareIntegrationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getLabel(): string
     {
         return 'oro.google_tag_manager.integration.channel.label';
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getIcon(): string
     {
         return 'bundles/orogoogletagmanager/img/gtm-icon.png';

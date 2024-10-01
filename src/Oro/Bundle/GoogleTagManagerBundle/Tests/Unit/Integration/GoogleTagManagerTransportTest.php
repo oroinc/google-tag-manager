@@ -11,6 +11,7 @@ class GoogleTagManagerTransportTest extends \PHPUnit\Framework\TestCase
     /** @var GoogleTagManagerTransport */
     private $transport;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->transport = new GoogleTagManagerTransport();

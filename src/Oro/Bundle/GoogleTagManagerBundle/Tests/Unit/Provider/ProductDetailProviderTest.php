@@ -36,6 +36,7 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
     /** @var Localization */
     private $localization;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->categoryRepository = $this->createMock(CategoryRepository::class);

@@ -17,6 +17,7 @@ class ProductDatagridProductDetailListenerTest extends \PHPUnit\Framework\TestCa
 
     private ProductDatagridProductDetailListener $listener;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dataCollectionStateProvider = $this->createMock(DataCollectionStateProviderInterface::class);
