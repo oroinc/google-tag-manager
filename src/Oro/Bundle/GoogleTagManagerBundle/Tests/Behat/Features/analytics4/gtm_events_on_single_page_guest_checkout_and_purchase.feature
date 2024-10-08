@@ -228,8 +228,7 @@ Feature: GTM events on single page guest checkout and purchase
 
   Scenario: Event "purchase"
     When I check "Use billing address" on the checkout page
-    And I click on "Billing Address Select"
-    And I click on "New Address Option"
+    And I click on "Add Address Single Page Checkout Btn" with title "Add" in element "Single Page Checkout Billing Section"
     And I fill "New Address Popup Form" with:
       | First Name      | Tester          |
       | Last Name       | Testerson       |
