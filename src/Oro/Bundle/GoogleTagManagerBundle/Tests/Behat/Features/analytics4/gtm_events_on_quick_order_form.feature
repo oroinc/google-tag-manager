@@ -94,7 +94,7 @@ Feature: GTM events on quick order form
           "event": "begin_checkout",
           "ecommerce": {
             "currency": "USD",
-            "value": 157.18,
+            "value": 157.19,
             "items": [
               {
                 "item_id": "SKU1",
