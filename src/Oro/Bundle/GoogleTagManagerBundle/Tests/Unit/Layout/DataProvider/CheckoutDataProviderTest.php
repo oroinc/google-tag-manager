@@ -17,6 +17,7 @@ class CheckoutDataProviderTest extends \PHPUnit\Framework\TestCase
     /** @var CheckoutDataProvider */
     private $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->checkoutDetailProvider = $this->createMock(CheckoutDetailProvider::class);

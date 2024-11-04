@@ -23,6 +23,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
     /** @var AppliedPromotionsNamesProvider */
     private $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->entityCouponsProvider = $this->createMock(EntityCouponsProviderInterface::class);

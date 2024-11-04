@@ -39,6 +39,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     private ProductPriceCriteriaFactoryInterface&MockObject $productPriceCriteriaFactory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tokenStorage = $this->createMock(TokenStorageInterface::class);

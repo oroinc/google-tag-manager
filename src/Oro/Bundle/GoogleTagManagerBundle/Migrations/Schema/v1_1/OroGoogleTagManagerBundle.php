@@ -13,9 +13,7 @@ use Oro\Bundle\MigrationBundle\Migration\QueryBag;
  */
 class OroGoogleTagManagerBundle implements Migration
 {
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function up(Schema $schema, QueryBag $queries): void
     {
         $queries->addQuery(new DeleteConfigQuery('enabled_data_collection_types', 'oro_google_tag_manager'));

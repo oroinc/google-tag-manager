@@ -36,6 +36,7 @@ class ProductLineItemCartHandlerTest extends \PHPUnit\Framework\TestCase
     /** @var ProductLineItemCartHandler */
     private $handler;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dataLayerManager = $this->createMock(DataLayerManager::class);

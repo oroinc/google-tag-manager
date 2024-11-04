@@ -23,9 +23,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
         $this->container = $container;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function getFunctions()
     {
         return [
@@ -63,6 +61,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
             : [];
     }
 
+    #[\Override]
     public static function getSubscribedServices(): array
     {
         return [

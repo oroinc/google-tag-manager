@@ -49,6 +49,7 @@ class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
     /** @var PurchaseDetailProvider */
     private $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->productDetailProvider = $this->createMock(ProductDetailProvider::class);

@@ -14,6 +14,7 @@ class IntegrationSettingsProviderTest extends \PHPUnit\Framework\TestCase
     /** @var IntegrationSettingsProvider */
     private $provider;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->settingsProvider = $this->createMock(GoogleTagManagerSettingsProvider::class);

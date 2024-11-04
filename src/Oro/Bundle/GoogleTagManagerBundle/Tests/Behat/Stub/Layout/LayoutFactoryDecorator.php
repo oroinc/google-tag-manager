@@ -34,57 +34,43 @@ class LayoutFactoryDecorator implements LayoutFactoryInterface
         $this->blockViewCache = $blockViewCache;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getRegistry()
     {
         return $this->inner->getRegistry();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getRendererRegistry()
     {
         return $this->inner->getRendererRegistry();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function getType($name)
     {
         return $this->inner->getRendererRegistry();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function createRawLayoutBuilder()
     {
         return $this->inner->createRawLayoutBuilder();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function createLayoutManipulator(RawLayoutBuilderInterface $rawLayoutBuilder)
     {
         return $this->inner->createLayoutManipulator($rawLayoutBuilder);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function createBlockFactory(DeferredLayoutManipulatorInterface $layoutManipulator)
     {
         return $this->inner->createBlockFactory($layoutManipulator);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function createLayoutBuilder()
     {
         $rawLayoutBuilder = $this->createRawLayoutBuilder();

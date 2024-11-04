@@ -22,6 +22,7 @@ class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
 
     private DataLayerManager $manager;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->session = $this->createMock(SessionInterface::class);
