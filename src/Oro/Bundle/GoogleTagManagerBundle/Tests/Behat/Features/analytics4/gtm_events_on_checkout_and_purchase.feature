@@ -127,7 +127,7 @@ Feature: GTM events on checkout and purchase
         }
       }
       """
-
+    And I scroll to top
     When I check "Flat Rate Two" on the "Shipping Method" checkout step and press Continue
     Then GTM data layer must contain the following message:
       """
