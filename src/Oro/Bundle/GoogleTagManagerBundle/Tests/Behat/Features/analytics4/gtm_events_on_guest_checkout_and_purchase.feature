@@ -124,7 +124,7 @@ Feature: GTM events on guest checkout and purchase
         }
       }
       """
-    And I click "Continue as a Guest"
+    And I click "Continue As Guest User"
 
   Scenario: Event "add_shipping_info" is triggered when shipping method is set
     When I fill form with:
