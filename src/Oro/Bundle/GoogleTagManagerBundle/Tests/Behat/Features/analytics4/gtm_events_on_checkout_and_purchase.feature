@@ -205,7 +205,7 @@ Feature: GTM events on checkout and purchase
     Then I should see "Coupon code has been applied successfully, please review discounts" flash message
 
   Scenario: Event "purchase"
-    When I check "Delete this shopping list after submitting order" on the "Order Review" checkout step and press Submit Order
+    When I check "Delete this shopping list after ordering" on the "Order Review" checkout step and press Submit Order
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     And GTM data layer must contain the following message:
       """

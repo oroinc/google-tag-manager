@@ -204,7 +204,7 @@ Feature: GTM events on single page checkout and purchase
     Then I should see "Coupon code has been applied successfully, please review discounts" flash message
 
   Scenario: Event "purchase"
-    When I check "Delete this shopping list after submitting order" on the checkout page
+    When I check "Delete this shopping list after ordering" on the checkout page
     And I wait "Submit Order" button
     And I click "Submit Order"
     And I see the "Thank You" page with "Thank You For Your Purchase!" title
