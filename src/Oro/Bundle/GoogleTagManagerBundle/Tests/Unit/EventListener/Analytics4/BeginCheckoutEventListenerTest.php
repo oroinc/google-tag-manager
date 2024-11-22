@@ -50,17 +50,6 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testOnStartCheckoutWhenContextIsNotActionData(): void
-    {
-        $this->checkoutDetailProvider
-            ->expects(self::never())
-            ->method(self::anything());
-
-        $this->listener->onStartCheckout(new ExtendableConditionEvent(new \stdClass()));
-
-        self::assertSame([self::INITIAL_DATA], $this->dataLayerManager->collectAll());
-    }
-
     public function testOnStartCheckoutWhenNotFrontendRequest(): void
     {
         $this->frontendHelper

@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Layout\DataProvider;
+namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Layout\DataProvider;
 
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\CheckoutDataProvider;

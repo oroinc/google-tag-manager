@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
+namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Oro\Bundle\CatalogBundle\Entity\Category;

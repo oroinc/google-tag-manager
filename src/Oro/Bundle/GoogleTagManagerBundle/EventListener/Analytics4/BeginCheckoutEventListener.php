@@ -2,7 +2,6 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4;
 
-use Oro\Bundle\ActionBundle\Model\ActionData;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
@@ -38,11 +37,11 @@ class BeginCheckoutEventListener
 
     public function onStartCheckout(ExtendableConditionEvent $event): void
     {
-        if (!$this->isApplicable($event)) {
+        if (!$this->isApplicable()) {
             return;
         }
 
-        $checkout = $event->getContext()?->get('checkout');
+        $checkout = $event->getData()?->offsetGet('checkout');
         if (!$checkout instanceof Checkout) {
             return;
         }
@@ -53,13 +52,8 @@ class BeginCheckoutEventListener
         $this->dataLayerManager->prepend(...$data);
     }
 
-    private function isApplicable(ExtendableConditionEvent $event): bool
+    private function isApplicable(): bool
     {
-        $context = $event->getContext();
-        if (!$context instanceof ActionData) {
-            return false;
-        }
-
         return $this->frontendHelper->isFrontendRequest()
             && $this->dataCollectionStateProvider->isEnabled('google_analytics4');
     }
