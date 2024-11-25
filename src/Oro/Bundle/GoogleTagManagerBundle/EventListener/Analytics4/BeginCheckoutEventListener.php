@@ -41,7 +41,7 @@ class BeginCheckoutEventListener
             return;
         }
 
-        $checkout = $event->getContext()?->offsetGet('checkout');
+        $checkout = $event->getData()?->offsetGet('checkout');
         if (!$checkout instanceof Checkout) {
             return;
         }
