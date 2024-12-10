@@ -2,8 +2,8 @@
 
 namespace Oro\Bundle\GoogleTagManagerBundle\Provider;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Oro\Bundle\PromotionBundle\Entity\Coupon;
 use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 
@@ -12,44 +12,48 @@ use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
  */
 class AppliedPromotionsNamesProvider
 {
-    private ManagerRegistry $doctrine;
-    private EntityCouponsProviderInterface $entityCouponsProvider;
-
     public function __construct(
-        ManagerRegistry $doctrine,
-        EntityCouponsProviderInterface $entityCouponsProvider
+        private readonly ManagerRegistry $doctrine,
+        private readonly EntityCouponsProviderInterface $entityCouponsProvider
     ) {
-        $this->doctrine = $doctrine;
-        $this->entityCouponsProvider = $entityCouponsProvider;
     }
 
     /**
-     * @param object $entity
-     *
-     * @return string[] [promotion id => promotion name, ...]
+     * @return string[]
      */
     public function getAppliedPromotionsNames(object $entity): array
     {
-        /** @var Coupon[] $coupons */
-        $coupons = $this->entityCouponsProvider->getCoupons($entity)->toArray();
-        if (!$coupons) {
-            return [];
-        }
-
         $promotionIds = [];
+        $coupons = $this->entityCouponsProvider->getCoupons($entity);
         foreach ($coupons as $coupon) {
             $promotion = $coupon->getPromotion();
             if (null !== $promotion && $promotion->getId()) {
                 $promotionIds[] = $promotion->getId();
             }
         }
+        $promotionIds = array_unique($promotionIds);
 
-        $promotionsNames = $this->doctrine
-            ->getRepository(Promotion::class)
-            ->getPromotionsNamesByIds($promotionIds);
-        $promotionsNames = array_values(array_unique(array_filter($promotionsNames)));
-
-        sort($promotionsNames);
+        $promotionsNames = [];
+        if ($promotionIds) {
+            /** @var EntityManagerInterface $em */
+            $em = $this->doctrine->getManagerForClass(Promotion::class);
+            $rows = $em->createQueryBuilder()
+                ->select('rule.name')
+                ->from(Promotion::class, 'p')
+                ->innerJoin('p.rule', 'rule')
+                ->where('p.id IN (:ids)')
+                ->setParameter('ids', $promotionIds)
+                ->getQuery()
+                ->getArrayResult();
+            foreach ($rows as $row) {
+                $name = $row['name'];
+                if ($name) {
+                    $promotionsNames[] = $name;
+                }
+            }
+            $promotionsNames = array_unique($promotionsNames);
+            sort($promotionsNames);
+        }
 
         return $promotionsNames;
     }
