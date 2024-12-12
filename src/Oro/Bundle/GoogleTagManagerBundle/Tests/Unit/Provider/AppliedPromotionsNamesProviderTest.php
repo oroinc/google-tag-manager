@@ -3,22 +3,24 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\AppliedPromotionsNamesProvider;
 use Oro\Bundle\PromotionBundle\Entity\Coupon;
 use Oro\Bundle\PromotionBundle\Entity\Promotion;
-use Oro\Bundle\PromotionBundle\Entity\Repository\PromotionRepository;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 use Oro\Bundle\PromotionBundle\Tests\Unit\Stub\AppliedCouponsAwareStub;
 use Oro\Component\Testing\ReflectionUtil;
 
 class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
 {
+    /** @var ManagerRegistry|\PHPUnit\Framework\MockObject\MockObject */
+    private $doctrine;
+
     /** @var EntityCouponsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $entityCouponsProvider;
-
-    /** @var PromotionRepository|\PHPUnit\Framework\MockObject\MockObject */
-    private $promotionRepository;
 
     /** @var AppliedPromotionsNamesProvider */
     private $provider;
@@ -26,16 +28,67 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
     #[\Override]
     protected function setUp(): void
     {
+        $this->doctrine = $this->createMock(ManagerRegistry::class);
         $this->entityCouponsProvider = $this->createMock(EntityCouponsProviderInterface::class);
-        $this->promotionRepository = $this->createMock(PromotionRepository::class);
 
-        $doctrine = $this->createMock(ManagerRegistry::class);
-        $doctrine->expects(self::any())
-            ->method('getRepository')
+        $this->provider = new AppliedPromotionsNamesProvider($this->doctrine, $this->entityCouponsProvider);
+    }
+
+    private function getCoupon(int $promotionId): Coupon
+    {
+        $promotion = new Promotion();
+        ReflectionUtil::setId($promotion, $promotionId);
+
+        $coupon = new Coupon();
+        $coupon->setPromotion($promotion);
+
+        return $coupon;
+    }
+
+    private function expectLoadPromotionNames(array $ids, array $rows): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $this->doctrine->expects(self::once())
+            ->method('getManagerForClass')
             ->with(Promotion::class)
-            ->willReturn($this->promotionRepository);
+            ->willReturn($em);
+        $qb = $this->createMock(QueryBuilder::class);
+        $query = $this->createMock(AbstractQuery::class);
+        $em->expects(self::once())
+            ->method('createQueryBuilder')
+            ->willReturn($qb);
+        $qb->expects(self::once())
+            ->method('select')
+            ->with('rule.name')
+            ->willReturnSelf();
+        $qb->expects(self::once())
+            ->method('from')
+            ->with(Promotion::class, 'p')
+            ->willReturnSelf();
+        $qb->expects(self::once())
+            ->method('innerJoin')
+            ->with('p.rule', 'rule')
+            ->willReturnSelf();
+        $qb->expects(self::once())
+            ->method('where')
+            ->with('p.id IN (:ids)')
+            ->willReturnSelf();
+        $qb->expects(self::once())
+            ->method('setParameter')
+            ->with('ids', $ids)
+            ->willReturnSelf();
+        $qb->expects(self::once())
+            ->method('getQuery')
+            ->willReturn($query);
+        $query->expects(self::once())
+            ->method('getArrayResult')
+            ->willReturn($rows);
+    }
 
-        $this->provider = new AppliedPromotionsNamesProvider($doctrine, $this->entityCouponsProvider);
+    private function expectLoadPromotionNamesNotCalled(): void
+    {
+        $this->doctrine->expects(self::never())
+            ->method('getManagerForClass');
     }
 
     public function testGetAppliedPromotionsNamesWhenNoCoupons(): void
@@ -45,6 +98,8 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
             ->method('getCoupons')
             ->with($entity)
             ->willReturn(new ArrayCollection());
+
+        $this->expectLoadPromotionNamesNotCalled();
 
         self::assertSame([], $this->provider->getAppliedPromotionsNames($entity));
     }
@@ -60,19 +115,15 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
             ->with($entity)
             ->willReturn($coupons);
 
-        $this->promotionRepository->expects(self::once())
-            ->method('getPromotionsNamesByIds')
-            ->with([])
-            ->willReturn([]);
+        $this->expectLoadPromotionNamesNotCalled();
 
         self::assertSame([], $this->provider->getAppliedPromotionsNames($entity));
     }
 
     public function testGetAppliedPromotionsNamesWhenNewPromotion(): void
     {
-        $promotion = new Promotion();
         $coupon = new Coupon();
-        $coupon->setPromotion($promotion);
+        $coupon->setPromotion(new Promotion());
 
         $entity = $this->createMock(AppliedCouponsAwareStub::class);
         $this->entityCouponsProvider->expects(self::once())
@@ -80,10 +131,7 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
             ->with($entity)
             ->willReturn(new ArrayCollection([$coupon]));
 
-        $this->promotionRepository->expects(self::once())
-            ->method('getPromotionsNamesByIds')
-            ->with([])
-            ->willReturn([]);
+        $this->expectLoadPromotionNamesNotCalled();
 
         self::assertSame([], $this->provider->getAppliedPromotionsNames($entity));
     }
@@ -91,28 +139,22 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider getAppliedPromotionsNamesDataProvider
      */
-    public function testGetAppliedPromotionsNames(array $promotionsNames, array $expected): void
+    public function testGetAppliedPromotionsNames(array $rows, array $expected): void
     {
-        $promotion1 = new Promotion();
-        ReflectionUtil::setId($promotion1, 42);
-        $coupon1 = new Coupon();
-        $coupon1->setPromotion($promotion1);
-
-        $promotion2 = new Promotion();
-        ReflectionUtil::setId($promotion2, 4242);
-        $coupon2 = new Coupon();
-        $coupon2->setPromotion($promotion2);
+        $coupon1 = $this->getCoupon(1);
+        $coupon2 = $this->getCoupon(2);
+        $coupon3 = $this->getCoupon(3);
 
         $entity = $this->createMock(AppliedCouponsAwareStub::class);
         $this->entityCouponsProvider->expects(self::once())
             ->method('getCoupons')
             ->with($entity)
-            ->willReturn(new ArrayCollection([$coupon1, $coupon2]));
+            ->willReturn(new ArrayCollection([$coupon1, $coupon2, $coupon3]));
 
-        $this->promotionRepository->expects(self::once())
-            ->method('getPromotionsNamesByIds')
-            ->with([$promotion1->getId(), $promotion2->getId()])
-            ->willReturn($promotionsNames);
+        $this->expectLoadPromotionNames(
+            [$coupon1->getPromotion()->getId(), $coupon2->getPromotion()->getId(), $coupon3->getPromotion()->getId()],
+            $rows
+        );
 
         self::assertSame($expected, $this->provider->getAppliedPromotionsNames($entity));
     }
@@ -121,29 +163,49 @@ class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
     {
         return [
             'promotions not exist' => [
-                'promotionsNames' => [],
-                'expected' => [],
+                'rows' => [],
+                'expected' => []
             ],
             '1st promotion not exists' => [
-                'promotionsNames' => [4242 => 'promo2'],
-                'expected' => ['promo2'],
+                'rows' => [['name' => 'promo2'], ['name' => 'promo3']],
+                'expected' => ['promo2', 'promo3']
             ],
             '1st promotion name is empty' => [
-                'promotionsNames' => [42 => '', 4242 => 'promo2'],
-                'expected' => ['promo2'],
+                'rows' => [['name' => ''], ['name' => 'promo2'], ['name' => 'promo3']],
+                'expected' => ['promo2', 'promo3']
             ],
-            '1st promotion name is same as 2nd' => [
-                'promotionsNames' => [42 => 'promo2', 4242 => 'promo2'],
-                'expected' => ['promo2'],
+            '1st promotion name is same as 3nd' => [
+                'rows' => [['name' => 'promo3'], ['name' => 'promo2'], ['name' => 'promo3']],
+                'expected' => ['promo2', 'promo3']
             ],
-            'both promotions exist' => [
-                'promotionsNames' => [42 => 'promo1', 4242 => 'promo2'],
-                'expected' => ['promo1', 'promo2'],
+            'all promotions exist' => [
+                'rows' => [['name' => 'promo1'], ['name' => 'promo2'], ['name' => 'promo3']],
+                'expected' => ['promo1', 'promo2', 'promo3']
             ],
-            'both promotions exist and sorted' => [
-                'promotionsNames' => [4242 => 'promo2', 42 => 'promo1'],
-                'expected' => ['promo1', 'promo2'],
-            ],
+            'all promotions exist and sorted' => [
+                'rows' => [['name' => 'promo2'], ['name' => 'promo1'], ['name' => 'promo3']],
+                'expected' => ['promo1', 'promo2', 'promo3']
+            ]
         ];
+    }
+
+    public function testGetAppliedPromotionsNamesWhenSeveralCouponsHaveSamePromotion(): void
+    {
+        $coupon1 = $this->getCoupon(1);
+        $coupon2 = $this->getCoupon(2);
+        $coupon3 = $this->getCoupon(1);
+
+        $entity = $this->createMock(AppliedCouponsAwareStub::class);
+        $this->entityCouponsProvider->expects(self::once())
+            ->method('getCoupons')
+            ->with($entity)
+            ->willReturn(new ArrayCollection([$coupon1, $coupon2, $coupon3]));
+
+        $this->expectLoadPromotionNames(
+            [1, 2],
+            [['name' => 'promo1'], ['name' => 'promo2']]
+        );
+
+        self::assertSame(['promo1', 'promo2'], $this->provider->getAppliedPromotionsNames($entity));
     }
 }
