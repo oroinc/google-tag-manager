@@ -238,7 +238,7 @@ Feature: GTM events on single page guest checkout and purchase
       | Country         | Germany         |
       | State           | Berlin          |
       | Zip/Postal Code | 10115           |
-    And I click "Continue"
+    And I click "Add Address" in modal window
     And I uncheck "Save my data and create an account" on the checkout page
     And I wait "Submit Order" button
     And I click "Submit Order"
