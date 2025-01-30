@@ -56,9 +56,9 @@ class ProductLineItemCartHandler implements ResetInterface
 
     public function addToCart(
         ProductLineItemInterface $lineItem,
-        ProductUnit $productUnit = null,
-        float|int|null $quantity = null,
-        ?string $currency = null
+        ?ProductUnit             $productUnit = null,
+        float|int|null           $quantity = null,
+        ?string                  $currency = null
     ): self {
         $this->storeLineItemData('add_to_cart', $lineItem, $productUnit, $quantity, $currency);
 

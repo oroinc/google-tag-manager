@@ -26,7 +26,7 @@ class LayoutFactoryDecorator implements LayoutFactoryInterface
         LayoutFactoryInterface $inner,
         ExpressionProcessor $expressionProcessor,
         LayoutContextStack $layoutContextStack,
-        BlockViewCache $blockViewCache = null
+        ?BlockViewCache $blockViewCache = null
     ) {
         $this->inner = $inner;
         $this->expressionProcessor = $expressionProcessor;

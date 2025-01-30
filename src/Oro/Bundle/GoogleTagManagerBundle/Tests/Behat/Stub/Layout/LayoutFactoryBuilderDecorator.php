@@ -34,7 +34,7 @@ class LayoutFactoryBuilderDecorator implements LayoutFactoryBuilderInterface
         ExpressionProcessor $expressionProcessor,
         ApplicationState $applicationState,
         LayoutContextStack $layoutContextStack,
-        BlockViewCache $blockViewCache = null
+        ?BlockViewCache $blockViewCache = null
     ) {
         $this->inner = $inner;
         $this->gtmSettingsProvider = $gtmSettingsProvider;

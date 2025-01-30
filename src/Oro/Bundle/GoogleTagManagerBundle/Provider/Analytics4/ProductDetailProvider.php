@@ -26,7 +26,7 @@ class ProductDetailProvider
     /**
      * Get product detail for single Product entity
      */
-    public function getData(Product $product, Localization $localization = null): array
+    public function getData(Product $product, ?Localization $localization = null): array
     {
         if (!$product->getSku()) {
             return [];
