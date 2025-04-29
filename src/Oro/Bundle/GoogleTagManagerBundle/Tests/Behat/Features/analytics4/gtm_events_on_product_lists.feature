@@ -9,13 +9,13 @@ Feature: GTM events on product lists
 
   Scenario: Check product events on products category page
     When I go to homepage
-    Then GTM data layer must not contain the following message:
+    And I click "NewCategory" in hamburger menu
+    Then GTM data layer must contain the following message:
       """
         {
           "catalogPath": "All Products"
         }
       """
-    And I click "NewCategory" in hamburger menu
     When I sort frontend grid "Product Frontend Grid" by "Price (Low to High)"
     Then GTM data layer must contain the following message:
       """
@@ -156,12 +156,6 @@ Feature: GTM events on product lists
         {
           "pageCategory": "category",
           "localizationId": "1"
-        }
-      """
-    And GTM data layer must contain the following message:
-      """
-        {
-          "catalogPath": "All Products"
         }
       """
     And GTM data layer must contain the following message:

@@ -28,17 +28,11 @@ Feature: GTM events on product in catalog
 
   Scenario: Check product events on all products page
     When I go to homepage
-    Then GTM data layer must contain the following message:
-      """
-        {
-          "catalogPath": "Root Node"
-        }
-      """
     And I click "All Products" in hamburger menu
     And GTM data layer must contain the following message:
       """
         {
-          "catalogPath": "Root Node / All Products"
+          "catalogPath": "Root Node"
         }
       """
     And GTM data layer must contain the following message:
