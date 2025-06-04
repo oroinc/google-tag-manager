@@ -41,7 +41,7 @@ class FeatureContext extends OroFeatureContext
     public function preventClicks(): void
     {
         $this->getSession()->evaluateScript(
-            'window.document.addEventListener("click", function (e) { e.preventDefault(); });'
+            'window.document.addEventListener("click", function (e) { e.preventDefault(); }, true);'
         );
     }
 
