@@ -9,15 +9,6 @@ define(function(require) {
         /**
          * @property {Object}
          */
-        options: _.extend({}, BaseComponent.prototype.options, {
-            // The number of milliseconds for which the calls to "eventCallback" are to be delayed to avoid duplicated
-            // calls when multiple containers are present on a page.
-            eventCallbackDebounceTimeout: 100
-        }),
-
-        /**
-         * @property {Object}
-         */
         listen: {
             'gtm:event:analytics4:select_promotion mediator': '_onSelectPromotion',
             'gtm:event:analytics4:view_promotion mediator': '_onViewPromotion',
@@ -155,11 +146,11 @@ define(function(require) {
          * @private
          */
         _getClickLinkCallback: function(destinationUrl) {
-            return _.debounce(function() {
-                if (destinationUrl) {
-                    document.location = destinationUrl;
-                }
-            }, this.options.eventCallbackDebounceTimeout);
+            if (destinationUrl) {
+                document.location = destinationUrl;
+            }
+
+            return {};
         }
     });
 

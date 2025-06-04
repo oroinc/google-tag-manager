@@ -21,7 +21,7 @@ define(function(require) {
             blockName: ''
         }),
 
-        get _gtmReady() {
+        _gtmReady() {
             return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
         },
 
@@ -134,7 +134,7 @@ define(function(require) {
          * @protected
          */
         _onClick($clickedItem, event) {
-            if (!event || event.isDefaultPrevented()) {
+            if (!event) {
                 return;
             }
 
@@ -145,24 +145,25 @@ define(function(require) {
 
             const link = event.currentTarget;
             let destinationUrl = link.href;
-            if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey || link.target === '_blank') {
+            if (event.which === 2 ||
+                event.altKey ||
+                event.shiftKey ||
+                event.metaKey ||
+                link.target === '_blank' ||
+                event.isDefaultPrevented()
+            ) {
                 destinationUrl = null;
             }
 
             const index = this._getPosition($clickedItem);
             const clicksData = [this._getClickData(model, index)];
 
-            this._invokeEventClick(clicksData, destinationUrl);
-
-            if (destinationUrl !== null && clicksData.eventCallback) {
+            if (destinationUrl !== null && this._gtmReady()) {
                 // Prevent going by the link destination URL. We will get there in GTM eventCallback.
                 event.preventDefault();
-
-                if (!this._gtmReady) {
-                    // Calls data layer eventCallback manually because GTM is not initialized yet.
-                    clicksData.eventCallback();
-                }
             }
+
+            this._invokeEventClick(clicksData, destinationUrl);
         },
 
         /**

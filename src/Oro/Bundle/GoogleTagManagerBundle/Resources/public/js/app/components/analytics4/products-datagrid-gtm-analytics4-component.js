@@ -27,10 +27,6 @@ define(function(require) {
             listName: ''
         }),
 
-        get _gtmReady() {
-            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
-        },
-
         /**
          * @property {jQuery.Element}
          */
@@ -41,6 +37,10 @@ define(function(require) {
          */
         constructor: function ProductsDatagridGtmAnalytics4Component(options) {
             ProductsDatagridGtmAnalytics4Component.__super__.constructor.call(this, options);
+        },
+
+        _gtmReady() {
+            return mediator.execute({name: 'gtm:data-layer-manager:isReady', silent: true}) || false;
         },
 
         /**
@@ -101,7 +101,7 @@ define(function(require) {
          * @private
          */
         _onClick(event) {
-            if (!event || event.isDefaultPrevented()) {
+            if (!event) {
                 return;
             }
 
@@ -125,9 +125,9 @@ define(function(require) {
             }
 
             let destinationUrl = link.href;
-            if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey) {
+            if (event.which === 2 || event.altKey || event.shiftKey || event.metaKey || event.isDefaultPrevented()) {
                 destinationUrl = null;
-            } else if (this._gtmReady) {
+            } else if (this._gtmReady()) {
                 // Prevent going by the link destination URL. We will get there in GTM eventCallback.
                 event.preventDefault();
             }
