@@ -137,27 +137,23 @@ class DataLayerManagerTest extends TestCase
 
         $this->collector1->expects(self::once())
             ->method('handle')
-            ->willReturnCallback(
-                function (ArrayCollection $data) use ($original, $data1) {
-                    $this->assertEquals(new ArrayCollection($original), $data);
+            ->willReturnCallback(function (ArrayCollection $data) use ($original, $data1) {
+                $this->assertEquals(new ArrayCollection($original), $data);
 
-                    $data->add($data1);
+                $data->add($data1);
 
-                    return $data;
-                }
-            );
+                return $data;
+            });
 
         $this->collector2->expects(self::once())
             ->method('handle')
-            ->willReturnCallback(
-                function (ArrayCollection $data) use ($original, $data1, $data2) {
-                    $this->assertEquals(new ArrayCollection(array_merge($original, [$data1])), $data);
+            ->willReturnCallback(function (ArrayCollection $data) use ($original, $data1, $data2) {
+                $this->assertEquals(new ArrayCollection(array_merge($original, [$data1])), $data);
 
-                    $data->add($data2);
+                $data->add($data2);
 
-                    return $data;
-                }
-            );
+                return $data;
+            });
 
         self::assertEquals(array_merge($original, [$data1], [$data2]), $this->manager->collectAll());
     }
