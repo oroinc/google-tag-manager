@@ -11,28 +11,21 @@ use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\CheckoutInfoEvent
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Component\Testing\Unit\TestContainerBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
-class CheckoutInfoEventListenerTest extends \PHPUnit\Framework\TestCase
+class CheckoutInfoEventListenerTest extends TestCase
 {
     private const INITIAL_DATA = ['option1' => 'value1'];
 
-    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
-    private $frontendHelper;
-
-    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataCollectionStateProvider;
-
-    /** @var DataLayerManager */
-    private $dataLayerManager;
-
-    /** @var CheckoutDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $checkoutDetailProvider;
-
-    /** @var CheckoutInfoEventListener */
-    private $listener;
+    private FrontendHelper&MockObject $frontendHelper;
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
+    private DataLayerManager $dataLayerManager;
+    private CheckoutDetailProvider&MockObject $checkoutDetailProvider;
+    private CheckoutInfoEventListener $listener;
 
     #[\Override]
     protected function setUp(): void

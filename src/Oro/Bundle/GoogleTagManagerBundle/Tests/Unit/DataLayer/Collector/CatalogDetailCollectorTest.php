@@ -8,31 +8,22 @@ use Oro\Bundle\ConfigBundle\Config\ConfigManager;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CatalogDetailCollector;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\ConstantBag\DataLayerAttributeBag;
 use Oro\Bundle\WebCatalogBundle\Layout\DataProvider\WebCatalogBreadcrumbProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
+class CatalogDetailCollectorTest extends TestCase
 {
     private const PRODUCT_LIST_ROUTE = 'oro_product_frontend_product_index';
 
-    /** @var ConfigManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $configManager;
-
-    /** @var ParameterBag|\PHPUnit\Framework\MockObject\MockObject */
-    private $requestQuery;
-
-    /** @var ParameterBag|\PHPUnit\Framework\MockObject\MockObject */
-    private $requestAttributes;
-
-    /** @var WebCatalogBreadcrumbProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $webCatalogBreadcrumbProvider;
-
-    /** @var CategoryBreadcrumbProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $categoryBreadcrumbProvider;
-
-    /** @var CatalogDetailCollector */
-    private $collector;
+    private ConfigManager&MockObject $configManager;
+    private ParameterBag&MockObject $requestQuery;
+    private ParameterBag&MockObject $requestAttributes;
+    private WebCatalogBreadcrumbProvider&MockObject $webCatalogBreadcrumbProvider;
+    private CategoryBreadcrumbProvider&MockObject $categoryBreadcrumbProvider;
+    private CatalogDetailCollector $collector;
 
     #[\Override]
     protected function setUp(): void
@@ -46,7 +37,6 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
         $request->query = $this->requestQuery;
         $request->attributes = $this->requestAttributes;
 
-        /** @var RequestStack|\PHPUnit\Framework\MockObject\MockObject $requestStack */
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->expects($this->any())
             ->method('getCurrentRequest')
@@ -72,7 +62,7 @@ class CatalogDetailCollectorTest extends \PHPUnit\Framework\TestCase
         ?string $requestRoute,
         ?array $categoryItems,
         array $excepted
-    ) {
+    ): void {
         $this->configManager->expects($this->once())
             ->method('get')
             ->with('oro_web_catalog.web_catalog')

@@ -16,21 +16,18 @@ use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Oro\Component\Testing\ReflectionUtil;
 use Oro\Component\Testing\Unit\TestContainerBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
+class ShoppingListLineItemEventListenerTest extends TestCase
 {
-    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataCollectionStateProvider;
-
-    /** @var ProductLineItemCartHandler|\PHPUnit\Framework\MockObject\MockObject */
-    private $productLineItemCartHandler;
-
-    /** @var ShoppingListLineItemEventListener */
-    private $listener;
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
+    private ProductLineItemCartHandler&MockObject $productLineItemCartHandler;
+    private ShoppingListLineItemEventListener $listener;
 
     #[\Override]
     protected function setUp(): void

@@ -6,25 +6,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Oro\Bundle\CustomerBundle\Entity\Customer;
 use Oro\Bundle\CustomerBundle\Entity\CustomerGroup;
 use Oro\Bundle\CustomerBundle\Entity\CustomerUser;
-use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CollectorInterface;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\UserDetailCollector;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\ConstantBag\DataLayerAttributeBag;
 use Oro\Bundle\SecurityBundle\Authentication\TokenAccessorInterface;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class UserDetailCollectorTest extends \PHPUnit\Framework\TestCase
+class UserDetailCollectorTest extends TestCase
 {
     use EntityTrait;
 
-    /**
-     * @var TokenAccessorInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $tokenAccessor;
-
-    /**
-     * @var CollectorInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $collector;
+    private TokenAccessorInterface&MockObject $tokenAccessor;
+    private UserDetailCollector $collector;
 
     #[\Override]
     protected function setUp(): void

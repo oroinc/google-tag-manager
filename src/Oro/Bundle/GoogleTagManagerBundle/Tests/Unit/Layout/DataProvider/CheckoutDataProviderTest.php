@@ -5,17 +5,16 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Layout\DataProvider;
 use Oro\Bundle\CheckoutBundle\Entity\Checkout;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\CheckoutDataProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Checkout\CheckoutDetailProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Component added back for theme layout BC from version 5.0
  */
-class CheckoutDataProviderTest extends \PHPUnit\Framework\TestCase
+class CheckoutDataProviderTest extends TestCase
 {
-    /** @var CheckoutDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $checkoutDetailProvider;
-
-    /** @var CheckoutDataProvider */
-    private $provider;
+    private CheckoutDetailProvider&MockObject $checkoutDetailProvider;
+    private CheckoutDataProvider $provider;
 
     #[\Override]
     protected function setUp(): void

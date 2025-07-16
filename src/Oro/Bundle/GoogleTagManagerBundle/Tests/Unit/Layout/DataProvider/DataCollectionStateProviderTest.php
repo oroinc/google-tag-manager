@@ -5,11 +5,12 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Layout\DataProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\DataCollectionStateProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
+class DataCollectionStateProviderTest extends TestCase
 {
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
-
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
     private DataCollectionStateProvider $provider;
 
     #[\Override]
@@ -25,8 +26,7 @@ class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsEnabled(bool $isEnabled, ?Website $website): void
     {
-        $this->dataCollectionStateProvider
-            ->expects(self::once())
+        $this->dataCollectionStateProvider->expects(self::once())
             ->method('isEnabled')
             ->with('sample_tag_type')
             ->willReturn($isEnabled);

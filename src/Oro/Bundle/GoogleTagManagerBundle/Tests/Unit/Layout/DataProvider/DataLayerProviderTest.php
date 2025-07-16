@@ -4,18 +4,17 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Layout\DataProvider;
 
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\DataLayerProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class DataLayerProviderTest extends \PHPUnit\Framework\TestCase
+class DataLayerProviderTest extends TestCase
 {
     private const DATA_LAYER_VARIABLE_NAME = 'dataLayer';
 
     private const BATCH_SIZE = 11;
 
-    /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataLayerManager;
-
-    /** @var DataLayerProvider */
-    private $provider;
+    private DataLayerManager&MockObject $dataLayerManager;
+    private DataLayerProvider $provider;
 
     #[\Override]
     protected function setUp(): void

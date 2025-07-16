@@ -5,14 +5,13 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Layout\DataProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\GoogleTagManagerBundle\Layout\DataProvider\IntegrationSettingsProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class IntegrationSettingsProviderTest extends \PHPUnit\Framework\TestCase
+class IntegrationSettingsProviderTest extends TestCase
 {
-    /** @var GoogleTagManagerSettingsProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $settingsProvider;
-
-    /** @var IntegrationSettingsProvider */
-    private $provider;
+    private GoogleTagManagerSettingsProvider&MockObject $settingsProvider;
+    private IntegrationSettingsProvider $provider;
 
     #[\Override]
     protected function setUp(): void

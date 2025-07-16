@@ -3,16 +3,14 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider\PageType;
 
 use Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserByRequestRoute;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class PageTypeGuesserByRequestRouteTest extends \PHPUnit\Framework\TestCase
+class PageTypeGuesserByRequestRouteTest extends TestCase
 {
-    /** @var Request */
-    private $request;
-
-    /** @var PageTypeGuesserByRequestRoute */
-    private $guesser;
+    private Request $request;
+    private PageTypeGuesserByRequestRoute $guesser;
 
     #[\Override]
     protected function setUp(): void

@@ -20,23 +20,19 @@ use Oro\Bundle\WebsiteBundle\Entity\Website;
 use Oro\Bundle\WebsiteBundle\Manager\WebsiteManager;
 use Oro\Component\Testing\Unit\EntityTrait;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
+class ProductPriceDetailProviderTest extends TestCase
 {
     use EntityTrait;
 
     private TokenStorageInterface&MockObject $tokenStorage;
-
     private WebsiteManager&MockObject $websiteManager;
-
     private UserCurrencyManager&MockObject $userCurrencyManager;
-
     private ProductPriceProviderInterface&MockObject $productPriceProvider;
-
     private ProductPriceDetailProvider $provider;
-
     private ProductPriceCriteriaFactoryInterface&MockObject $productPriceCriteriaFactory;
 
     #[\Override]
@@ -61,7 +57,6 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testGetPrice(): void
     {
-        /** @var Product $product */
         $product = $this->getEntity(Product::class, ['id' => 42]);
 
         $productUnit = new ProductUnit();
@@ -89,8 +84,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
-        $this->productPriceCriteriaFactory
-            ->expects($this->once())
+        $this->productPriceCriteriaFactory->expects($this->once())
             ->method('create')
             ->with($product, $productUnit, $qty, $currency)
             ->willReturn($priceCriteria);
@@ -121,7 +115,6 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testGetPriceWithoutPrice(): void
     {
-        /** @var Product $product */
         $product = $this->getEntity(Product::class, ['id' => 42]);
 
         $productUnit = new ProductUnit();
@@ -152,8 +145,7 @@ class ProductPriceDetailProviderTest extends \PHPUnit\Framework\TestCase
 
         $priceCriteria = new ProductPriceCriteria($product, $productUnit, $qty, $currency);
 
-        $this->productPriceCriteriaFactory
-            ->expects($this->once())
+        $this->productPriceCriteriaFactory->expects($this->once())
             ->method('create')
             ->with($product, $productUnit, $qty, $currency)
             ->willReturn($priceCriteria);

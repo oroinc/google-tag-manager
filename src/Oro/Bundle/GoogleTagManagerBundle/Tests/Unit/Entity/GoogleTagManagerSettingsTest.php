@@ -4,14 +4,14 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Entity;
 
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Component\Testing\Unit\EntityTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-class GoogleTagManagerSettingsTest extends \PHPUnit\Framework\TestCase
+class GoogleTagManagerSettingsTest extends TestCase
 {
     use EntityTestCaseTrait;
 
-    /** @var GoogleTagManagerSettings */
-    private $entity;
+    private GoogleTagManagerSettings $entity;
 
     #[\Override]
     protected function setUp(): void

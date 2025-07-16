@@ -6,11 +6,12 @@ use Oro\Bundle\ConfigBundle\Config\ConfigManager;
 use Oro\Bundle\GoogleTagManagerBundle\DependencyInjection\Configuration;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateConfigBasedProvider;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class DataCollectionStateConfigBasedProviderTest extends \PHPUnit\Framework\TestCase
+class DataCollectionStateConfigBasedProviderTest extends TestCase
 {
-    private ConfigManager|\PHPUnit\Framework\MockObject\MockObject $configManager;
-
+    private ConfigManager&MockObject $configManager;
     private DataCollectionStateConfigBasedProvider $provider;
 
     #[\Override]
@@ -26,8 +27,7 @@ class DataCollectionStateConfigBasedProviderTest extends \PHPUnit\Framework\Test
      */
     public function testIsEnabled(?array $enabledTypes, ?Website $website, bool $expected): void
     {
-        $this->configManager
-            ->expects(self::once())
+        $this->configManager->expects(self::once())
             ->method('get')
             ->with(Configuration::getConfigKeyByName('enabled_data_collection_types'), false, false, $website)
             ->willReturn($enabledTypes);

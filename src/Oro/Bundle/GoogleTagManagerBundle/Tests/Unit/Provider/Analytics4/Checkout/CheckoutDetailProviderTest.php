@@ -20,11 +20,12 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ShippingBundle\Formatter\ShippingMethodLabelFormatter;
 use Oro\Component\Testing\Unit\EntityTrait;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  */
-class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
+class CheckoutDetailProviderTest extends TestCase
 {
     use EntityTrait;
 
@@ -59,22 +60,14 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         'item_variant' => 'set',
     ];
 
-    private ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productDetailProvider;
-
-    private ProductPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject $productPriceProvider;
-
-    private ProductPriceScopeCriteriaFactoryInterface|\PHPUnit\Framework\MockObject\MockObject
-        $priceScopeCriteriaFactory;
-
-    private ShippingMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject $shippingMethodLabelFormatter;
-
-    private PaymentMethodLabelFormatter|\PHPUnit\Framework\MockObject\MockObject $paymentMethodLabelFormatter;
-
+    private ProductDetailProvider&MockObject $productDetailProvider;
+    private ProductPriceProviderInterface&MockObject $productPriceProvider;
+    private ProductPriceScopeCriteriaFactoryInterface&MockObject $priceScopeCriteriaFactory;
+    private ShippingMethodLabelFormatter&MockObject $shippingMethodLabelFormatter;
+    private PaymentMethodLabelFormatter&MockObject $paymentMethodLabelFormatter;
     private CheckoutDetailProvider $provider;
-
-    private ProductPriceCriteriaFactoryInterface|MockObject $productPriceCriteriaFactory;
-
-    private SubtotalProviderInterface|MockObject $checkoutSubtotalProvider;
+    private ProductPriceCriteriaFactoryInterface&MockObject $productPriceCriteriaFactory;
+    private SubtotalProviderInterface&MockObject $checkoutSubtotalProvider;
 
     #[\Override]
     protected function setUp(): void
@@ -143,8 +136,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $lineItem2->getCurrency()
         );
 
-        $this->productPriceCriteriaFactory
-            ->expects(self::once())
+        $this->productPriceCriteriaFactory->expects(self::once())
             ->method('createFromProductLineItem')
             ->with($lineItem2, $priceCriteria->getCurrency())
             ->willReturn($priceCriteria);
@@ -160,8 +152,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             );
 
         $subtotal = (new Subtotal())->setAmount(123.4567);
-        $this->checkoutSubtotalProvider
-            ->expects(self::once())
+        $this->checkoutSubtotalProvider->expects(self::once())
             ->method('getSubtotal')
             ->with($checkout)
             ->willReturn($subtotal);
@@ -237,8 +228,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $lineItem2->getCurrency()
         );
 
-        $this->productPriceCriteriaFactory
-            ->expects(self::once())
+        $this->productPriceCriteriaFactory->expects(self::once())
             ->method('createFromProductLineItem')
             ->with($lineItem2, $priceCriteria->getCurrency())
             ->willReturn($priceCriteria);
@@ -253,8 +243,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->checkoutSubtotalProvider
-            ->expects(self::once())
+        $this->checkoutSubtotalProvider->expects(self::once())
             ->method('getSubtotal')
             ->with($checkout)
             ->willReturn(null);
@@ -294,8 +283,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         /** @var Checkout $checkout */
         [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
 
-        $this->shippingMethodLabelFormatter
-            ->expects(self::never())
+        $this->shippingMethodLabelFormatter->expects(self::never())
             ->method(self::anything());
 
         $scopeCriteria = new ProductPriceScopeCriteria();
@@ -335,8 +323,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $lineItem2->getCurrency()
         );
 
-        $this->productPriceCriteriaFactory
-            ->expects(self::once())
+        $this->productPriceCriteriaFactory->expects(self::once())
             ->method('createFromProductLineItem')
             ->with($lineItem2, $priceCriteria->getCurrency())
             ->willReturn($priceCriteria);
@@ -351,8 +338,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->checkoutSubtotalProvider
-            ->expects(self::once())
+        $this->checkoutSubtotalProvider->expects(self::once())
             ->method('getSubtotal')
             ->with($checkout)
             ->willReturn(null);
@@ -399,8 +385,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             ->setShippingMethodType($shippingMethodType);
 
         $shippingMethodLabel = 'Sample Method';
-        $this->shippingMethodLabelFormatter
-            ->expects(self::once())
+        $this->shippingMethodLabelFormatter->expects(self::once())
             ->method('formatShippingMethodWithTypeLabel')
             ->with($shippingMethod, $shippingMethodType)
             ->willReturn($shippingMethodLabel);
@@ -442,8 +427,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $lineItem2->getCurrency()
         );
 
-        $this->productPriceCriteriaFactory
-            ->expects(self::once())
+        $this->productPriceCriteriaFactory->expects(self::once())
             ->method('createFromProductLineItem')
             ->with($lineItem2, $priceCriteria->getCurrency())
             ->willReturn($priceCriteria);
@@ -459,8 +443,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             );
 
         $subtotal = (new Subtotal())->setAmount(123.4567);
-        $this->checkoutSubtotalProvider
-            ->expects(self::once())
+        $this->checkoutSubtotalProvider->expects(self::once())
             ->method('getSubtotal')
             ->with($checkout)
             ->willReturn($subtotal);
@@ -503,8 +486,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         /** @var Checkout $checkout */
         [$checkout, $lineItem1, $lineItem2, $lineItem3] = $this->prepareCheckout();
 
-        $this->paymentMethodLabelFormatter
-            ->expects(self::never())
+        $this->paymentMethodLabelFormatter->expects(self::never())
             ->method(self::anything());
 
         $scopeCriteria = new ProductPriceScopeCriteria();
@@ -544,8 +526,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $lineItem2->getCurrency()
         );
 
-        $this->productPriceCriteriaFactory
-            ->expects(self::once())
+        $this->productPriceCriteriaFactory->expects(self::once())
             ->method('createFromProductLineItem')
             ->with($lineItem2, $priceCriteria->getCurrency())
             ->willReturn($priceCriteria);
@@ -560,8 +541,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
                 ]
             );
 
-        $this->checkoutSubtotalProvider
-            ->expects(self::once())
+        $this->checkoutSubtotalProvider->expects(self::once())
             ->method('getSubtotal')
             ->with($checkout)
             ->willReturn(null);
@@ -605,8 +585,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
         $checkout->setPaymentMethod($paymentMethod);
 
         $paymentMethodLabel = 'Sample Method';
-        $this->paymentMethodLabelFormatter
-            ->expects(self::once())
+        $this->paymentMethodLabelFormatter->expects(self::once())
             ->method('formatPaymentMethodLabel')
             ->with($paymentMethod)
             ->willReturn($paymentMethodLabel);
@@ -648,8 +627,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             $lineItem2->getCurrency()
         );
 
-        $this->productPriceCriteriaFactory
-            ->expects(self::once())
+        $this->productPriceCriteriaFactory->expects(self::once())
             ->method('createFromProductLineItem')
             ->with($lineItem2, $priceCriteria->getCurrency())
             ->willReturn($priceCriteria);
@@ -665,8 +643,7 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
             );
 
         $subtotal = (new Subtotal())->setAmount(123.4567);
-        $this->checkoutSubtotalProvider
-            ->expects(self::once())
+        $this->checkoutSubtotalProvider->expects(self::once())
             ->method('getSubtotal')
             ->with($checkout)
             ->willReturn($subtotal);
@@ -703,11 +680,8 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     private function prepareCheckout(): array
     {
-        /** @var Product $product1 */
         $product1 = $this->getEntity(Product::class, ['id' => 1001]);
-        /** @var Product $product2 */
         $product2 = $this->getEntity(Product::class, ['id' => 2002]);
-        /** @var Product $product3 */
         $product3 = $this->getEntity(Product::class, ['id' => 3003]);
 
         $lineItem1 = new CheckoutLineItem();

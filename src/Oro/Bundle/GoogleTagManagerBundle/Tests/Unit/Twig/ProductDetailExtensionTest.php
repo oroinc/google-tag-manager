@@ -7,15 +7,15 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\ProductDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Twig\ProductDetailExtension;
 use Oro\Bundle\ProductBundle\Entity\Product;
 use Oro\Component\Testing\Unit\TwigExtensionTestCaseTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ProductDetailExtensionTest extends \PHPUnit\Framework\TestCase
+class ProductDetailExtensionTest extends TestCase
 {
     use TwigExtensionTestCaseTrait;
 
-    private ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject $productDetailProvider;
-
-    private Analytics4ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject $analytics4ProductDetailProvider;
-
+    private ProductDetailProvider&MockObject $productDetailProvider;
+    private Analytics4ProductDetailProvider&MockObject $analytics4ProductDetailProvider;
     private ProductDetailExtension $extension;
 
     #[\Override]

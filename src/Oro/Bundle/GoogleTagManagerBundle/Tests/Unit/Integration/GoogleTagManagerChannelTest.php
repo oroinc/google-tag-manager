@@ -3,11 +3,11 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Integration;
 
 use Oro\Bundle\GoogleTagManagerBundle\Integration\GoogleTagManagerChannel;
+use PHPUnit\Framework\TestCase;
 
-class GoogleTagManagerChannelTest extends \PHPUnit\Framework\TestCase
+class GoogleTagManagerChannelTest extends TestCase
 {
-    /** @var GoogleTagManagerChannel */
-    private $channel;
+    private GoogleTagManagerChannel $channel;
 
     #[\Override]
     protected function setUp(): void

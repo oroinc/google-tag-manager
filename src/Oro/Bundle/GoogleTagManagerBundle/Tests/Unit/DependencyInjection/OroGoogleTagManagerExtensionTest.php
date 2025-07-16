@@ -3,9 +3,10 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\DependencyInjection;
 
 use Oro\Bundle\GoogleTagManagerBundle\DependencyInjection\OroGoogleTagManagerExtension;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class OroGoogleTagManagerExtensionTest extends \PHPUnit\Framework\TestCase
+class OroGoogleTagManagerExtensionTest extends TestCase
 {
     public function testLoad(): void
     {

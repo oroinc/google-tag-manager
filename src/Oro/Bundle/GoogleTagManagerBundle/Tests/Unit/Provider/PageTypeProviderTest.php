@@ -4,17 +4,14 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Provider;
 
 use Oro\Bundle\GoogleTagManagerBundle\Provider\PageType\PageTypeGuesserInterface;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class PageTypeProviderTest extends \PHPUnit\Framework\TestCase
+class PageTypeProviderTest extends TestCase
 {
-    /** @var PageTypeGuesserInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $guesser1;
-
-    /** @var PageTypeGuesserInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $guesser2;
-
-    /** @var PageTypeProvider */
-    private $provider;
+    private PageTypeGuesserInterface&MockObject $guesser1;
+    private PageTypeGuesserInterface&MockObject $guesser2;
+    private PageTypeProvider $provider;
 
     #[\Override]
     protected function setUp(): void

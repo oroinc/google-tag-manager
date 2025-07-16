@@ -12,20 +12,15 @@ use Oro\Bundle\RFPBundle\Entity\RequestProduct;
 use Oro\Bundle\RFPBundle\Entity\RequestProductItem;
 use Oro\Component\Testing\ReflectionUtil;
 use Oro\Component\Testing\Unit\TestContainerBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class RequestProductItemEventListenerTest extends \PHPUnit\Framework\TestCase
+class RequestProductItemEventListenerTest extends TestCase
 {
-    /** @var FrontendHelper|\PHPUnit\Framework\MockObject\MockObject */
-    private $frontendHelper;
-
-    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataCollectionStateProvider;
-
-    /** @var ProductLineItemCartHandler|\PHPUnit\Framework\MockObject\MockObject */
-    private $productLineItemCartHandler;
-
-    /** @var RequestProductItemEventListener */
-    private $listener;
+    private FrontendHelper&MockObject $frontendHelper;
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
+    private ProductLineItemCartHandler&MockObject $productLineItemCartHandler;
+    private RequestProductItemEventListener $listener;
 
     #[\Override]
     protected function setUp(): void

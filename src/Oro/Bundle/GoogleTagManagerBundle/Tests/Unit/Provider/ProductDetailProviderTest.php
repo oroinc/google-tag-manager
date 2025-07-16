@@ -16,25 +16,20 @@ use Oro\Bundle\ProductBundle\Entity\ProductName;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Brand as BrandStub;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Product as ProductStub;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Component added back for theme layout BC from version 5.0
  */
-class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
+class ProductDetailProviderTest extends TestCase
 {
     use EntityTrait;
 
-    /** @var ProductDetailProvider */
-    private $provider;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|CategoryRepository */
-    private $categoryRepository;
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject|DoctrineHelper */
-    private $doctrineHelper;
-
-    /** @var Localization */
-    private $localization;
+    private CategoryRepository&MockObject $categoryRepository;
+    private DoctrineHelper&MockObject $doctrineHelper;
+    private ?Localization $localization = null;
+    private ProductDetailProvider $provider;
 
     #[\Override]
     protected function setUp(): void

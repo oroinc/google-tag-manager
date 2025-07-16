@@ -10,11 +10,12 @@ use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\ProductDatagridPr
 use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\WebsiteSearchIndexerListener;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Bundle\SearchBundle\Datagrid\Event\SearchResultAfter;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ProductDatagridProductDetailListenerTest extends \PHPUnit\Framework\TestCase
+class ProductDatagridProductDetailListenerTest extends TestCase
 {
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
-
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
     private ProductDatagridProductDetailListener $listener;
 
     #[\Override]

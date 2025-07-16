@@ -5,21 +5,19 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\DataLayer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\Collector\CollectorInterface;
 use Oro\Bundle\GoogleTagManagerBundle\DataLayer\DataLayerManager;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class DataLayerManagerTest extends \PHPUnit\Framework\TestCase
+class DataLayerManagerTest extends TestCase
 {
     private const KEY = 'oro_google_tag_manager.data_layer';
 
-    private SessionInterface|\PHPUnit\Framework\MockObject\MockObject $session;
-
-    private RequestStack|\PHPUnit\Framework\MockObject\MockObject $requestStack;
-
-    private CollectorInterface|\PHPUnit\Framework\MockObject\MockObject $collector1;
-
-    private CollectorInterface|\PHPUnit\Framework\MockObject\MockObject $collector2;
-
+    private SessionInterface&MockObject $session;
+    private RequestStack&MockObject $requestStack;
+    private CollectorInterface&MockObject $collector1;
+    private CollectorInterface&MockObject $collector2;
     private DataLayerManager $manager;
 
     #[\Override]

@@ -15,14 +15,14 @@ use Oro\Bundle\LocaleBundle\Tests\Unit\Stub\LocalizationStub;
 use Oro\Bundle\ProductBundle\Entity\ProductName;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Brand as BrandStub;
 use Oro\Bundle\ProductBundle\Tests\Unit\Entity\Stub\Product as ProductStub;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
+class ProductDetailProviderTest extends TestCase
 {
-    private ProductDetailProvider $provider;
-
-    private \PHPUnit\Framework\MockObject\MockObject|CategoryRepository $categoryRepository;
-
+    private CategoryRepository&MockObject $categoryRepository;
     private ?Localization $localization = null;
+    private ProductDetailProvider $provider;
 
     #[\Override]
     protected function setUp(): void
@@ -240,6 +240,7 @@ class ProductDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     private function getLocalization(): Localization
     {
+        return new LocalizationStub(42);
         if (!$this->localization) {
             $this->localization = new LocalizationStub(42);
         }

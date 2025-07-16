@@ -10,17 +10,16 @@ use Oro\Bundle\WorkflowBundle\Model\Step;
 use Oro\Bundle\WorkflowBundle\Model\StepManager;
 use Oro\Bundle\WorkflowBundle\Model\Workflow;
 use Oro\Bundle\WorkflowBundle\Model\WorkflowManager;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Component added back for theme layout BC from version 5.0
  */
-class CheckoutStepProviderTest extends \PHPUnit\Framework\TestCase
+class CheckoutStepProviderTest extends TestCase
 {
-    /** @var WorkflowManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $workflowManager;
-
-    /** @var CheckoutStepProvider */
-    private $provider;
+    private WorkflowManager&MockObject $workflowManager;
+    private CheckoutStepProvider $provider;
 
     #[\Override]
     protected function setUp(): void

@@ -24,30 +24,19 @@ use Oro\Bundle\TaxBundle\Model\ResultElement;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderInterface;
 use Oro\Bundle\TaxBundle\Provider\TaxProviderRegistry;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class PurchaseDetailProviderTest extends \PHPUnit\Framework\TestCase
+class PurchaseDetailProviderTest extends TestCase
 {
-    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $productDetailProvider;
-
-    /** @var AppliedPromotionsNamesProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $appliedPromotionsNamesProvider;
-
-    /** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $logger;
-
-    /** @var TaxProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $taxProvider;
-
-    /** @var OrderRepository|\PHPUnit\Framework\MockObject\MockObject */
-    private $orderRepository;
-
-    /** @var PaymentTransactionRepository|\PHPUnit\Framework\MockObject\MockObject */
-    private $paymentTransactionRepository;
-
-    /** @var PurchaseDetailProvider */
-    private $provider;
+    private ProductDetailProvider&MockObject $productDetailProvider;
+    private AppliedPromotionsNamesProvider&MockObject $appliedPromotionsNamesProvider;
+    private LoggerInterface&MockObject $logger;
+    private TaxProviderInterface&MockObject $taxProvider;
+    private OrderRepository&MockObject $orderRepository;
+    private PaymentTransactionRepository&MockObject $paymentTransactionRepository;
+    private PurchaseDetailProvider $provider;
 
     #[\Override]
     protected function setUp(): void

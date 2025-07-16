@@ -9,15 +9,15 @@ use Oro\Bundle\WebsiteSearchBundle\Engine\AbstractIndexer;
 use Oro\Bundle\WebsiteSearchBundle\Event\IndexEntityEvent;
 use Oro\Bundle\WebsiteSearchBundle\Manager\WebsiteContextManager;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
+class WebsiteSearchIndexerListenerTest extends TestCase
 {
     use EntityTrait;
 
-    private \PHPUnit\Framework\MockObject\MockObject|WebsiteContextManager $websiteContextManger;
-
-    private \PHPUnit\Framework\MockObject\MockObject|ProductDetailProvider $productDetailProvider;
-
+    private WebsiteContextManager&MockObject $websiteContextManger;
+    private ProductDetailProvider&MockObject $productDetailProvider;
     private WebsiteSearchIndexerListener $listener;
 
     #[\Override]
@@ -39,8 +39,10 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
             ->willReturn(null);
 
         $event = $this->createIndexEntityEvent();
-        $event->expects(self::once())->method('stopPropagation');
-        $event->expects(self::never())->method('getEntities');
+        $event->expects(self::once())
+            ->method('stopPropagation');
+        $event->expects(self::never())
+            ->method('getEntities');
 
         $this->listener->onWebsiteSearchIndex($event);
     }
@@ -57,7 +59,8 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
         ];
 
         $event = $this->createIndexEntityEvent($context);
-        $event->expects(self::never())->method('stopPropagation');
+        $event->expects(self::never())
+            ->method('stopPropagation');
         $event->expects(self::once())
             ->method('getEntities')
             ->willReturn($products);
@@ -107,7 +110,7 @@ class WebsiteSearchIndexerListenerTest extends \PHPUnit\Framework\TestCase
 
     private function createIndexEntityEvent(
         array $context = []
-    ): IndexEntityEvent|\PHPUnit\Framework\MockObject\MockObject {
+    ): IndexEntityEvent&MockObject {
         $event = $this->createMock(IndexEntityEvent::class);
         $event->expects(self::any())
             ->method('getContext')

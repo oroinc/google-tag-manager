@@ -8,18 +8,15 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterf
 use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProviderInterface;
 use Oro\Bundle\IntegrationBundle\Entity\Transport;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class DataCollectionStateProviderTest extends \PHPUnit\Framework\TestCase
+class DataCollectionStateProviderTest extends TestCase
 {
-    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $provider1;
-
-    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $provider2;
-
-    /** @var DataCollectionStateProvider */
-    private $dataCollectionStateProvider;
+    private DataCollectionStateProviderInterface&MockObject $provider1;
+    private DataCollectionStateProviderInterface&MockObject $provider2;
+    private DataCollectionStateProvider $dataCollectionStateProvider;
 
     #[\Override]
     protected function setUp(): void

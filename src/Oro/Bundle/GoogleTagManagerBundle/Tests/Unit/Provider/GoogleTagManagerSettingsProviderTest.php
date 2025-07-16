@@ -9,19 +9,16 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\GoogleTagManagerSettingsProvider;
 use Oro\Bundle\IntegrationBundle\Entity\Channel;
 use Oro\Bundle\IntegrationBundle\Entity\Repository\ChannelRepository;
 use Oro\Bundle\WebsiteBundle\Entity\Website;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class GoogleTagManagerSettingsProviderTest extends \PHPUnit\Framework\TestCase
+class GoogleTagManagerSettingsProviderTest extends TestCase
 {
     private const CONFIG_KEY = 'oro_google_tag_manager.integration';
 
-    /** @var ConfigManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $configManager;
-
-    /** @var ChannelRepository|\PHPUnit\Framework\MockObject\MockObject */
-    private $repository;
-
-    /** @var GoogleTagManagerSettingsProvider */
-    private $provider;
+    private ConfigManager&MockObject $configManager;
+    private ChannelRepository&MockObject $repository;
+    private GoogleTagManagerSettingsProvider $provider;
 
     #[\Override]
     protected function setUp(): void

@@ -5,11 +5,11 @@ namespace Oro\Bundle\GoogleTagManagerBundle\Tests\Unit\Integration;
 use Oro\Bundle\GoogleTagManagerBundle\Entity\GoogleTagManagerSettings;
 use Oro\Bundle\GoogleTagManagerBundle\Form\Type\GoogleTagManagerSettingsType;
 use Oro\Bundle\GoogleTagManagerBundle\Integration\GoogleTagManagerTransport;
+use PHPUnit\Framework\TestCase;
 
-class GoogleTagManagerTransportTest extends \PHPUnit\Framework\TestCase
+class GoogleTagManagerTransportTest extends TestCase
 {
-    /** @var GoogleTagManagerTransport */
-    private $transport;
+    private GoogleTagManagerTransport $transport;
 
     #[\Override]
     protected function setUp(): void

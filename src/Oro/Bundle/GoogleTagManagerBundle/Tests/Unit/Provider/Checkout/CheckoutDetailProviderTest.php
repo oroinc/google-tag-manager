@@ -17,28 +17,21 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\WorkflowBundle\Entity\WorkflowDefinition;
 use Oro\Bundle\WorkflowBundle\Entity\WorkflowStep;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Component added back for theme layout BC from version 5.0
  */
-class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
+class CheckoutDetailProviderTest extends TestCase
 {
     use EntityTrait;
 
-    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $productDetailProvider;
-
-    /** @var CheckoutStepProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $checkoutStepProvider;
-
-    /** @var ProductPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $productPriceProvider;
-
-    /** @var ProductPriceScopeCriteriaFactoryInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $priceScopeCriteriaFactory;
-
-    /** @var CheckoutDetailProvider */
-    private $provider;
+    private ProductDetailProvider&MockObject $productDetailProvider;
+    private CheckoutStepProvider&MockObject $checkoutStepProvider;
+    private ProductPriceProviderInterface&MockObject $productPriceProvider;
+    private ProductPriceScopeCriteriaFactoryInterface&MockObject $priceScopeCriteriaFactory;
+    private CheckoutDetailProvider $provider;
 
     #[\Override]
     protected function setUp(): void
@@ -196,11 +189,8 @@ class CheckoutDetailProviderTest extends \PHPUnit\Framework\TestCase
 
     private function prepareCheckout(): array
     {
-        /** @var Product $product1 */
         $product1 = $this->getEntity(Product::class, ['id' => 1001]);
-        /** @var Product $product2 */
         $product2 = $this->getEntity(Product::class, ['id' => 2002]);
-        /** @var Product $product3 */
         $product3 = $this->getEntity(Product::class, ['id' => 3003]);
 
         $lineItem1 = new CheckoutLineItem();

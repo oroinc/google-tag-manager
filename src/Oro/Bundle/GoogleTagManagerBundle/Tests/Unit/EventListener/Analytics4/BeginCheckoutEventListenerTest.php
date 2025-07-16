@@ -10,22 +10,20 @@ use Oro\Bundle\GoogleTagManagerBundle\EventListener\Analytics4\BeginCheckoutEven
 use Oro\Bundle\GoogleTagManagerBundle\Provider\Analytics4\Checkout\CheckoutDetailProvider;
 use Oro\Bundle\GoogleTagManagerBundle\Provider\DataCollectionStateProviderInterface;
 use Oro\Component\Action\Event\ExtendableConditionEvent;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
-class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
+class BeginCheckoutEventListenerTest extends TestCase
 {
     private const INITIAL_DATA = ['option1' => 'value1'];
 
-    private FrontendHelper|\PHPUnit\Framework\MockObject\MockObject $frontendHelper;
-
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
-
+    private FrontendHelper&MockObject $frontendHelper;
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
     private DataLayerManager $dataLayerManager;
-
-    private CheckoutDetailProvider|\PHPUnit\Framework\MockObject\MockObject $checkoutDetailProvider;
-
+    private CheckoutDetailProvider&MockObject $checkoutDetailProvider;
     private BeginCheckoutEventListener $listener;
 
     #[\Override]
@@ -53,13 +51,11 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnStartCheckoutWhenNotFrontendRequest(): void
     {
-        $this->frontendHelper
-            ->expects(self::once())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(false);
 
-        $this->checkoutDetailProvider
-            ->expects(self::never())
+        $this->checkoutDetailProvider->expects(self::never())
             ->method(self::anything());
 
         $this->listener->onStartCheckout(new ExtendableConditionEvent(new ActionData()));
@@ -69,18 +65,15 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnStartCheckoutWhenNoGtmSettings(): void
     {
-        $this->frontendHelper
-            ->expects(self::once())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->dataCollectionStateProvider
-            ->expects(self::once())
+        $this->dataCollectionStateProvider->expects(self::once())
             ->method('isEnabled')
             ->willReturn(false);
 
-        $this->checkoutDetailProvider
-            ->expects(self::never())
+        $this->checkoutDetailProvider->expects(self::never())
             ->method(self::anything());
 
         $this->listener->onStartCheckout(new ExtendableConditionEvent(new ActionData()));
@@ -90,18 +83,15 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnStartCheckoutWhenNoCheckout(): void
     {
-        $this->dataCollectionStateProvider
-            ->expects(self::once())
+        $this->dataCollectionStateProvider->expects(self::once())
             ->method('isEnabled')
             ->willReturn(true);
 
-        $this->frontendHelper
-            ->expects(self::once())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
-        $this->checkoutDetailProvider
-            ->expects(self::never())
+        $this->checkoutDetailProvider->expects(self::never())
             ->method(self::anything());
 
         $context = new ActionData();
@@ -113,20 +103,17 @@ class BeginCheckoutEventListenerTest extends \PHPUnit\Framework\TestCase
 
     public function testOnStartCheckout(): void
     {
-        $this->dataCollectionStateProvider
-            ->expects(self::once())
+        $this->dataCollectionStateProvider->expects(self::once())
             ->method('isEnabled')
             ->willReturn(true);
 
-        $this->frontendHelper
-            ->expects(self::once())
+        $this->frontendHelper->expects(self::once())
             ->method('isFrontendRequest')
             ->willReturn(true);
 
         $checkout = new Checkout();
         $beginCheckoutData = ['event' => 'begin_checkout', 'ecommerce' => ['option1' => 'value1']];
-        $this->checkoutDetailProvider
-            ->expects(self::once())
+        $this->checkoutDetailProvider->expects(self::once())
             ->method('getBeginCheckoutData')
             ->with($checkout)
             ->willReturn([$beginCheckoutData]);

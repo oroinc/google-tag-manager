@@ -14,27 +14,20 @@ use Oro\Bundle\ProductBundle\Entity\ProductUnit;
 use Oro\Bundle\ProductBundle\Model\ProductLineItem;
 use Oro\Bundle\ProductBundle\Tests\Unit\Stub\ProductStub;
 use PHPUnit\Framework\Constraint\IsType;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class ProductLineItemCartHandlerTest extends \PHPUnit\Framework\TestCase
+class ProductLineItemCartHandlerTest extends TestCase
 {
-    /** @var DataLayerManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataLayerManager;
-
-    /** @var ProductDetailProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $productDetailProvider;
-
-    /** @var ProductLineItemPriceProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $productLineItemPriceProvider;
-
-    /** @var UserCurrencyManager|\PHPUnit\Framework\MockObject\MockObject */
-    private $userCurrencyManager;
-
-    /** @var ProductLineItemCartHandler */
-    private $handler;
+    private DataLayerManager&MockObject $dataLayerManager;
+    private ProductDetailProvider&MockObject $productDetailProvider;
+    private ProductLineItemPriceProviderInterface&MockObject $productLineItemPriceProvider;
+    private UserCurrencyManager&MockObject $userCurrencyManager;
+    private ProductLineItemCartHandler $handler;
 
     #[\Override]
     protected function setUp(): void

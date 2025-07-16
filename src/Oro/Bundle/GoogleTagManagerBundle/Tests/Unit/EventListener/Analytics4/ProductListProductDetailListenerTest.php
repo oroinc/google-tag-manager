@@ -9,11 +9,12 @@ use Oro\Bundle\ProductBundle\Event\BuildQueryProductListEvent;
 use Oro\Bundle\ProductBundle\Event\BuildResultProductListEvent;
 use Oro\Bundle\ProductBundle\Model\ProductView;
 use Oro\Bundle\SearchBundle\Query\SearchQueryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ProductListProductDetailListenerTest extends \PHPUnit\Framework\TestCase
+class ProductListProductDetailListenerTest extends TestCase
 {
-    private DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject $dataCollectionStateProvider;
-
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
     private ProductListProductDetailListener $listener;
 
     #[\Override]

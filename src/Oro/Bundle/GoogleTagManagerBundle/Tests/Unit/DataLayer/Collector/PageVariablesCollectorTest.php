@@ -9,19 +9,16 @@ use Oro\Bundle\GoogleTagManagerBundle\Provider\PageTypeProvider;
 use Oro\Bundle\LocaleBundle\Entity\Localization;
 use Oro\Bundle\LocaleBundle\Helper\LocalizationHelper;
 use Oro\Component\Testing\Unit\EntityTrait;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class PageVariablesCollectorTest extends \PHPUnit\Framework\TestCase
+class PageVariablesCollectorTest extends TestCase
 {
     use EntityTrait;
 
-    /** @var PageTypeProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $pageTypeProvider;
-
-    /** @var LocalizationHelper|\PHPUnit\Framework\MockObject\MockObject */
-    private $localizationHelper;
-
-    /** @var PageVariablesCollector */
-    private $collector;
+    private PageTypeProvider&MockObject $pageTypeProvider;
+    private LocalizationHelper&MockObject $localizationHelper;
+    private PageVariablesCollector $collector;
 
     #[\Override]
     protected function setUp(): void

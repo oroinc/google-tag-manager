@@ -16,8 +16,7 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
 {
     use EntityTrait;
 
-    /** @var GoogleTagManagerSettingsType */
-    private $formType;
+    private GoogleTagManagerSettingsType $formType;
 
     #[\Override]
     protected function setUp(): void
@@ -37,7 +36,6 @@ class GoogleTagManagerSettingsTypeTest extends FormIntegrationTestCase
      */
     public function testSubmit(?array $defaultData, array $submittedData, array $expectedData): void
     {
-        /** @var GoogleTagManagerSettings|null $defaultEntity */
         $defaultEntity = $defaultData ? $this->getEntity(GoogleTagManagerSettings::class, $defaultData) : null;
 
         $form = $this->factory->create(GoogleTagManagerSettingsType::class, $defaultEntity);

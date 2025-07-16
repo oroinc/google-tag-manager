@@ -13,17 +13,14 @@ use Oro\Bundle\PromotionBundle\Entity\Promotion;
 use Oro\Bundle\PromotionBundle\Provider\EntityCouponsProviderInterface;
 use Oro\Bundle\PromotionBundle\Tests\Unit\Stub\AppliedCouponsAwareStub;
 use Oro\Component\Testing\ReflectionUtil;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class AppliedPromotionsNamesProviderTest extends \PHPUnit\Framework\TestCase
+class AppliedPromotionsNamesProviderTest extends TestCase
 {
-    /** @var ManagerRegistry|\PHPUnit\Framework\MockObject\MockObject */
-    private $doctrine;
-
-    /** @var EntityCouponsProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $entityCouponsProvider;
-
-    /** @var AppliedPromotionsNamesProvider */
-    private $provider;
+    private ManagerRegistry&MockObject $doctrine;
+    private EntityCouponsProviderInterface&MockObject $entityCouponsProvider;
+    private AppliedPromotionsNamesProvider $provider;
 
     #[\Override]
     protected function setUp(): void
