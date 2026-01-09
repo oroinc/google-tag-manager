@@ -185,7 +185,7 @@ class ProductDetailProviderTest extends TestCase
         );
     }
 
-    private function getCategory(string $title, ?int$id = null, bool $isLocalized = false): CategoryStub
+    private function getCategory(string $title, ?int $id = null, bool $isLocalized = false): CategoryStub
     {
         return $this->getEntity(
             CategoryStub::class,
