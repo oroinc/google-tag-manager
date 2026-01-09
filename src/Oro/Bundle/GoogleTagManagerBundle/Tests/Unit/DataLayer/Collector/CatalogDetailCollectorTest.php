@@ -10,7 +10,6 @@ use Oro\Bundle\GoogleTagManagerBundle\DataLayer\ConstantBag\DataLayerAttributeBa
 use Oro\Bundle\WebCatalogBundle\Layout\DataProvider\WebCatalogBreadcrumbProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -19,8 +18,8 @@ class CatalogDetailCollectorTest extends TestCase
     private const PRODUCT_LIST_ROUTE = 'oro_product_frontend_product_index';
 
     private ConfigManager&MockObject $configManager;
-    private ParameterBag&MockObject $requestQuery;
-    private ParameterBag&MockObject $requestAttributes;
+    private Request $request;
+    private RequestStack&MockObject $requestStack;
     private WebCatalogBreadcrumbProvider&MockObject $webCatalogBreadcrumbProvider;
     private CategoryBreadcrumbProvider&MockObject $categoryBreadcrumbProvider;
     private CatalogDetailCollector $collector;
@@ -30,24 +29,19 @@ class CatalogDetailCollectorTest extends TestCase
     {
         $this->configManager = $this->createMock(ConfigManager::class);
 
-        $this->requestQuery = $this->createMock(ParameterBag::class);
-        $this->requestAttributes = $this->createMock(ParameterBag::class);
+        $this->request = new Request();
 
-        $request = new Request();
-        $request->query = $this->requestQuery;
-        $request->attributes = $this->requestAttributes;
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->expects($this->any())
+        $this->requestStack = $this->createMock(RequestStack::class);
+        $this->requestStack->expects($this->any())
             ->method('getCurrentRequest')
-            ->willReturn($request);
+            ->willReturn($this->request);
 
         $this->webCatalogBreadcrumbProvider = $this->createMock(WebCatalogBreadcrumbProvider::class);
         $this->categoryBreadcrumbProvider = $this->createMock(CategoryBreadcrumbProvider::class);
 
         $this->collector = new CatalogDetailCollector(
             $this->configManager,
-            $requestStack,
+            $this->requestStack,
             $this->webCatalogBreadcrumbProvider,
             $this->categoryBreadcrumbProvider
         );
@@ -74,17 +68,11 @@ class CatalogDetailCollectorTest extends TestCase
         }
 
         if ($requestCategoryId !== null) {
-            $this->requestQuery->expects($this->once())
-                ->method('get')
-                ->with('categoryId')
-                ->willReturn($requestCategoryId);
+            $this->request->query->set('categoryId', $requestCategoryId);
         }
 
         if ($requestRoute !== null) {
-            $this->requestAttributes->expects($this->once())
-                ->method('get')
-                ->with('_route')
-                ->willReturn($requestRoute);
+            $this->request->attributes->set('_route', $requestRoute);
         }
 
         if ($categoryItems !== null) {
