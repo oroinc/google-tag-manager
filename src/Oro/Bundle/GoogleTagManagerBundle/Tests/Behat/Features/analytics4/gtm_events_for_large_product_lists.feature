@@ -20,7 +20,7 @@ Feature: GTM events for large product lists
     And I wait for products to load
     And I click "Create New Shopping List" in "ProductFrontendMassPanelInBottomSticky" element
     And I click "Create and Add"
-    Then I should see "35 products were added"
+    Then I should see "35 products were added" flash message
     And GTM data layer must contain the following message:
       """
         {
