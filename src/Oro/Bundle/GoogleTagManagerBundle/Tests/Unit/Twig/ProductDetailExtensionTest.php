@@ -25,7 +25,7 @@ class ProductDetailExtensionTest extends TestCase
         $this->analytics4ProductDetailProvider = $this->createMock(Analytics4ProductDetailProvider::class);
 
         $container = self::getContainerBuilder()
-            ->add('oro_google_tag_manager.provider.product_detail', $this->productDetailProvider)
+            ->add(ProductDetailProvider::class, $this->productDetailProvider)
             ->add('oro_google_tag_manager.provider.analytics4.product_detail', $this->analytics4ProductDetailProvider)
             ->getContainer($this);
 
@@ -44,7 +44,7 @@ class ProductDetailExtensionTest extends TestCase
 
         $this->assertSame(
             $data,
-            $this->callTwigFunction($this->extension, 'oro_google_tag_manager_product_detail', [$product])
+            self::callTwigFunction($this->extension, 'oro_google_tag_manager_product_detail', [$product])
         );
     }
 
@@ -55,7 +55,7 @@ class ProductDetailExtensionTest extends TestCase
 
         $this->assertSame(
             [],
-            $this->callTwigFunction($this->extension, 'oro_google_tag_manager_product_detail', [new \stdClass()])
+            self::callTwigFunction($this->extension, 'oro_google_tag_manager_product_detail', [new \stdClass()])
         );
     }
 

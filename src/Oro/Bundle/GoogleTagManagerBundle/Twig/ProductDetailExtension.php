@@ -16,11 +16,9 @@ use Twig\TwigFunction;
  */
 class ProductDetailExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        private readonly ContainerInterface $container
+    ) {
     }
 
     #[\Override]
@@ -38,23 +36,16 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
     }
 
     /**
-     * @param mixed $product
-     * @return array
-     *
      * Component added back for theme layout BC from version 5.0
      */
-    public function getProductDetail($product): array
+    public function getProductDetail(mixed $product): array
     {
         return $product instanceof Product
             ? $this->getProductDetailProvider()->getData($product)
             : [];
     }
 
-    /**
-     * @param mixed $product
-     * @return array
-     */
-    public function getAnalytics4ProductDetail($product): array
+    public function getAnalytics4ProductDetail(mixed $product): array
     {
         return $product instanceof Product
             ? $this->getAnalytics4ProductDetailProvider()->getData($product)
@@ -65,7 +56,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
     public static function getSubscribedServices(): array
     {
         return [
-            'oro_google_tag_manager.provider.product_detail' => ProductDetailProvider::class,
+            ProductDetailProvider::class,
             'oro_google_tag_manager.provider.analytics4.product_detail' => Analytics4ProductDetailProvider::class,
         ];
     }
@@ -75,7 +66,7 @@ class ProductDetailExtension extends AbstractExtension implements ServiceSubscri
      */
     private function getProductDetailProvider(): ProductDetailProvider
     {
-        return $this->container->get('oro_google_tag_manager.provider.product_detail');
+        return $this->container->get(ProductDetailProvider::class);
     }
 
     private function getAnalytics4ProductDetailProvider(): Analytics4ProductDetailProvider
