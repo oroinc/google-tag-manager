@@ -223,7 +223,7 @@ Feature: GTM events on single page guest checkout and purchase
     And I click "I have a Coupon Code"
     And I type "coupon-1" in "CouponCodeInput"
     And I click "Apply"
-    Then I should see "Coupon code has been applied successfully, please review discounts" flash message
+    Then I should see "Coupon code has been applied successfully, please review discounts" flash message and I close it
     And I scroll to top
 
   Scenario: Event "purchase"
