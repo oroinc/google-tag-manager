@@ -199,6 +199,7 @@ Feature: GTM events on checkout and purchase
 
   Scenario: Apply coupon
     When I scroll to "I have a Coupon Code"
+    And I click "Expand Checkout Footer"
     And I click "I have a Coupon Code"
     And I type "coupon-1" in "CouponCodeInput"
     And I click "Apply"

@@ -232,13 +232,15 @@ Feature: GTM events on guest checkout and purchase
 
   Scenario: Apply coupon
     When I scroll to "I have a Coupon Code"
+    And I click "Expand Checkout Footer"
     And I click "I have a Coupon Code"
     And I type "coupon-1" in "CouponCodeInput"
     And I click "Apply"
     Then I should see "Coupon code has been applied successfully, please review discounts" flash message
 
   Scenario: Event "purchase"
-    When I uncheck "Save my data and create an account" on the checkout page
+    When I click "Expand Checkout Footer"
+    And I uncheck "Save my data and create an account" on the checkout page
     And I click "Submit Order"
     Then I see the "Thank You" page with "Thank You For Your Purchase!" title
     And GTM data layer must contain the following message:
