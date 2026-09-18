@@ -16,21 +16,18 @@ use Oro\Bundle\ShoppingListBundle\Entity\LineItem;
 use Oro\Bundle\ShoppingListBundle\Entity\ShoppingList;
 use Oro\Component\Testing\ReflectionUtil;
 use Oro\Component\Testing\Unit\TestContainerBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
+class ShoppingListLineItemEventListenerTest extends TestCase
 {
-    /** @var DataCollectionStateProviderInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $dataCollectionStateProvider;
-
-    /** @var ProductLineItemCartHandler|\PHPUnit\Framework\MockObject\MockObject */
-    private $productLineItemCartHandler;
-
-    /** @var ShoppingListLineItemEventListener */
-    private $listener;
+    private DataCollectionStateProviderInterface&MockObject $dataCollectionStateProvider;
+    private ProductLineItemCartHandler&MockObject $productLineItemCartHandler;
+    private ShoppingListLineItemEventListener $listener;
 
     #[\Override]
     protected function setUp(): void
@@ -59,16 +56,23 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         return $product;
     }
 
-    private function getShoppingList(int $id): ShoppingList
+    private function getShoppingList(int $id, ?string $currency = null): ShoppingList
     {
         $shoppingList = new ShoppingList();
         ReflectionUtil::setId($shoppingList, $id);
+        if (null !== $currency) {
+            $shoppingList->setCurrency($currency);
+        }
 
         return $shoppingList;
     }
 
-    private function getLineItem(?ProductUnit $unit = null, int $shoppingListId = 1): LineItem
-    {
+    private function getLineItem(
+        ?ProductUnit $unit = null,
+        int $shoppingListId = 1,
+        bool $savedForLater = false,
+        ?string $currency = null
+    ): LineItem {
         if (null === $unit) {
             $unit = new ProductUnit();
             $unit->setCode('item');
@@ -76,7 +80,11 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
 
         $item = new LineItem();
         $item->setProduct($this->getProduct(42));
-        $item->setShoppingList($this->getShoppingList($shoppingListId));
+        if ($savedForLater) {
+            $item->setSavedForLaterList($this->getShoppingList($shoppingListId, $currency));
+        } else {
+            $item->setShoppingList($this->getShoppingList($shoppingListId, $currency));
+        }
         $item->setUnit($unit);
         $item->setQuantity(5.5);
 
@@ -460,6 +468,26 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->postFlush();
     }
 
+    public function testPreRemoveForSavedForLaterLineItem(): void
+    {
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $currency = 'USD';
+        $item = $this->getLineItem(savedForLater: true, currency: $currency);
+
+        $this->productLineItemCartHandler->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item, $item->getUnit(), $item->getQuantity(), $currency);
+
+        $this->productLineItemCartHandler->expects(self::once())
+            ->method('flush');
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
     public function testPreRemoveForDifferentUnits(): void
     {
         $this->dataCollectionStateProvider->expects(self::any())
@@ -498,6 +526,35 @@ class ShoppingListLineItemEventListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener->onCheckoutSourceEntityBeforeRemove($event);
 
         $item = $this->getLineItem(null, $shoppingListId);
+
+        $this->productLineItemCartHandler->expects(self::once())
+            ->method('removeFromCart')
+            ->with($item);
+
+        $this->productLineItemCartHandler->expects(self::exactly(2))
+            ->method('flush');
+
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+
+        // Checks that event "remove_from_cart" is triggered after listener is reset after postFlush.
+        $this->listener->preRemove($item);
+        $this->listener->postFlush();
+    }
+
+    public function testPreRemoveForSavedForLaterLineItemAfterCheckoutSourceEntityIsRemoved(): void
+    {
+        $this->dataCollectionStateProvider->expects(self::any())
+            ->method('isEnabled')
+            ->willReturn(true);
+
+        $shoppingListId = 2;
+
+        $shoppingList = $this->getShoppingList($shoppingListId);
+        $event = new CheckoutSourceEntityRemoveEvent($shoppingList);
+        $this->listener->onCheckoutSourceEntityBeforeRemove($event);
+
+        $item = $this->getLineItem(null, $shoppingListId, savedForLater: true);
 
         $this->productLineItemCartHandler->expects(self::once())
             ->method('removeFromCart')

@@ -91,7 +91,7 @@ class ShoppingListLineItemEventListener implements ServiceSubscriberInterface
             return;
         }
 
-        if (\in_array($item->getShoppingList()->getId(), $this->skipRemovingInShoppingListIds, true)) {
+        if (\in_array($item->getAssociatedList()?->getId(), $this->skipRemovingInShoppingListIds, true)) {
             return;
         }
 
@@ -130,7 +130,7 @@ class ShoppingListLineItemEventListener implements ServiceSubscriberInterface
 
     private function storeProductData(LineItem $item, ProductUnit $unit, float $qty, bool $add = true): void
     {
-        $currency = $item->getShoppingList()->getCurrency();
+        $currency = $item->getAssociatedList()?->getCurrency();
         if ($add) {
             $this->getProductLineItemCartHandler()->addToCart($item, $unit, $qty, $currency);
         } else {
