@@ -63,7 +63,7 @@ class FeatureContext extends OroFeatureContext
         $expectedMessage = $this->messageNormalization($expected);
         $dataLayer = $this->getDataLayer();
         foreach ($dataLayer as $actual) {
-            if ($this->compareMessages($expectedMessage, $actual)) {
+            if ($this->compareDataLayerMessages($expectedMessage, $actual)) {
                 return;
             }
         }
@@ -94,11 +94,11 @@ class FeatureContext extends OroFeatureContext
         $expectedMessage = $this->messageNormalization($expected);
         $dataLayer = $this->getDataLayer();
         foreach ($dataLayer as $actual) {
-            if ($this->compareMessages($expectedMessage, $actual)) {
-                sprintf(
+            if ($this->compareDataLayerMessages($expectedMessage, $actual)) {
+                self::fail(sprintf(
                     'The expected message must not be present in the data layer. Current messages are: %s',
                     json_encode($dataLayer, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
-                );
+                ));
             }
         }
     }
@@ -129,7 +129,7 @@ class FeatureContext extends OroFeatureContext
             }
 
             $lastMessage = \end($dataLayer);
-            return $this->compareMessages($expectedMessage, $lastMessage);
+            return $this->compareDataLayerMessages($expectedMessage, $lastMessage);
         }, 20);
 
         if ($compareResult instanceof \Throwable) {
@@ -142,6 +142,20 @@ class FeatureContext extends OroFeatureContext
                 . \json_encode($lastMessage, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
             );
         }
+    }
+
+    /**
+     * Compares data layer messages and ignores the extra "gtm." keys that the GTM library adds.
+     */
+    private function compareDataLayerMessages(array $expected, array $actual): bool
+    {
+        foreach (\array_keys($actual) as $key) {
+            if (\is_string($key) && \str_starts_with($key, 'gtm.') && !\array_key_exists($key, $expected)) {
+                unset($actual[$key]);
+            }
+        }
+
+        return $this->compareMessages($expected, $actual);
     }
 
     private function compareMessages(array $expected, array $actual): bool
