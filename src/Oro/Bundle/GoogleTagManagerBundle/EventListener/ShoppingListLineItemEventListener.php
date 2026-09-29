@@ -3,6 +3,7 @@
 namespace Oro\Bundle\GoogleTagManagerBundle\EventListener;
 
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityClearEvent;
 use Oro\Bundle\CheckoutBundle\Event\CheckoutSourceEntityRemoveEvent;
 use Oro\Bundle\CurrencyBundle\Entity\Price;
 use Oro\Bundle\FrontendBundle\Request\FrontendHelper;
@@ -130,6 +131,24 @@ class ShoppingListLineItemEventListener
         /**
          * @var ShoppingList $checkoutSourceEntity
          */
+        $checkoutSourceEntity = $event->getCheckoutSourceEntity();
+        if (!$checkoutSourceEntity instanceof ShoppingList) {
+            return;
+        }
+
+        $this->skipRemovingInShoppingListIds[] = $checkoutSourceEntity->getId();
+    }
+
+    /**
+     * The checkout clears the shopping list instead of removing it when the list must be kept,
+     * so its line items are removed without a "remove from cart" action of the customer as well.
+     */
+    public function onCheckoutSourceEntityClear(CheckoutSourceEntityClearEvent $event): void
+    {
+        if (!$this->isApplicable()) {
+            return;
+        }
+
         $checkoutSourceEntity = $event->getCheckoutSourceEntity();
         if (!$checkoutSourceEntity instanceof ShoppingList) {
             return;
