@@ -63,7 +63,7 @@ class FeatureContext extends OroFeatureContext
         $expectedMessage = $this->messageNormalization($expected);
         $dataLayer = $this->getDataLayer();
         foreach ($dataLayer as $actual) {
-            if ($this->compareMessages($expectedMessage, $actual)) {
+            if ($this->compareDataLayerMessages($expectedMessage, $actual)) {
                 return;
             }
         }
@@ -95,11 +95,11 @@ class FeatureContext extends OroFeatureContext
         $expectedMessage = $this->messageNormalization($expected);
         $dataLayer = $this->getDataLayer();
         foreach ($dataLayer as $actual) {
-            if ($this->compareMessages($expectedMessage, $actual)) {
-                sprintf(
+            if ($this->compareDataLayerMessages($expectedMessage, $actual)) {
+                self::fail(sprintf(
                     'The expected message must not be present in the data layer. Current messages are: %s',
                     json_encode($dataLayer, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
-                );
+                ));
             }
         }
     }
@@ -130,7 +130,7 @@ class FeatureContext extends OroFeatureContext
             }
 
             $lastMessage = \end($dataLayer);
-            return $this->compareMessages($expectedMessage, $lastMessage);
+            return $this->compareDataLayerMessages($expectedMessage, $lastMessage);
         }, 20);
 
         if ($compareResult instanceof \Throwable) {
@@ -143,6 +143,23 @@ class FeatureContext extends OroFeatureContext
                 . \json_encode($lastMessage, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
             );
         }
+    }
+
+    /**
+     * Compares a data layer message with the expected one. The real GTM library adds top-level "gtm." keys,
+     * for example "gtm.uniqueEventId". The Behat stub removes the GTM snippet only in the behat_test env, where
+     * config_behat_test.yml imports the Behat parameters.yml of the bundles. CI runs the prod env by default.
+     * Thus the method ignores a top-level "gtm." key that the expected message does not list.
+     */
+    private function compareDataLayerMessages(array $expected, array $actual): bool
+    {
+        foreach (\array_keys($actual) as $key) {
+            if (\is_string($key) && \str_starts_with($key, 'gtm.') && !\array_key_exists($key, $expected)) {
+                unset($actual[$key]);
+            }
+        }
+
+        return $this->compareMessages($expected, $actual);
     }
 
     private function compareMessages(array $expected, array $actual): bool
