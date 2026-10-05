@@ -34,6 +34,8 @@ class FeatureContext extends OroFeatureContext
     }
 
     /**
+     * Prevents the page change on a link click, including the one made by the "eventCallback" of a pushed message.
+     *
      * Example: Given do not change page on link click
      *
      * @Given /^do not change page on link click$/
@@ -41,7 +43,26 @@ class FeatureContext extends OroFeatureContext
     public function preventClicks(): void
     {
         $this->getSession()->evaluateScript(
-            'window.document.addEventListener("click", function (e) { e.preventDefault(); });'
+            <<<JS
+            (function () {
+                window.document.addEventListener("click", function (e) { e.preventDefault(); });
+
+                if (!(window.dataLayer instanceof Array)) {
+                    return;
+                }
+
+                var push = window.dataLayer.push;
+                window.dataLayer.push = function () {
+                    for (var i = 0; i < arguments.length; i++) {
+                        if (arguments[i] && typeof arguments[i].eventCallback === "function") {
+                            arguments[i].eventCallback = function () {};
+                        }
+                    }
+
+                    return push.apply(window.dataLayer, arguments);
+                };
+            })();
+JS
         );
     }
 
