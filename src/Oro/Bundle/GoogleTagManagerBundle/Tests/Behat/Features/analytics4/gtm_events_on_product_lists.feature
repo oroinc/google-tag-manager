@@ -78,6 +78,7 @@ Feature: GTM events on product lists
     And I should see "$10.4555" in the "Product Price Your" element
 
     And I click "Gallery View"
+    And I should see "Product 1" and continue checking the condition is met for maximum 30 seconds
     Then GTM data layer must contain the following message:
       """
         {

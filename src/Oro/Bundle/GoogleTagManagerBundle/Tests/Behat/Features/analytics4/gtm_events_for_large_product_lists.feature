@@ -14,6 +14,7 @@ Feature: GTM events for large product lists
   Scenario: Batch events on add to shopping list from product datagrid
     When I type "" in "search"
     And I click "Search Button"
+    And I should see "35 products" and continue checking the condition is met for maximum 30 seconds
     And I select 50 records per page in "ProductFrontendGrid"
     And I scroll to top
     And I check all visible on page in "ProductFrontendGrid"
